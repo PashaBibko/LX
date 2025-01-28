@@ -2,6 +2,7 @@
 
 #include <UnitTester/inc/UnitTester.h>
 
+#include <iostream>
 #include <limits>
 
 static void TestTokens(UnitTestsOutput& tests)
@@ -11,7 +12,7 @@ static void TestTokens(UnitTestsOutput& tests)
 
 	// Simple token creation
 	{
-		Token t(Token::Type::UNDEFINED, src, 2, 5);
+		Token t(TokenType::UNDEFINED, src, 2, 5);
 
 		tests.Push({ "Simple token creation", t.Str() == "llo w" });
 	}
@@ -22,7 +23,7 @@ static void TestTokens(UnitTestsOutput& tests)
 
 		try
 		{
-			Token t(Token::Type::UNDEFINED, src, 99, 1);
+			Token t(TokenType::UNDEFINED, src, 99, 1);
 		}
 
 		catch (std::runtime_error& e)
@@ -47,7 +48,7 @@ static void TestTokens(UnitTestsOutput& tests)
 
 		try
 		{
-			Token t(Token::Type::UNDEFINED, src, 0, 99);
+			Token t(TokenType::UNDEFINED, src, 0, 99);
 		}
 
 		catch (std::runtime_error& e)

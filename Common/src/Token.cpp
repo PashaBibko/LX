@@ -2,8 +2,7 @@
 
 #include <stdexcept>
 
-Token::Token(const Type type, const std::string& str, size_t start, size_t len)
-	: m_Type(type)
+Token::Token(const TokenType type, const std::string& str, size_t start, size_t len)
 {
 	// Checks the start of token is inside string bounds
 	if (start >= str.size())
@@ -20,8 +19,3 @@ Token::Token(const Type type, const std::string& str, size_t start, size_t len)
 	// Assigns the string view
 	m_Contents = std::string_view(str.data() + start, len);
 }
-
-C_DEF_INL(const std::string_view Token::Str() const { return m_Contents; })
-
-C_DEF_INL(bool Token::operator== (Type other) const { return m_Type == other; })
-C_DEF_INL(bool Token::operator!= (Type other) const { return m_Type != other; })

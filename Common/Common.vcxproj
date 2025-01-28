@@ -137,6 +137,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\Macro.h" />
+    <ClInclude Include="inc\Poly.h" />
     <ClInclude Include="inc\Token.h" />
   </ItemGroup>
   <ItemGroup>
