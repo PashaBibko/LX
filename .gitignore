@@ -1,0 +1,8 @@
+# Ignore uneccesary VS folders #
+
+.vs/
+x64/
+
+# Ignore user specific files #
+
+*.user
