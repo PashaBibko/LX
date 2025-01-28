@@ -1,6 +1,8 @@
 #include <Common/inc/Token.h>
 
-#include <UnitTester/inc/UnitTestsCommon.h>
+#include <UnitTester/inc/UnitTester.h>
+
+#include <limits>
 
 static void TestTokens(UnitTestsOutput& tests)
 {
@@ -67,19 +69,24 @@ static void TestTokens(UnitTestsOutput& tests)
 
 int main()
 {
-	//
+	// Data type to keep track of test output
 	UnitTestsOutput tests;
 
 	try
 	{
+		// The testing
+
 		TestTokens(tests);
 	}
 
+	// Catches all accidental runtime errors
 	catch (std::exception& e)
 	{
 		std::cout << "Error caught in tests: " << e.what() << "\n\n";
 		return -1;
 	}
 
+	// Displays when all tests have passed
+	// Shows ammount of tests and how long it took
 	tests.Display();
 }
