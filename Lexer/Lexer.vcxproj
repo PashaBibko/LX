@@ -22,14 +22,13 @@
     <ClCompile Include="src\File.cpp" />
     <ClCompile Include="src\Lexer.cpp" />
     <ClCompile Include="src\Section.cpp" />
+    <ClCompile Include="src\Token.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\File.h" />
     <ClInclude Include="inc\Lexer.h" />
     <ClInclude Include="inc\Section.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="cpp.hint" />
+    <ClInclude Include="inc\Token.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

@@ -34,8 +34,12 @@ void Lexer::OnBrceOpn()
 	// Starts a block if at the top level
 	if (m_Depth++ == 0) { m_BlockStart = m_Index; }
 
+	#ifdef LEXER_SPLITTER_LOGGING
+
 	// Logs the char being found
 	LOG("Found brace open at: " << m_LineIndex << " : " << m_IndexOnLine);
+
+	#endif // LEXER_SPLITTER_LOGGING
 }
 
 void Lexer::OnBrceCls()
@@ -67,8 +71,12 @@ void Lexer::OnBrceCls()
 		m_EndOfLastBlock = m_Index + 1;
 	}
 
+	#ifdef LEXER_SPLITTER_LOGGING
+
 	// Logs the char being found
 	LOG("Found brace close at: " << m_LineIndex << " : " << m_IndexOnLine);
+
+	#endif // LEXER_SPLITTER_LOGGING
 }
 
 void Lexer::OnHashtag()
@@ -76,8 +84,12 @@ void Lexer::OnHashtag()
 	// Toggles comment flag
 	m_InComment = !m_InComment;
 
+	#ifdef LEXER_SPLITTER_LOGGING
+
 	// Logs the char being found
 	LOG("Found hashtag at: " << m_LineIndex << " : " << m_IndexOnLine);
+
+	#endif // LEXER_SPLITTER_LOGGING
 }
 
 void Lexer::Split()
@@ -108,6 +120,8 @@ Lexer::Lexer(const std::string& src)
 	// Splits the source into sections
 	Split();
 
+	#ifdef LEXER_SPLITTER_LOGGING
+
 	// Prints the blocks to the console
 	for (int i = 0; i < m_Sections.size(); i++)
 	{
@@ -120,4 +134,6 @@ Lexer::Lexer(const std::string& src)
 		LOG_BREAK;
 		LOG("Definition:\n" << m_Sections[i].GetDefinition());
 	}
+
+	#endif // LEXER_SPLITTER_LOGGING
 }

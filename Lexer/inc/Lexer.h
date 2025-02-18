@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Lexer/inc/Section.h>
+#include <Lexer/inc/Token.h>
 
-#include <Common/inc/Macro.h>
-#include <Common/inc/Token.h>
+#include <Common/Macro.h>
 
 #include <vector>
 

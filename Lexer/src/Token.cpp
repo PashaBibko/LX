@@ -1,8 +1,8 @@
-#include <Common/inc/Token.h>
+#include <Lexer/inc/Token.h>
 
 #include <stdexcept>
 
-Token::Token(const TokenType type, const std::string& str, size_t start, size_t len)
+Token::Token(const TokenType type, const std::string & str, size_t start, size_t len)
 {
 	// Checks the start of token is inside string bounds
 	if (start >= str.size())

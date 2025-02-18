@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Common/inc/Poly.h>
+#include <Common/Poly.h>
 
 #include <string_view>
 #include <string>
