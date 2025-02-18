@@ -1,9 +1,10 @@
 #include <Common/inc/Token.h>
 
 #include <UnitTester/inc/UnitTester.h>
+#include <Lexer/inc/Lexer.h>
+#include <Lexer/inc/File.h>
 
 #include <iostream>
-#include <limits>
 
 static void TestTokens(UnitTestsOutput& tests)
 {
@@ -68,6 +69,8 @@ static void TestTokens(UnitTestsOutput& tests)
 	}
 }
 
+#ifdef RUN_TESTS
+
 int main()
 {
 	// Data type to keep track of test output
@@ -91,3 +94,22 @@ int main()
 	// Shows ammount of tests and how long it took
 	tests.Display();
 }
+
+#else
+
+int main()
+{
+	try
+	{
+		std::string file = ReadFile("D:/repos/LX-Compiler/Examples/SplitterTest.lx");
+		Lexer l(file);
+	}
+
+	catch (std::exception& e)
+	{
+		std::cout << e.what() << "\n\n";
+		return -1;
+	}
+}
+
+#endif

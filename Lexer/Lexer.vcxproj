@@ -19,10 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\File.cpp" />
     <ClCompile Include="src\Lexer.cpp" />
     <ClCompile Include="src\Section.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="inc\File.h" />
     <ClInclude Include="inc\Lexer.h" />
     <ClInclude Include="inc\Section.h" />
   </ItemGroup>
