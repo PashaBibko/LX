@@ -1,75 +1,88 @@
 #include <Lexer/inc/File.h>
 
+#include <filesystem>
 #include <fstream>
 #include <string>
 
-static std::string GetRawContents(const std::string& filename)
+static bool IsWhitespace(const char c)
 {
-	std::ifstream file(filename, std::ios::binary | std::ios::ate);
-
-	if (!file)
-	{
-		throw std::runtime_error("Could not open file: " + filename);
-	}
-
-	std::streamsize size = file.tellg();
-	file.seekg(0, std::ios::beg);
-
-	std::string buffer(size, '\0');
-	file.read(buffer.data(), size);
-
-	return buffer;
+	return c == ' '  ||
+		   c == '\t' ||
+		   c == '\0';
 }
 
-static void PruneFileContents(std::string& fileContents)
+std::string ReadFile(const std::string& filename)
 {
-	// The state of the pruning
+	// Opens the file in binary mode for faster access
+	std::ifstream file(filename, std::ios::binary);
+
+	// Verifies file state
+	if (file.is_open() == false)
+	{
+		// Checks file exists
+		if (std::filesystem::exists(filename))
+		{
+			throw std::runtime_error("File does not exist: " + filename);
+		}
+
+		// Else throws a seperate error
+		else
+		{
+			throw std::runtime_error("Could not open file: " + filename);
+		}
+	}
+
+	// String to hold the output
+	std::string output;
+	output.reserve(1024); // Inital size to avoid excess allocations
+
+	// State of the parsing
 	bool inQuotes = false;
 	bool wasSpaceLastIteration = false;
 
-	size_t write = 0;
+	// Current char of the file
+	char current = {};
 
-	// Iterates over the string
-	for (size_t read = 0; read < fileContents.length(); ++read)
+	// Loops over the file
+	while (file.get(current))
 	{
 		// Toggles quote state if needed
-		if (fileContents[read] == '"')
+		if (current == '"')
 		{
 			inQuotes = !inQuotes;
 		}
 
-		// Checks if currently in whitespace
-		if (std::isspace(fileContents[read]))
+		// Makes multiple whitespace characters act as one
+		if (IsWhitespace(current))
 		{
 			if (inQuotes)
 			{
-				fileContents[write++] = fileContents[read];
+				output += current;
 			}
 
-			else if (wasSpaceLastIteration == false)
+			else if (!wasSpaceLastIteration)
 			{
-				fileContents[write++] = ' ';
+				output += ' ';
 			}
 
 			wasSpaceLastIteration = true;
 		}
 
+		// Makes new line characters act as whitespace
+		else if (current == '\n')
+		{
+			output += '\n';
+			wasSpaceLastIteration = true;
+		}
+
+		// Else just appends the new character to the string
 		else
 		{
-			fileContents[write++] = fileContents[read];
+			output += current;
 			wasSpaceLastIteration = false;
 		}
 	}
 
-	// Resizes to clean extra memory
-	fileContents.resize(write);
-}
-
-std::string ReadFile(const std::string& filename)
-{
-	std::string contents = GetRawContents(filename);
-
-	PruneFileContents(contents);
-
-	return contents;
+	// Returns the processed output
+	return output;
 }
