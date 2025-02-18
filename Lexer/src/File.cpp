@@ -1,88 +1,91 @@
-#include <Lexer/inc/File.h>
+#include <Lexer/inc/Lexer.h>
 
 #include <filesystem>
 #include <fstream>
 #include <string>
 
-static bool IsWhitespace(const char c)
+namespace LX
 {
-	return c == ' '  ||
-		   c == '\t' ||
-		   c == '\0';
-}
-
-std::string ReadFile(const std::string& filename)
-{
-	// Opens the file in binary mode for faster access
-	std::ifstream file(filename, std::ios::binary);
-
-	// Verifies file state
-	if (file.is_open() == false)
+	static bool IsWhitespace(const char c)
 	{
-		// Checks file exists
-		if (std::filesystem::exists(filename))
-		{
-			throw std::runtime_error("File does not exist: " + filename);
-		}
-
-		// Else throws a seperate error
-		else
-		{
-			throw std::runtime_error("Could not open file: " + filename);
-		}
+		return c == ' ' ||
+			c == '\t' ||
+			c == '\0';
 	}
 
-	// String to hold the output
-	std::string output;
-	output.reserve(1024); // Inital size to avoid excess allocations
-
-	// State of the parsing
-	bool inQuotes = false;
-	bool wasSpaceLastIteration = false;
-
-	// Current char of the file
-	char current = {};
-
-	// Loops over the file
-	while (file.get(current))
+	std::string ReadFile(const std::string& filename)
 	{
-		// Toggles quote state if needed
-		if (current == '"')
+		// Opens the file in binary mode for faster access
+		std::ifstream file(filename, std::ios::binary);
+
+		// Verifies file state
+		if (file.is_open() == false)
 		{
-			inQuotes = !inQuotes;
+			// Checks file exists
+			if (std::filesystem::exists(filename))
+			{
+				throw std::runtime_error("File does not exist: " + filename);
+			}
+
+			// Else throws a seperate error
+			else
+			{
+				throw std::runtime_error("Could not open file: " + filename);
+			}
 		}
 
-		// Makes multiple whitespace characters act as one
-		if (IsWhitespace(current))
+		// String to hold the output
+		std::string output;
+		output.reserve(1024); // Inital size to avoid excess allocations
+
+		// State of the parsing
+		bool inQuotes = false;
+		bool wasSpaceLastIteration = false;
+
+		// Current char of the file
+		char current = {};
+
+		// Loops over the file
+		while (file.get(current))
 		{
-			if (inQuotes)
+			// Toggles quote state if needed
+			if (current == '"')
+			{
+				inQuotes = !inQuotes;
+			}
+
+			// Makes multiple whitespace characters act as one
+			if (IsWhitespace(current))
+			{
+				if (inQuotes)
+				{
+					output += current;
+				}
+
+				else if (!wasSpaceLastIteration)
+				{
+					output += ' ';
+				}
+
+				wasSpaceLastIteration = true;
+			}
+
+			// Makes new line characters act as whitespace
+			else if (current == '\n')
+			{
+				output += '\n';
+				wasSpaceLastIteration = true;
+			}
+
+			// Else just appends the new character to the string
+			else
 			{
 				output += current;
+				wasSpaceLastIteration = false;
 			}
-
-			else if (!wasSpaceLastIteration)
-			{
-				output += ' ';
-			}
-
-			wasSpaceLastIteration = true;
 		}
 
-		// Makes new line characters act as whitespace
-		else if (current == '\n')
-		{
-			output += '\n';
-			wasSpaceLastIteration = true;
-		}
-
-		// Else just appends the new character to the string
-		else
-		{
-			output += current;
-			wasSpaceLastIteration = false;
-		}
+		// Returns the processed output
+		return output;
 	}
-
-	// Returns the processed output
-	return output;
 }

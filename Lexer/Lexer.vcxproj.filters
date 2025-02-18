@@ -27,15 +27,15 @@
     <ClCompile Include="src\Token.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\modules\Splitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\Lexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="inc\Section.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\File.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="inc\Token.h">

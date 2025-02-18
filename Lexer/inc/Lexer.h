@@ -7,61 +7,66 @@
 
 #include <vector>
 
-class Lexer
+namespace LX
 {
-	private:
-		HEADER("Misc stuff");
+	std::string ReadFile(const std::string& filename);
 
-		// Makes other parts of the code look less cursed
-		using LexerFun = void(Lexer::*)();
+	class Lexer
+	{
+		private:
+			HEADER("Misc stuff");
 
-		// Allows this function to access members within this class
-		friend constexpr Lexer::LexerFun GetOperationImpl(char val) noexcept;
+			// Makes other parts of the code look less cursed
+			using LexerFun = void(Lexer::*)();
 
-		HEADER("Info about the source");
+			// Allows this function to access members within this class
+			friend constexpr Lexer::LexerFun GetOperationImpl(char val) noexcept;
 
-		// The source it will be running the lexical anylisis on
-		const std::string& m_Source;
+			HEADER("Info about the source");
 
-		// Length of the current source
-		const size_t m_SourceLen;
+			// The source it will be running the lexical anylisis on
+			const std::string& m_Source;
 
-		HEADER("Info about index within source");
+			// Length of the current source
+			const size_t m_SourceLen;
 
-		// Current index in the source
-		size_t m_Index = 0;
+			HEADER("Info about index within source");
 
-		// What line the splitter is on
-		size_t m_LineIndex = 1;
+			// Current index in the source
+			size_t m_Index = 0;
 
-		// Index of the line it is currently on
-		short m_IndexOnLine = 1;
+			// What line the splitter is on
+			size_t m_LineIndex = 1;
 
-		// Current depth of scopes
-		unsigned short m_Depth = 0;
+			// Index of the line it is currently on
+			short m_IndexOnLine = 1;
 
-		HEADER("Flags");
+			// Current depth of scopes
+			unsigned short m_Depth = 0;
 
-		bool m_InComment = false;
+			HEADER("Flags");
 
-		HEADER("Info about current sections within source");
+			bool m_InComment = false;
 
-		// Start of the current block
-		size_t m_BlockStart = 0;
+			HEADER("Info about current sections within source");
 
-		// End of the last block
-		size_t m_EndOfLastBlock = 0;
+			// Start of the current block
+			size_t m_BlockStart = 0;
 
-		// Current output
-		std::vector<SourceSection> m_Sections;
+			// End of the last block
+			size_t m_EndOfLastBlock = 0;
 
-		void OnNewLine();
-		void OnBrceOpn();
-		void OnBrceCls();
-		void OnHashtag();
+			// Current output
+			std::vector<SourceSection> m_Sections;
 
-		void Split();
+			void OnNewLine();
+			void OnBrceOpn();
+			void OnBrceCls();
+			void OnHashtag();
 
-	public:
-		Lexer(const std::string& src);
-};
+			void Split();
+
+		public:
+			Lexer(const std::string& src);
+	};
+}
