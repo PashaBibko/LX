@@ -5,31 +5,36 @@
 namespace LX
 {
 	Lexer::Lexer(const std::string& src)
-		: m_Source(src), m_SourceLen(src.length())
+		: m_Source(src)
 	{
 		// Checks source is a valid length
-		if (m_SourceLen == 0x0)
+		if (m_Source.length() == 0x0)
 		{
 			throw std::runtime_error("Source cannot be empty");
 		}
 
 		// Splits the source into sections
-		Split();
+		std::vector<SourceSection> sections = Split();
 
 		#ifdef LEXER_SPLITTER_LOGGING
 
+		LOG_BREAK;
+		LOG("Section Count: " << sections.size());
+
 		// Prints the blocks to the console
-		for (int i = 0; i < m_Sections.size(); i++)
+		for (int i = 0; i < sections.size(); i++)
 		{
 			LOG_BREAK;
 			LOG("Section: " << i);
 
 			LOG_BREAK;
-			LOG("Declaration:\n" << m_Sections[i].GetDeclaration());
+			LOG("Declaration:\n" << sections[i].GetDeclaration());
 
 			LOG_BREAK;
-			LOG("Definition:\n" << m_Sections[i].GetDefinition());
+			LOG("Definition:\n" << sections[i].GetDefinition());
 		}
+
+		LOG_BREAK;
 
 		#endif // LEXER_SPLITTER_LOGGING
 	}

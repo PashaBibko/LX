@@ -11,60 +11,46 @@ namespace LX
 {
 	std::string ReadFile(const std::string& filename);
 
+	struct SplitterInfo
+	{
+		std::vector<SourceSection> sections;
+
+		// Current index in the source
+		size_t index = 0;
+
+		// Current depth of scopes
+		unsigned short depth = 0;
+
+		// Tracks wether it is in a comment
+		bool inComment = false;
+
+		// Start of the current block
+		size_t blockStart = 0;
+
+		// End of the last block
+		size_t endOfLastBlock = 0;
+	};
+
 	class Lexer
 	{
 		private:
-			HEADER("Misc stuff");
-
 			// Makes other parts of the code look less cursed
-			using LexerFun = void(Lexer::*)();
+			using SplitterHelper = void(Lexer::*)(SplitterInfo&);
 
 			// Allows this function to access members within this class
-			friend constexpr Lexer::LexerFun GetOperationImpl(char val) noexcept;
+			friend constexpr Lexer::SplitterHelper GetOperationImpl(char val) noexcept;
 
-			HEADER("Info about the source");
-
-			// The source it will be running the lexical anylisis on
+			// Current source
 			const std::string& m_Source;
 
-			// Length of the current source
-			const size_t m_SourceLen;
+			// Splitter helper functions
 
-			HEADER("Info about index within source");
+			void OnBrceOpn(SplitterInfo& info);
+			void OnBrceCls(SplitterInfo& info);
+			void OnHashtag(SplitterInfo& info);
 
-			// Current index in the source
-			size_t m_Index = 0;
-
-			// What line the splitter is on
-			size_t m_LineIndex = 1;
-
-			// Index of the line it is currently on
-			short m_IndexOnLine = 1;
-
-			// Current depth of scopes
-			unsigned short m_Depth = 0;
-
-			HEADER("Flags");
-
-			bool m_InComment = false;
-
-			HEADER("Info about current sections within source");
-
-			// Start of the current block
-			size_t m_BlockStart = 0;
-
-			// End of the last block
-			size_t m_EndOfLastBlock = 0;
-
-			// Current output
-			std::vector<SourceSection> m_Sections;
-
-			void OnNewLine();
-			void OnBrceOpn();
-			void OnBrceCls();
-			void OnHashtag();
-
-			void Split();
+			// Splits the source into smaller sections
+			std::vector<SourceSection> Split();
 
 		public:
 			Lexer(const std::string& src);

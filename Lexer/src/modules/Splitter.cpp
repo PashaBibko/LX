@@ -2,101 +2,104 @@
 
 namespace LX
 {
-	constexpr Lexer::LexerFun GetOperationImpl(char val) noexcept
+	constexpr Lexer::SplitterHelper GetOperationImpl(char val) noexcept
 	{
-		return (val == '\n') ? &Lexer::OnNewLine :
-			(val == '{') ? &Lexer::OnBrceOpn :
-			(val == '}') ? &Lexer::OnBrceCls :
-			(val == '#') ? &Lexer::OnHashtag :
-			nullptr;
+		return (val == '{') ? &Lexer::OnBrceOpn :
+			   (val == '}') ? &Lexer::OnBrceCls :
+			   (val == '#') ? &Lexer::OnHashtag :
+			   nullptr;
 	}
 
-	void Lexer::OnNewLine()
-	{
-		// Resets line relative counters
-		m_LineIndex++;
-		m_IndexOnLine = 0;
-	}
-
-	void Lexer::OnBrceOpn()
+	void Lexer::OnBrceOpn(SplitterInfo& info)
 	{
 		// Comments nullify this function so it early returns
-		if (m_InComment) { return; }
+		if (info.inComment) { return; }
 
 		// Starts a block if at the top level
-		if (m_Depth++ == 0) { m_BlockStart = m_Index; }
+		if (info.depth++ == 0) { info.blockStart = info.index; }
 
 		#ifdef LEXER_SPLITTER_LOGGING
 
 		// Logs the char being found
-		LOG("Found brace open at: " << m_LineIndex << " : " << m_IndexOnLine);
+		LOG("Found brace open at: " << info.index);
 
 		#endif // LEXER_SPLITTER_LOGGING
 	}
 
-	void Lexer::OnBrceCls()
+	void Lexer::OnBrceCls(SplitterInfo& info)
 	{
 		// Comments nullify this function so it early returns
-		if (m_InComment) { return; }
+		if (info.inComment) { return; }
 
 		// Adds a source section if in a bottom source block
-		if (m_Depth-- == 1)
+		if (info.depth-- == 1)
 		{
 			// Adds the new block to the vector of sections
 			// Uses a macro because I prefer std::vector.push_back() errors
 			VEC_EMPLACE
 			(
 				// The vector to push/emplace to
-				m_Sections,
+				info.sections,
 
 				// The block is given a reference to its creator
 				*this,
 
 				// String view of the declaration
-				std::string_view(m_Source.data() + m_EndOfLastBlock, m_BlockStart - m_EndOfLastBlock),
+				std::string_view(m_Source.data() + info.endOfLastBlock, info.blockStart - info.endOfLastBlock),
 
 				// String view of the definition
-				std::string_view(m_Source.data() + m_BlockStart + 1, m_Index - m_BlockStart - 1)
+				std::string_view(m_Source.data() + info.blockStart + 1, info.index - info.blockStart - 1)
 			);
 
 			// Sets end of last block to current index for the next creation
-			m_EndOfLastBlock = m_Index + 1;
+			info.endOfLastBlock = info.index + 1;
 		}
 
 		#ifdef LEXER_SPLITTER_LOGGING
 
 		// Logs the char being found
-		LOG("Found brace close at: " << m_LineIndex << " : " << m_IndexOnLine);
+		LOG("Found brace close at: " << info.index);
 
 		#endif // LEXER_SPLITTER_LOGGING
 	}
 
-	void Lexer::OnHashtag()
+	void Lexer::OnHashtag(SplitterInfo& info)
 	{
 		// Toggles comment flag
-		m_InComment = !m_InComment;
+		info.inComment = !info.inComment;
 
 		#ifdef LEXER_SPLITTER_LOGGING
 
 		// Logs the char being found
-		LOG("Found hashtag at: " << m_LineIndex << " : " << m_IndexOnLine);
+		LOG("Found hashtag at: " << info.index);
 
 		#endif // LEXER_SPLITTER_LOGGING
 	}
 
-	void Lexer::Split()
+	std::vector<SourceSection> Lexer::Split()
 	{
-		while (m_Index < m_SourceLen)
+		// Current info of the splitter
+		SplitterInfo info;
+		info.sections.reserve(8); // Reserves a small ammount to reduce uneccesarry allocations
+
+		// Gets the length and stores it to avoid repeat function calls
+		size_t len = m_Source.length();
+
+		// Loops over the source to split it up
+		while (info.index < len)
 		{
 			// If valid, calls the function
-			if (LexerFun func = GetOperationImpl(m_Source[m_Index]))
+			if (SplitterHelper func = GetOperationImpl(m_Source[info.index]))
 			{
-				(this->*func)();
+				(this->*func)(info);
 			}
 
 			// Iterates
-			m_Index++;
-			m_IndexOnLine++;
+			info.index++;
 		}
+
+		info.sections.shrink_to_fit();
+
+		return info.sections;
 	}
 }
