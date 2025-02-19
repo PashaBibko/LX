@@ -2,6 +2,22 @@
 
 namespace LX
 {
+	static constexpr bool IsAlpha(char c)
+	{
+		return (c >= 'a' && c <= 'z') ||
+			   (c >= 'A' && c <= 'Z') ||
+			   (c >= '0' && c <= '9');
+	}
+
+	static constexpr bool IsWhiteSpace(char c)
+	{
+		return c == '\t' ||
+			   c == '\n' ||
+			   c == '\r' ||
+			   c == ' ';
+	}
+
+
 	// Union to allow for easier changing between EmptyTokenSection and it's true type
 	union TokenVector
 	{
@@ -15,8 +31,7 @@ namespace LX
 
 			// Constructor to make sure the pointer is not null
 			TokenVector(EmptyTokenSection& ref)
-				: empty(&ref)
-			{}
+				: empty(&ref) {}
 	};
 
 	static SectionType TokeniseDeclaration(TokenVector vec, const std::string_view& source)
@@ -24,31 +39,90 @@ namespace LX
 		// Index within the string_view
 		size_t index = 0;
 
+		// Tracks where the current word starts
+		size_t startOfWord = 0;
+
+		// Tracks wether the last character was part of the alphabet
+		bool wasLastCharAlpha = false;
+
+		// Tracks if the source is currently in a comment
+		bool inComment = false;
+
+		// Loops over the string view to tokenise it
 		while (index < source.length())
 		{
 			// Gets the current char
 			const char current = source[index];
 
-			switch (current)
+			// Updates comment tracker
+			if (current == '#')
 			{
-				case '(':
-					VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::OPEN_BRACKET);
-					break;
+				inComment = !inComment;
 
-				case ')':
-					VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::CLSE_BRACKET);
-					break;
-
-				case '<':
-					VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::OPEN_CROCK);
-					break;
-
-				case '>':
-					VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::CLSE_CROCK);
-					break;
+				index++;
+				continue;
 			}
 
-			index++; // Iterates to the next character
+			// Skips over the rest of the logic if within a comment
+			if (inComment)
+			{
+				index++;
+				continue;
+			}
+
+			// Tracks if the current character is part of the alphabet
+			bool currentlyAlpha = IsAlpha(current);
+
+			// Looks for special characters
+			if (currentlyAlpha == false)
+			{
+				switch (current)
+				{
+					case '(':
+						VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::OPEN_BRACKET);
+						break;
+
+					case ')':
+						VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::CLSE_BRACKET);
+						break;
+
+					case '<':
+						VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::OPEN_CROCK);
+						break;
+
+					case '>':
+						VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::CLSE_CROCK);
+						break;
+
+					default:
+						// Avoids whitespace from flagging any accidental errors
+						if (IsWhiteSpace(current) == false)
+						{
+							LOG("UNKNOWN CHARACTER: " << current);
+						}
+						break;
+				}
+			}
+
+			// Stores the index of the beginning of the word if needed
+			if (currentlyAlpha == true && wasLastCharAlpha == false)
+			{
+				startOfWord = index;
+			}
+
+			// Adds a token if at the end of the word
+			else if (currentlyAlpha == false && wasLastCharAlpha == true)
+			{
+				std::string_view word(source.data() + startOfWord, index - startOfWord);
+
+				VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::IDENTIFIER, word);
+			}
+
+			// Updates tracker of last character state
+			wasLastCharAlpha = currentlyAlpha;
+
+			// Iterates to the next character
+			index++;
 		}
 
 		return SectionType::LX_FUNCTION;
