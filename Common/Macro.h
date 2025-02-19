@@ -37,7 +37,7 @@
 // Specific logging within sections of the code
 // Comment them out to disable
 #ifndef RELEASE
-#define LEXER_SPLITTER_LOGGING
+//#define LEXER_SPLITTER_LOGGING
 #define LEXER_TOKENISER_LOGGING
 #endif // RELEASE 
 

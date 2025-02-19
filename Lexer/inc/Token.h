@@ -36,7 +36,7 @@ namespace LX
 	struct __declspec(novtable) TokenBase
 	{
 		// Constructor for error checking
-		explicit TokenBase(const TokenEnum type, std::string_view contents)
+		TokenBase(const TokenEnum type, std::string_view contents)
 			: m_Type(type), m_Contents(contents)
 		{
 			// Throws error if type is default
@@ -59,7 +59,7 @@ namespace LX
 		: TokenBase<TokenTypes::Dec, TokenTypes::Dec::UNDEFINED>
 	{
 		// Inherits from constructor for error checking
-		explicit DecToken(TokenTypes::Dec type, std::string_view contents = std::string_view{})
+		DecToken(TokenTypes::Dec type, std::string_view contents = std::string_view{})
 			: TokenBase(type, contents) {}
 	};
 
@@ -68,7 +68,7 @@ namespace LX
 		: TokenBase<TokenTypes::Func, TokenTypes::Func::UNDEFINED>
 	{
 		// Inherits from constructor for error checking
-		explicit FuncToken(TokenTypes::Func type, std::string_view contents = std::string_view{})
+		FuncToken(TokenTypes::Func type, std::string_view contents = std::string_view{})
 			: TokenBase(type, contents) {}
 	};
 }

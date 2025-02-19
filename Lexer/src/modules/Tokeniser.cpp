@@ -2,39 +2,61 @@
 
 namespace LX
 {
-	struct TokeniseDeclarationReturnType
+	// Union to allow for easier changing between EmptyTokenSection and it's true type
+	union TokenVector
 	{
-		std::vector<DecToken> tokens;
-		SectionType type;
+		public:
+			// Default type
+			EmptyTokenSection* empty;
+
+			// Types passed to functions
+
+			TokenSection<FuncToken>* func;
+
+			// Constructor to make sure the pointer is not null
+			TokenVector(EmptyTokenSection& ref)
+				: empty(&ref)
+			{}
 	};
 
-	static TokeniseDeclarationReturnType TokeniseDeclaration(const std::string_view& source)
+	static SectionType TokeniseDeclaration(TokenVector vec, const std::string_view& source)
 	{
-		TokeniseDeclarationReturnType out;
+		// Index within the string_view
+		size_t index = 0;
 
-		out.type = SectionType::LX_FUNCTION;
+		while (index < source.length())
+		{
+			// Gets the current char
+			const char current = source[index];
 
-		return out;
+			switch (current)
+			{
+				case '(':
+					VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::OPEN_BRACKET);
+					break;
+
+				case ')':
+					VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::CLSE_BRACKET);
+					break;
+
+				case '<':
+					VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::OPEN_CROCK);
+					break;
+
+				case '>':
+					VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::CLSE_CROCK);
+					break;
+			}
+
+			index++; // Iterates to the next character
+		}
+
+		return SectionType::LX_FUNCTION;
 	}
 
-	static EmptyTokenSection TokeniseFunctionDefinition(const std::string_view& source)
+	static void TokeniseFunctionDefinition(TokenVector vec, const std::string_view& source)
 	{
-		// Union to allow for easier changing between EmptyTokenSection and it's true type
-		union Tokens
-		{
-			public:
-				TokenSection<FuncToken> interactable;
-				EmptyTokenSection output;
-
-				Tokens() { new (&output) TokenSection<FuncToken>(); }
-				~Tokens() {}
-		};
-		
-		// Stores the tokens
-		Tokens tokens;
-
-		// Returns the tokens in their output type
-		return tokens.output;
+		vec.func->ContentsToken().push_back(TokenTypes::Func::IDENTIFIER);
 	}
 
 	std::vector<EmptyTokenSection> Lexer::Tokenise(std::vector<SourceSection>& sections)
@@ -45,14 +67,18 @@ namespace LX
 
 		for (const auto& section : sections)
 		{
+			// Creates a new object in the vector and creates a reference to it
+			tokenSections.push_back(EmptyTokenSection());
+			TokenVector tokens(tokenSections.back());
+
 			// Tokenises the declaration
-			auto [declaration, type] = TokeniseDeclaration(section.GetDeclaration());
+			SectionType type = TokeniseDeclaration(tokens, section.GetDeclaration());
 
 			// Finds and calls the correct function for the body of the section
 			switch (type)
 			{
 				case SectionType::LX_FUNCTION:
-					tokenSections.push_back(TokeniseFunctionDefinition(section.GetDefinition()));
+					TokeniseFunctionDefinition(tokens, section.GetDefinition());
 					break;
 
 				default:

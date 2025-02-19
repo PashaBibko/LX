@@ -76,6 +76,12 @@ namespace LX
 
 			// Getter for the declaration vector
 			inline DecToken& DecAt(size_t index) { return m_DecTokens[index]; }
+
+			// Getter to allow pushing to the declaration
+			inline std::vector<DecToken>& DecTokens() { return m_DecTokens; }
+
+			// Getter to allow pushing to the contents
+			inline std::vector<TokenType>& ContentsToken() { return m_Contents; }
 	};
 
 	// Typedef used for polymorphism
