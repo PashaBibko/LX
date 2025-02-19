@@ -4,6 +4,58 @@
 
 namespace LX
 {
+	static std::ostream& operator<<(std::ostream& os, TokenTypes::Dec val)
+	{
+		switch (val)
+		{
+			case TokenTypes::Dec::OPEN_BRACKET:
+				os << "Dec::OPEN_BRACKET";
+				return os;
+
+			case TokenTypes::Dec::CLSE_BRACKET:
+				os << "Dec::CLSE_BRACKET";
+				return os;
+
+			case TokenTypes::Dec::OPEN_CROCK:
+				os << "Dec::OPEN_CROCK";
+				return os;
+
+			case TokenTypes::Dec::CLSE_CROCK:
+				os << "Dec::CLSE_CROCK";
+				return os;
+
+			case TokenTypes::Dec::IDENTIFIER:
+				os << "Dec::IDENTIFIER";
+				return os;
+
+			case TokenTypes::Dec::UNDEFINED:
+				os << "Dec::UNDEFINED";
+				return os;
+
+			default:
+				os << "Dec<error>";
+				return os;
+		}
+	}
+
+	static std::ostream& operator<<(std::ostream& os, TokenTypes::Func val)
+	{
+		switch (val)
+		{
+			case TokenTypes::Func::IDENTIFIER:
+				os << "Func::IDENTIFIER";
+				return os;
+
+			case TokenTypes::Func::UNDEFINED:
+				os << "Func::UNDEFINED";
+				return os;
+
+			default:
+				os << "Func<error";
+				return os;
+		}
+	}
+
 	Lexer::Lexer(const std::string& src)
 		: m_Source(src)
 	{
@@ -74,7 +126,7 @@ namespace LX
 			//
 			for (DecToken& token : funcTokens.funcTokens.m_DecTokens)
 			{
-				LOG((short)token.m_Type << ": " << token.m_Contents);
+				LOG(token.m_Type << " {" << token.m_Contents << '}');
 			}
 
 			LOG_BREAK;
@@ -83,7 +135,7 @@ namespace LX
 
 			for (FuncToken& token : funcTokens.funcTokens.m_Contents)
 			{
-				LOG((short)token.m_Type << ": " << token.m_Contents);
+				LOG(token.m_Type << " {" << token.m_Contents << '}');
 			}
 		}
 
