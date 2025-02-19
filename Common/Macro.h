@@ -40,8 +40,3 @@
 //#define LEXER_SPLITTER_LOGGING
 #define LEXER_TOKENISER_LOGGING
 #endif // RELEASE 
-
-// My Unity habits need this within the code
-#ifndef HEADER
-#define HEADER(x) ;
-#endif
