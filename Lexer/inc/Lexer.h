@@ -13,6 +13,7 @@ namespace LX
 
 	struct SplitterInfo
 	{
+		// Current sections outputted by the splitter
 		std::vector<SourceSection> sections;
 
 		// Current index in the source

@@ -24,9 +24,6 @@
     <ClCompile Include="src\File.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Token.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\modules\Splitter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -37,7 +37,7 @@
 // Specific logging within sections of the code
 // Comment them out to disable
 #ifndef RELEASE
-// #define LEXER_SPLITTER_LOGGING
+#define LEXER_SPLITTER_LOGGING
 #endif // RELEASE 
 
 // My Unity habits need this within the code

@@ -2,7 +2,10 @@
 
 #include <Common/Poly.h>
 
+#include <Lexer/inc/Token.h>
+
 #include <string_view>
+#include <vector>
 
 namespace LX
 {
@@ -15,8 +18,7 @@ namespace LX
 		UNDEFINED = 0
 	};
 
-	class SourceSection final : public PolyBase
-		<SectionType, SectionType::UNDEFINED>
+	class SourceSection final
 	{
 		private:
 			// Declares what the section contains (inputs, outputs, name)
@@ -38,5 +40,41 @@ namespace LX
 
 			// Gets the section definition
 			inline const std::string_view& GetDefinition() const { return m_Definition; }
+	};
+
+	template<typename TokenType>
+	class TokenSection : public PolyBase
+		<SectionType, SectionType::UNDEFINED>
+	{
+		private:
+			// Friends the lexer to allow it to add to the vectors
+			friend class Lexer;
+
+			// Contents of the section
+			std::vector<TokenType> m_Contents;
+
+			// Declaration of the section
+			std::vector<DecToken> m_DecTokens;
+
+		public:
+			TokenSection()
+			{
+				// Reserves memory to avoid excess allocations later
+				m_DecTokens.reserve(16);
+				m_Contents.reserve(16);
+			}
+
+			void RemoveExcess()
+			{
+				// Shrinks all the vectors to reduce memory footprint
+				m_DecTokens.shrink_to_fit();
+				m_Contents.shrink_to_fit();
+			}
+
+			// Getter for the contents vector
+			inline TokenType& ContentsAt(size_t index) { return m_Contents[index]; }
+
+			// Getter for the declaration vector
+			inline DecToken& DecAt(size_t index) { return m_DecTokens[index]; }
 	};
 }
