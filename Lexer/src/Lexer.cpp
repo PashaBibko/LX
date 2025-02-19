@@ -37,5 +37,59 @@ namespace LX
 		LOG_BREAK;
 
 		#endif // LEXER_SPLITTER_LOGGING
+
+		std::vector<EmptyTokenSection> tokens = Tokenise(sections);
+
+		#ifdef LEXER_TOKENISER_LOGGING
+
+		LOG_BREAK;
+		LOG("Token section count: " << tokens.size());
+
+		int counter = 0;
+
+		for (EmptyTokenSection& tokenSect : tokens)
+		{
+			LOG_BREAK;
+			LOG("Token section: " << counter);
+			counter++;
+
+			LOG_BREAK;
+			LOG("Declaration tokens");
+			LOG_BREAK;
+
+			union FunctionTokens
+			{
+				public:
+					TokenSection<FuncToken> funcTokens;
+					EmptyTokenSection emptyTokens;
+
+					FunctionTokens() { new (&emptyTokens)EmptyTokenSection(); }
+					~FunctionTokens() {}
+			};
+
+			//
+			FunctionTokens funcTokens;
+			funcTokens.emptyTokens = tokenSect;
+
+			//
+			for (DecToken& token : funcTokens.funcTokens.m_DecTokens)
+			{
+				LOG((short)token.m_Type << ": " << token.m_Contents);
+			}
+
+			LOG_BREAK;
+			LOG("Content tokens");
+			LOG_BREAK;
+
+			for (FuncToken& token : funcTokens.funcTokens.m_Contents)
+			{
+				LOG((short)token.m_Type << ": " << token.m_Contents);
+			}
+		}
+
+		LOG_BREAK;
+
+		#endif // LEXER_TOKENISER_LOGGING
+
 	}
 }

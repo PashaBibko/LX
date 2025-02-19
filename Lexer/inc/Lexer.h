@@ -53,6 +53,9 @@ namespace LX
 			// Splits the source into smaller sections
 			std::vector<SourceSection> Split();
 
+			//
+			std::vector<EmptyTokenSection> Tokenise(std::vector<SourceSection>& sections);
+
 		public:
 			Lexer(const std::string& src);
 	};

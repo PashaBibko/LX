@@ -38,6 +38,7 @@
 // Comment them out to disable
 #ifndef RELEASE
 #define LEXER_SPLITTER_LOGGING
+#define LEXER_TOKENISER_LOGGING
 #endif // RELEASE 
 
 // My Unity habits need this within the code

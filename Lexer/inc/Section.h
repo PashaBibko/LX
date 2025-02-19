@@ -41,7 +41,7 @@ namespace LX
 			// Gets the section definition
 			inline const std::string_view& GetDefinition() const { return m_Definition; }
 	};
-
+	
 	template<typename TokenType>
 	class TokenSection : public PolyBase
 		<SectionType, SectionType::UNDEFINED>
@@ -77,4 +77,7 @@ namespace LX
 			// Getter for the declaration vector
 			inline DecToken& DecAt(size_t index) { return m_DecTokens[index]; }
 	};
+
+	// Typedef used for polymorphism
+	typedef TokenSection<TokenBase<short, -1>> EmptyTokenSection;
 }

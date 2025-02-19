@@ -51,7 +51,7 @@ namespace LX
 
 		// Type of the token
 		// Throws error if it is default type
-		const TokenEnum m_Type;
+		TokenEnum m_Type;
 	};
 
 	// Tokens used to specify contents of a block/section
