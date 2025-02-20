@@ -84,6 +84,6 @@ namespace LX
 			inline std::vector<TokenType>& ContentsToken() { return m_Contents; }
 	};
 
-	// Typedef used for polymorphism
-	typedef TokenSection<TokenBase<short, -1>> EmptyTokenSection;
+	// Shorter way to write this cursed type
+	using EmptyTokenSection = TokenSection<TokenBase<short, -1>>;
 }

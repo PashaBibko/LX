@@ -1,6 +1,7 @@
 #include <Common/Macro.h>
 
 #include <Lexer/inc/Lexer.h>
+#include <Parser/inc/AST.h>
 
 #include <iostream>
 
