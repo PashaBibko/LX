@@ -20,12 +20,81 @@ namespace LX
 			OPEN_CROCK, // <
 			CLSE_CROCK, // >
 
+			COMMA, // ,
+
 			UNDEFINED = -1
 		};
 
 		enum class Func : short
 		{
+			// Any non-keyword word
 			IDENTIFIER,
+
+			// Variables //
+
+			// Declaration
+			INT_DEC, STR_DEC,
+
+			// Literals
+			STRING_LITERAL, NUMBER_LITERAL,
+
+			// Variable modifiers
+			CONSTANT, REFERENCE, POINTER,
+
+			// Control flow modifiers //
+
+			// Simple branching
+			IF, ELSE_IF, ELSE,
+
+			// Loops
+			WHILE, FOR, FOR_EACH,
+
+			// Go-to statements
+			BREAK, CONTINUE, RETURN,
+
+			// Math operators //
+
+			// Arethmetic
+			ADD, SUB, MUL, DIV, MOD,
+
+			// Compound Arethmetic
+			C_ADD, C_SUB, C_MUL, C_DIV, C_MOD,
+
+			// Increment and decrement
+			INCREMENT, DECREMENT,
+
+			// Logic operators //
+
+			// Equality
+			EQUAL, N_EQUAL,
+
+			// Greater than
+			GREATER_THAN, GREATER_THAN_EQUALS,
+
+			// Less than
+			LESS_THAN, LESS_THAN_EQUALS,
+
+			//
+			AND, OR, NOT,
+
+			// Programming operators //
+
+			// General use operators
+			COMMA, SEMI_COLON, COLON, ASSIGN,
+
+			// Member of operators
+			DOT, ARROW, DOUBLE_ARROW, DOUBLE_COLON,
+
+			// BRACKETS //
+
+			// ()
+			OPEN_PAREN, CLOSE_PAREN,
+
+			// []
+			OPEN_BRACK, CLOSE_BRACK,
+
+			// {}
+			OPEN_BRACE, CLOSE_BRACE,
 
 			UNDEFINED = -1
 		};

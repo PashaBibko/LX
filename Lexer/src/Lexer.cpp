@@ -2,56 +2,92 @@
 
 #include <stdexcept>
 
+#define CASE(token) case token: os << #token; return os
+
 namespace LX
 {
 	static std::ostream& operator<<(std::ostream& os, TokenTypes::Dec val)
 	{
+		using namespace TokenTypes;
+
 		switch (val)
 		{
-			case TokenTypes::Dec::OPEN_BRACKET:
-				os << "Dec::OPEN_BRACKET";
-				return os;
-
-			case TokenTypes::Dec::CLSE_BRACKET:
-				os << "Dec::CLSE_BRACKET";
-				return os;
-
-			case TokenTypes::Dec::OPEN_CROCK:
-				os << "Dec::OPEN_CROCK";
-				return os;
-
-			case TokenTypes::Dec::CLSE_CROCK:
-				os << "Dec::CLSE_CROCK";
-				return os;
-
-			case TokenTypes::Dec::IDENTIFIER:
-				os << "Dec::IDENTIFIER";
-				return os;
-
-			case TokenTypes::Dec::UNDEFINED:
-				os << "Dec::UNDEFINED";
-				return os;
+			CASE(Dec::OPEN_BRACKET);
+			CASE(Dec::CLSE_BRACKET);
+			CASE(Dec::OPEN_CROCK);
+			CASE(Dec::CLSE_CROCK);
+			CASE(Dec::IDENTIFIER);
+			CASE(Dec::COMMA);
+			CASE(Dec::UNDEFINED);
 
 			default:
-				os << "Dec<error>";
+				os << "Dec<error>(" << (short)val << ")";
 				return os;
 		}
 	}
 
 	static std::ostream& operator<<(std::ostream& os, TokenTypes::Func val)
 	{
+		using namespace TokenTypes;
+
 		switch (val)
 		{
-			case TokenTypes::Func::IDENTIFIER:
-				os << "Func::IDENTIFIER";
-				return os;
-
-			case TokenTypes::Func::UNDEFINED:
-				os << "Func::UNDEFINED";
-				return os;
+			CASE(Func::IDENTIFIER);
+			CASE(Func::INT_DEC);
+			CASE(Func::STR_DEC);
+			CASE(Func::STRING_LITERAL);
+			CASE(Func::NUMBER_LITERAL);
+			CASE(Func::CONSTANT);
+			CASE(Func::REFERENCE);
+			CASE(Func::POINTER);
+			CASE(Func::IF);
+			CASE(Func::ELSE_IF);
+			CASE(Func::ELSE);
+			CASE(Func::WHILE);
+			CASE(Func::FOR);
+			CASE(Func::FOR_EACH);
+			CASE(Func::BREAK);
+			CASE(Func::CONTINUE);
+			CASE(Func::RETURN);
+			CASE(Func::ADD);
+			CASE(Func::SUB);
+			CASE(Func::MUL);
+			CASE(Func::DIV);
+			CASE(Func::MOD);
+			CASE(Func::C_ADD);
+			CASE(Func::C_SUB);
+			CASE(Func::C_MUL);
+			CASE(Func::C_DIV);
+			CASE(Func::C_MOD);
+			CASE(Func::INCREMENT);
+			CASE(Func::DECREMENT);
+			CASE(Func::EQUAL);
+			CASE(Func::N_EQUAL);
+			CASE(Func::GREATER_THAN);
+			CASE(Func::GREATER_THAN_EQUALS);
+			CASE(Func::LESS_THAN);
+			CASE(Func::LESS_THAN_EQUALS);
+			CASE(Func::AND);
+			CASE(Func::OR);
+			CASE(Func::NOT);
+			CASE(Func::COMMA);
+			CASE(Func::SEMI_COLON);
+			CASE(Func::COLON);
+			CASE(Func::ASSIGN);
+			CASE(Func::DOT);
+			CASE(Func::ARROW);
+			CASE(Func::DOUBLE_ARROW);
+			CASE(Func::DOUBLE_COLON);
+			CASE(Func::OPEN_PAREN);
+			CASE(Func::CLOSE_PAREN);
+			CASE(Func::OPEN_BRACK);
+			CASE(Func::CLOSE_BRACK);
+			CASE(Func::OPEN_BRACE);
+			CASE(Func::CLOSE_BRACE);
+			CASE(Func::UNDEFINED);
 
 			default:
-				os << "Func<error";
+				os << "Func<error>(" << (short)val << ")";
 				return os;
 		}
 	}

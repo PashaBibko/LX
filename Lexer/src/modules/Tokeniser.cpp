@@ -94,6 +94,10 @@ namespace LX
 						VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::CLSE_CROCK);
 						break;
 
+					case ',':
+						VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::COMMA);
+						break;
+
 					default:
 						// Avoids whitespace from flagging any accidental errors
 						if (IsWhiteSpace(current) == false)
