@@ -1,5 +1,7 @@
 #include <Lexer/inc/Lexer.h>
 
+#include <unordered_map>
+
 namespace LX
 {
 	static constexpr bool IsAlpha(char c)
@@ -17,25 +19,30 @@ namespace LX
 			   c == ' ';
 	}
 
-
 	// Union to allow for easier changing between EmptyTokenSection and it's true type
 	union TokenVector
 	{
-		public:
-			// Default type
-			EmptyTokenSection* empty;
+	public:
+		// Default type
+		EmptyTokenSection* empty;
 
-			// Types passed to functions
+		// Types passed to functions
 
-			TokenSection<FuncToken>* func;
+		TokenSection<FuncToken>* func;
 
-			// Constructor to make sure the pointer is not null
-			TokenVector(EmptyTokenSection& ref)
-				: empty(&ref) {}
+		// Constructor to make sure the pointer is not null
+		TokenVector(EmptyTokenSection& ref)
+			: empty(&ref) {
+		}
 	};
 
 	static SectionType TokeniseDeclaration(TokenVector vec, const std::string_view& source)
 	{
+		static std::unordered_map<std::string, TokenTypes::Dec> keywords =
+		{
+			{ "func",		 TokenTypes::Dec::FUNCTION		}
+		};
+
 		// Index within the string_view
 		size_t index = 0;
 
@@ -119,7 +126,15 @@ namespace LX
 			{
 				std::string_view word(source.data() + startOfWord, index - startOfWord);
 
-				VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::IDENTIFIER, word);
+				if (auto keyword = keywords.find(std::string(word)); keyword != keywords.end())
+				{
+					VEC_EMPLACE(vec.empty->DecTokens(), keyword->second);
+				}
+
+				else
+				{
+					VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::IDENTIFIER, word);
+				}
 			}
 
 			// Updates tracker of last character state
@@ -134,7 +149,29 @@ namespace LX
 
 	static void TokeniseFunctionDefinition(TokenVector vec, const std::string_view& source)
 	{
-		vec.func->ContentsToken().push_back(TokenTypes::Func::IDENTIFIER);
+		static std::unordered_map<std::string, TokenTypes::Func> keywords =
+		{
+			{ "const",		 TokenTypes::Func::CONSTANT		},
+			{ "ref",		 TokenTypes::Func::REFERENCE	},
+			{ "ptr",		 TokenTypes::Func::POINTER		},
+			{ "if",			 TokenTypes::Func::IF			},
+			{ "elif",		 TokenTypes::Func::ELSE_IF		},
+			{ "else",		 TokenTypes::Func::ELSE			},
+			{ "while",		 TokenTypes::Func::WHILE		},
+			{ "for",		 TokenTypes::Func::FOR			},
+			{ "foreach",	 TokenTypes::Func::FOR_EACH		},
+			{ "break",		 TokenTypes::Func::BREAK		},
+			{ "continue",	 TokenTypes::Func::CONTINUE		},
+			{ "return",		 TokenTypes::Func::RETURN		},
+			{ "equal",		 TokenTypes::Func::EQUAL		},
+			{ "and",		 TokenTypes::Func::AND			},
+			{ "or",			 TokenTypes::Func::OR			},
+			{ "not",		 TokenTypes::Func::NOT			}
+		};
+
+		std::vector<FuncToken>& tokens = vec.func->ContentsToken();
+
+		tokens.push_back(TokenTypes::Func::IDENTIFIER);
 	}
 
 	std::vector<EmptyTokenSection> Lexer::Tokenise(std::vector<SourceSection>& sections)

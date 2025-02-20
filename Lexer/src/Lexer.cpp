@@ -12,11 +12,12 @@ namespace LX
 
 		switch (val)
 		{
+			CASE(Dec::IDENTIFIER);
+			CASE(Dec::FUNCTION);
 			CASE(Dec::OPEN_BRACKET);
 			CASE(Dec::CLSE_BRACKET);
 			CASE(Dec::OPEN_CROCK);
 			CASE(Dec::CLSE_CROCK);
-			CASE(Dec::IDENTIFIER);
 			CASE(Dec::COMMA);
 			CASE(Dec::UNDEFINED);
 

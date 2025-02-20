@@ -12,15 +12,19 @@ namespace LX
 	{
 		enum class Dec : short
 		{
-			IDENTIFIER, // Any word
+			// Any non keyword-word
+			IDENTIFIER,
 
-			OPEN_BRACKET, // (
-			CLSE_BRACKET, // )
+			// Block types
+			FUNCTION,
 
-			OPEN_CROCK, // <
-			CLSE_CROCK, // >
+			// ()
+			OPEN_BRACKET, CLSE_BRACKET,
 
-			COMMA, // ,
+			// <>
+			OPEN_CROCK, CLSE_CROCK,
+
+			COMMA,
 
 			UNDEFINED = -1
 		};
