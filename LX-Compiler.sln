@@ -7,14 +7,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lexer", "Lexer\Lexer.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tester", "Tester\Tester.vcxproj", "{068B5BB9-B6AE-4862-993D-41B16167A165}"
 	ProjectSection(ProjectDependencies) = postProject
+		{15586E6C-694E-492C-A789-BEEF3E504B69} = {15586E6C-694E-492C-A789-BEEF3E504B69}
 		{1C716CE7-D500-4F7A-8D65-80F1C6D4F5B4} = {1C716CE7-D500-4F7A-8D65-80F1C6D4F5B4}
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{FFD642E1-E15E-4E68-9873-F7CD96FD4CEF}"
 	ProjectSection(SolutionItems) = preProject
-		Common\Poly.h = Common\Poly.h
 		Common\Macro.h = Common\Macro.h
+		Common\Poly.h = Common\Poly.h
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Parser", "Parser\Parser.vcxproj", "{15586E6C-694E-492C-A789-BEEF3E504B69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +43,14 @@ Global
 		{068B5BB9-B6AE-4862-993D-41B16167A165}.Release|x64.Build.0 = Release|x64
 		{068B5BB9-B6AE-4862-993D-41B16167A165}.Release|x86.ActiveCfg = Release|Win32
 		{068B5BB9-B6AE-4862-993D-41B16167A165}.Release|x86.Build.0 = Release|Win32
+		{15586E6C-694E-492C-A789-BEEF3E504B69}.Debug|x64.ActiveCfg = Debug|x64
+		{15586E6C-694E-492C-A789-BEEF3E504B69}.Debug|x64.Build.0 = Debug|x64
+		{15586E6C-694E-492C-A789-BEEF3E504B69}.Debug|x86.ActiveCfg = Debug|Win32
+		{15586E6C-694E-492C-A789-BEEF3E504B69}.Debug|x86.Build.0 = Debug|Win32
+		{15586E6C-694E-492C-A789-BEEF3E504B69}.Release|x64.ActiveCfg = Release|x64
+		{15586E6C-694E-492C-A789-BEEF3E504B69}.Release|x64.Build.0 = Release|x64
+		{15586E6C-694E-492C-A789-BEEF3E504B69}.Release|x86.ActiveCfg = Release|Win32
+		{15586E6C-694E-492C-A789-BEEF3E504B69}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
