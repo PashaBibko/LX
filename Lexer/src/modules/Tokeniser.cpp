@@ -18,32 +18,14 @@ namespace LX
 			   c == '\r' ||
 			   c == ' ';
 	}
+	
+	// Temporary way to pass in the token maps
+	#define TOKEN_MAP(type) const std::unordered_map<type, TokenEnum>&
 
-	// Union to allow for easier changing between EmptyTokenSection and it's true type
-	union TokenVector
+	template<typename TokenEnum, typename Token>
+	static void TokeniseSource (std::vector<Token>&vec, TOKEN_MAP(std::string) keywords, TOKEN_MAP(char) operators, const std::string_view& source)
 	{
-	public:
-		// Default type
-		EmptyTokenSection* empty;
-
-		// Types passed to functions
-
-		TokenSection<FuncToken>* func;
-
-		// Constructor to make sure the pointer is not null
-		TokenVector(EmptyTokenSection& ref)
-			: empty(&ref) {
-		}
-	};
-
-	static SectionType TokeniseDeclaration(TokenVector vec, const std::string_view& source)
-	{
-		static std::unordered_map<std::string, TokenTypes::Dec> keywords =
-		{
-			{ "func",		 TokenTypes::Dec::FUNCTION		}
-		};
-
-		// Index within the string_view
+		// Index within the string view
 		size_t index = 0;
 
 		// Tracks where the current word starts
@@ -52,13 +34,13 @@ namespace LX
 		// Tracks wether the last character was part of the alphabet
 		bool wasLastCharAlpha = false;
 
-		// Tracks if the source is currently in a comment
+		// Is the source currently in a comment
 		bool inComment = false;
 
 		// Loops over the string view to tokenise it
 		while (index < source.length())
 		{
-			// Gets the current char
+			// The current char within the source
 			const char current = source[index];
 
 			// Updates comment tracker
@@ -66,6 +48,7 @@ namespace LX
 			{
 				inComment = !inComment;
 
+				// Updates index to stop errors and jumps to next iteration
 				index++;
 				continue;
 			}
@@ -77,72 +60,92 @@ namespace LX
 				continue;
 			}
 
-			// Tracks if the current character is part of the alphabet
-			bool currentlyAlpha = IsAlpha(current);
+			// Is currently over an alphabetic character
+			bool alpha = IsAlpha(current);
 
-			// Looks for special characters
-			if (currentlyAlpha == false)
-			{
-				switch (current)
-				{
-					case '(':
-						VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::OPEN_BRACKET);
-						break;
-
-					case ')':
-						VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::CLSE_BRACKET);
-						break;
-
-					case '<':
-						VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::OPEN_CROCK);
-						break;
-
-					case '>':
-						VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::CLSE_CROCK);
-						break;
-
-					case ',':
-						VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::COMMA);
-						break;
-
-					default:
-						// Avoids whitespace from flagging any accidental errors
-						if (IsWhiteSpace(current) == false)
-						{
-							LOG("UNKNOWN CHARACTER: " << current);
-						}
-						break;
-				}
-			}
-
-			// Stores the index of the beginning of the word if needed
-			if (currentlyAlpha == true && wasLastCharAlpha == false)
+			// Stores the index at the beginning of the word if needed
+			if (alpha == true && wasLastCharAlpha == false)
 			{
 				startOfWord = index;
 			}
 
-			// Adds a token if at the end of the word
-			else if (currentlyAlpha == false && wasLastCharAlpha == true)
+			// If at the end of a word adds it to the token vector
+			else if (alpha == false && wasLastCharAlpha == true)
 			{
+				// Creates a view to the word
 				std::string_view word(source.data() + startOfWord, index - startOfWord);
 
+				// If it is a keyword it adds it to the vector
 				if (auto keyword = keywords.find(std::string(word)); keyword != keywords.end())
 				{
-					VEC_EMPLACE(vec.empty->DecTokens(), keyword->second);
+					VEC_EMPLACE(vec, keyword->second);
 				}
 
+				// Else adds it as an identifier
 				else
 				{
-					VEC_EMPLACE(vec.empty->DecTokens(), TokenTypes::Dec::IDENTIFIER, word);
+					VEC_EMPLACE(vec, TokenEnum::IDENTIFIER, word);
+				}
+			}
+
+			// Looks for operators if needed
+			if (alpha == false)
+			{
+				// If its an operator the operator is added to the vector
+				if (auto type = operators.find(current); type != operators.end())
+				{
+					VEC_EMPLACE(vec, type->second);
+				}
+
+				// Checks for whitespace and if there is none throws an error due to an unkown character
+				else if (IsWhiteSpace(current) == false)
+				{
+					LOG("UNKNOWN CHARACTER: " << current);
 				}
 			}
 
 			// Updates tracker of last character state
-			wasLastCharAlpha = currentlyAlpha;
+			wasLastCharAlpha = alpha;
 
-			// Iterates to the next character
+			// Iterates to next character
 			index++;
 		}
+	}
+
+	// Union to allow for easier changing between EmptyTokenSection and it's true type
+	union TokenVector
+	{
+		public:
+			// Default type
+			EmptyTokenSection* empty;
+
+			// Types passed to functions
+
+			TokenSection<FuncToken>* func;
+
+			// Constructor to make sure the pointer is not null
+			TokenVector(EmptyTokenSection& ref)
+				: empty(&ref) {
+			}
+	};
+
+	static SectionType TokeniseDeclaration(TokenVector vec, const std::string_view& source)
+	{
+		static std::unordered_map<std::string, TokenTypes::Dec> keywords =
+		{
+			{ "func",		 TokenTypes::Dec::FUNCTION		}
+		};
+
+		static std::unordered_map<char, TokenTypes::Dec> operators =
+		{
+			{ '(',			 TokenTypes::Dec::OPEN_BRACKET  },
+			{ ')',			 TokenTypes::Dec::CLSE_BRACKET  },
+			{ '<',			 TokenTypes::Dec::OPEN_CROCK    },
+			{ '>',			 TokenTypes::Dec::CLSE_CROCK	},
+			{ ',',			 TokenTypes::Dec::COMMA			}
+		};
+
+		TokeniseSource<TokenTypes::Dec, DecToken>(vec.empty->DecTokens(), keywords, operators, source);
 
 		return SectionType::LX_FUNCTION;
 	}
