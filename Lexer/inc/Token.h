@@ -51,7 +51,7 @@ namespace LX
 			IF, ELSE_IF, ELSE,
 
 			// Loops
-			WHILE, FOR, FOR_EACH,
+			WHILE, FOR,
 
 			// Go-to statements
 			BREAK, CONTINUE, RETURN,

@@ -46,7 +46,6 @@ namespace LX
 			CASE(Func::ELSE);
 			CASE(Func::WHILE);
 			CASE(Func::FOR);
-			CASE(Func::FOR_EACH);
 			CASE(Func::BREAK);
 			CASE(Func::CONTINUE);
 			CASE(Func::RETURN);

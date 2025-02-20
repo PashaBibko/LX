@@ -4,26 +4,61 @@
 
 namespace LX
 {
-	static constexpr bool IsAlpha(char c)
+	namespace Constexprs
 	{
-		return (c >= 'a' && c <= 'z') ||
-			   (c >= 'A' && c <= 'Z') ||
-			   (c >= '0' && c <= '9');
+		static constexpr bool IsAlpha(char c)
+		{
+			return (c >= 'a' && c <= 'z') ||
+				   (c >= 'A' && c <= 'Z') ||
+				   (c >= '0' && c <= '9');
+		}
+
+		static constexpr bool IsWhiteSpace(char c)
+		{
+			return c == '\t' ||
+				   c == '\n' ||
+				   c == '\r' ||
+				   c == ' ';
+		}
 	}
 
-	static constexpr bool IsWhiteSpace(char c)
+	template<typename TokenEnum>
+	struct TokeniserSettings
 	{
-		return c == '\t' ||
-			   c == '\n' ||
-			   c == '\r' ||
-			   c == ' ';
-	}
-	
-	// Temporary way to pass in the token maps
-	#define TOKEN_MAP(type) const std::unordered_map<type, TokenEnum>&
+		template<typename TokenEnum>
+		class OperatorMap
+		{
+			private:
+				const std::unordered_map<char, TokenEnum> multiCharOperators;
+				const TokenEnum defaultVal;
+
+			public:
+				OperatorMap(TokenEnum val, std::unordered_map<char, TokenEnum> map)
+					: defaultVal(val), multiCharOperators(map) {}
+
+				TokenEnum GetWithNextChar(char next)
+				{
+					if (auto val = multiCharOperators.find(next); val != multiCharOperators.end())
+					{
+						return val->second;
+					}
+
+					else
+					{
+						return defaultVal;
+					}
+				}
+		};
+
+		std::unordered_map<std::string, TokenEnum> keywords;
+		std::unordered_map<char, typename TokeniserSettings::OperatorMap<TokenEnum>> operators;
+
+		TokeniserSettings(std::unordered_map<std::string, TokenEnum> keywordMap, std::unordered_map<char, OperatorMap<TokenEnum>> operatorMap)
+			: keywords(keywordMap), operators(operatorMap) {}
+	};
 
 	template<typename TokenEnum, typename Token>
-	static void TokeniseSource (std::vector<Token>&vec, TOKEN_MAP(std::string) keywords, TOKEN_MAP(char) operators, const std::string_view& source)
+	static void TokeniseSource (std::vector<Token>&vec, TokeniserSettings<TokenEnum>& settings, const std::string_view& source)
 	{
 		// Index within the string view
 		size_t index = 0;
@@ -61,7 +96,7 @@ namespace LX
 			}
 
 			// Is currently over an alphabetic character
-			bool alpha = IsAlpha(current);
+			bool alpha = Constexprs::IsAlpha(current);
 
 			// Stores the index at the beginning of the word if needed
 			if (alpha == true && wasLastCharAlpha == false)
@@ -76,7 +111,7 @@ namespace LX
 				std::string_view word(source.data() + startOfWord, index - startOfWord);
 
 				// If it is a keyword it adds it to the vector
-				if (auto keyword = keywords.find(std::string(word)); keyword != keywords.end())
+				if (auto keyword = settings.keywords.find(std::string(word)); keyword != settings.keywords.end())
 				{
 					VEC_EMPLACE(vec, keyword->second);
 				}
@@ -92,13 +127,25 @@ namespace LX
 			if (alpha == false)
 			{
 				// If its an operator the operator is added to the vector
-				if (auto type = operators.find(current); type != operators.end())
+				if (auto type = settings.operators.find(current); type != settings.operators.end())
 				{
-					VEC_EMPLACE(vec, type->second);
+					char next;
+
+					if (index + 1 > source.length())
+					{
+						next = ' ';
+					}
+
+					else
+					{
+						next = source[index + 1];
+					}
+
+					VEC_EMPLACE(vec, type->second.GetWithNextChar(next));
 				}
 
 				// Checks for whitespace and if there is none throws an error due to an unkown character
-				else if (IsWhiteSpace(current) == false)
+				else if (Constexprs::IsWhiteSpace(current) == false)
 				{
 					LOG("UNKNOWN CHARACTER: " << current);
 				}
@@ -131,50 +178,176 @@ namespace LX
 
 	static SectionType TokeniseDeclaration(TokenVector vec, const std::string_view& source)
 	{
-		static std::unordered_map<std::string, TokenTypes::Dec> keywords =
+		static TokeniserSettings<TokenTypes::Dec> settings =
 		{
-			{ "func",		 TokenTypes::Dec::FUNCTION		}
-		};
+			// Keywords //
+			{
+				{ "func",		 TokenTypes::Dec::FUNCTION		}
+			},
 
-		static std::unordered_map<char, TokenTypes::Dec> operators =
-		{
-			{ '(',			 TokenTypes::Dec::OPEN_BRACKET  },
-			{ ')',			 TokenTypes::Dec::CLSE_BRACKET  },
-			{ '<',			 TokenTypes::Dec::OPEN_CROCK    },
-			{ '>',			 TokenTypes::Dec::CLSE_CROCK	},
-			{ ',',			 TokenTypes::Dec::COMMA			}
+			// Operators //
+			{
+				{ '(', { TokenTypes::Dec::CLSE_BRACKET, {} }},
+				{ ')', { TokenTypes::Dec::CLSE_BRACKET, {} }},
+				{ '<', { TokenTypes::Dec::OPEN_CROCK,   {} }},
+				{ '>', { TokenTypes::Dec::CLSE_CROCK,	{} }},
+				{ ',', { TokenTypes::Dec::COMMA,		{} }}
+			}
 		};
+		
 
-		TokeniseSource<TokenTypes::Dec, DecToken>(vec.empty->DecTokens(), keywords, operators, source);
+		TokeniseSource<TokenTypes::Dec, DecToken>(vec.empty->DecTokens(), settings, source);
 
 		return SectionType::LX_FUNCTION;
 	}
 
 	static void TokeniseFunctionDefinition(TokenVector vec, const std::string_view& source)
 	{
-		static std::unordered_map<std::string, TokenTypes::Func> keywords =
+		static TokeniserSettings<TokenTypes::Func> settings =
 		{
-			{ "const",		 TokenTypes::Func::CONSTANT		},
-			{ "ref",		 TokenTypes::Func::REFERENCE	},
-			{ "ptr",		 TokenTypes::Func::POINTER		},
-			{ "if",			 TokenTypes::Func::IF			},
-			{ "elif",		 TokenTypes::Func::ELSE_IF		},
-			{ "else",		 TokenTypes::Func::ELSE			},
-			{ "while",		 TokenTypes::Func::WHILE		},
-			{ "for",		 TokenTypes::Func::FOR			},
-			{ "foreach",	 TokenTypes::Func::FOR_EACH		},
-			{ "break",		 TokenTypes::Func::BREAK		},
-			{ "continue",	 TokenTypes::Func::CONTINUE		},
-			{ "return",		 TokenTypes::Func::RETURN		},
-			{ "equal",		 TokenTypes::Func::EQUAL		},
-			{ "and",		 TokenTypes::Func::AND			},
-			{ "or",			 TokenTypes::Func::OR			},
-			{ "not",		 TokenTypes::Func::NOT			}
+			// Keywords //
+			{
+				{ "const",		 TokenTypes::Func::CONSTANT		},
+				{ "ref",		 TokenTypes::Func::REFERENCE	},
+				{ "ptr",		 TokenTypes::Func::POINTER		},
+				{ "if",			 TokenTypes::Func::IF			},
+				{ "elif",		 TokenTypes::Func::ELSE_IF		},
+				{ "else",		 TokenTypes::Func::ELSE			},
+				{ "while",		 TokenTypes::Func::WHILE		},
+				{ "for",		 TokenTypes::Func::FOR			},
+				{ "break",		 TokenTypes::Func::BREAK		},
+				{ "continue",	 TokenTypes::Func::CONTINUE		},
+				{ "return",		 TokenTypes::Func::RETURN		},
+				{ "equal",		 TokenTypes::Func::EQUAL		},
+				{ "and",		 TokenTypes::Func::AND			},
+				{ "or",			 TokenTypes::Func::OR			},
+				{ "not",		 TokenTypes::Func::NOT			}
+			},
+
+			// Operators //
+			{
+				// Multi-char operators //
+
+				{
+					'+',
+					{
+						TokenTypes::Func::ADD,
+						{
+							{ '+', TokenTypes::Func::INCREMENT },
+							{ '=', TokenTypes::Func::C_ADD }
+						}
+					}
+				},
+				
+				{
+					'-',
+					{
+						TokenTypes::Func::SUB,
+						{
+							{ '-', TokenTypes::Func::DECREMENT },
+							{ '=', TokenTypes::Func::C_SUB },
+							{ '>', TokenTypes::Func::ARROW }
+						}
+					}
+				},
+				
+				{
+					'*',
+					{
+						TokenTypes::Func::MUL,
+						{
+							{ '=', TokenTypes::Func::C_MUL }
+						}
+					}
+				},
+
+				{
+					'/',
+					{
+						TokenTypes::Func::DIV,
+						{
+							{ '=', TokenTypes::Func::C_DIV }
+						}
+					}
+				},
+
+				{
+					'=',
+					{
+						TokenTypes::Func::ASSIGN,
+						{
+							{ '=', TokenTypes::Func::EQUAL },
+							{ '>', TokenTypes::Func::DOUBLE_ARROW }
+						}
+					}
+				},
+
+				{
+					'!',
+					{
+						TokenTypes::Func::NOT,
+						{
+							{ '=', TokenTypes::Func::N_EQUAL }
+						}
+					}
+				},
+
+				{
+					'>',
+					{
+						TokenTypes::Func::GREATER_THAN,
+						{
+							{ '=', TokenTypes::Func::GREATER_THAN_EQUALS }
+						}
+					}
+				},
+
+				{
+					'<',
+					{
+						TokenTypes::Func::LESS_THAN,
+						{
+							{ '=', TokenTypes::Func::LESS_THAN_EQUALS }
+						}
+					}
+				},
+
+				{
+					':',
+					{
+						TokenTypes::Func::COLON,
+						{
+							{ ':', TokenTypes::Func::DOUBLE_COLON }
+						}
+					}
+				},
+
+				{
+					'%',
+					{
+						TokenTypes::Func::MOD,
+						{
+							{ '=', TokenTypes::Func::C_MOD }
+						}
+					}
+				},
+
+				// Single char operators //
+
+				{ '(', { TokenTypes::Func::OPEN_PAREN,  {} }},
+				{ ')', { TokenTypes::Func::CLOSE_PAREN, {} }},
+				{ '[', { TokenTypes::Func::OPEN_BRACK,  {} }},
+				{ ']', { TokenTypes::Func::CLOSE_BRACK, {} }},
+				{ '{', { TokenTypes::Func::OPEN_BRACE,  {} }},
+				{ '}', { TokenTypes::Func::CLOSE_BRACE, {} }},
+
+				{ ';', { TokenTypes::Func::SEMI_COLON,  {} }},
+				{ ',', { TokenTypes::Func::COMMA,		{} }},
+				{ '.', { TokenTypes::Func::DOT,         {} }}
+			}
 		};
 
-		std::vector<FuncToken>& tokens = vec.func->ContentsToken();
-
-		tokens.push_back(TokenTypes::Func::IDENTIFIER);
+		TokeniseSource<TokenTypes::Func, FuncToken>(vec.func->ContentsToken(), settings, source);
 	}
 
 	std::vector<EmptyTokenSection> Lexer::Tokenise(std::vector<SourceSection>& sections)
