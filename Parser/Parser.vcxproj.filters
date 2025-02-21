@@ -15,7 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="inc\AST.h">
+    <ClInclude Include="inc\FuncAST.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
