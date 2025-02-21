@@ -57,6 +57,6 @@ namespace LX
 			std::vector<EmptyTokenSection> Tokenise(std::vector<SourceSection>& sections);
 
 		public:
-			Lexer(const std::string& src);
+			Lexer(const std::string& src, std::vector<EmptyTokenSection>& tokens);
 	};
 }

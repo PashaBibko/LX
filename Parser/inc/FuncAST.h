@@ -35,6 +35,37 @@ namespace LX::FuncAST
 		UNDEFINED = -1
 	};
 
+	// Foward declaration of the node type
+	class Node_T;
+
+	// Safe way to access the nodes
+	class Node
+	{
+		private:
+			Node_T* ptr;
+
+		public:
+			// Constructor for the node
+			explicit Node(Node_T* _ptr = nullptr)
+				: ptr(_ptr) {}
+
+			// Getter that returns nullptr if wrong type
+			template<typename T> inline T* as()
+			{
+				// Compile time check for correct type
+				static_assert(std::is_base_of_v<Node_T, T>, "T must derive from Node_T");
+
+				// Only returns the pointer if it is of that type
+				return (T::EnumVal() == ptr->Type()) ? (T*)ptr : nullptr;
+			}
+
+			// Specialistion for the Node_T type as it should always be allowed
+			template<> inline Node_T* as<Node_T>()
+			{
+				return ptr;
+			}
+	};
+
 	// Base type for Nodes to inherit from
 	class Node_T : public PolyBase<NodeType, NodeType::UNDEFINED>
 	{
@@ -44,27 +75,11 @@ namespace LX::FuncAST
 
 			// Virtual because of polymorphism
 			virtual ~Node_T() {}
+
+			// Next node in the list
+			Node m_Next;
 	};
 
-	// Safe way to access the nodes
-	class Node
-	{
-		private:
-			Node_T* ptr;
-
-		public:
-			explicit Node(Node_T* _ptr = nullptr)
-				: ptr(_ptr) {
-			}
-
-			template<typename T>
-			inline T* as()
-			{
-				static_assert(std::is_base_of_v<Node_T, T>, "T must derive from Node_T");
-
-				return (T::EnumVal() == ptr->Type()) ? (T*)ptr : nullptr;
-			}
-	};
 
 	// -- All AST Nodes -- //
 	// Constructors will be moved to a .cpp file "later"
@@ -279,7 +294,7 @@ namespace LX::FuncAST
 			Node m_Condition;
 
 			// Body
-			// (unknown) m_Body; // Dont know how this will work yet
+			Node m_Body; // Linked list of the contents
 
 			// Next in the chain (if any)
 			std::unique_ptr<IfStatement> m_Chain;
@@ -303,7 +318,7 @@ namespace LX::FuncAST
 			Node m_Condition;
 
 			// Body
-			// (unknown) m_Body; // Dont know how this will work yet
+			Node m_Body; // Linked list of the contents
 	};
 
 	class ForLoop : public Node_T
@@ -361,5 +376,22 @@ namespace LX::FuncAST
 			
 			// What type of go-to is it
 			TokenTypes::Func m_GoToType;
+	};
+}
+
+namespace LX
+{
+	struct FunctionAST
+	{
+		// The function declaration
+		std::vector<DecToken>& declaration;
+
+		// Body of the function
+		FuncAST::Node body;
+
+		// Constructor
+		FunctionAST(std::vector<DecToken>& dec)
+			: declaration(dec)
+		{}
 	};
 }

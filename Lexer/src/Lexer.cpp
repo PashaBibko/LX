@@ -92,7 +92,7 @@ namespace LX
 		}
 	}
 
-	Lexer::Lexer(const std::string& src)
+	Lexer::Lexer(const std::string& src, std::vector<EmptyTokenSection>& tokens)
 		: m_Source(src)
 	{
 		// Checks source is a valid length
@@ -126,7 +126,7 @@ namespace LX
 
 		#endif // LEXER_SPLITTER_LOGGING
 
-		std::vector<EmptyTokenSection> tokens = Tokenise(sections);
+		tokens = Tokenise(sections);
 
 		#ifdef LEXER_TOKENISER_LOGGING
 
@@ -178,6 +178,5 @@ namespace LX
 		LOG_BREAK;
 
 		#endif // LEXER_TOKENISER_LOGGING
-
 	}
 }
