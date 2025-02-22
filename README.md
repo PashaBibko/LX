@@ -1,13 +1,13 @@
 # LX Programming Language
-=========================
+======
 
 ## Syntax and LX website
-------------------------
+-----
 
 The website (which includes the syntax for the language can be found [here (WIP)](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
 
 ## Build Instructions
----------------------
+-----
 
 1. Download the source files from the main branch
 2. Run the LX-Compiler.sln file using VS-22 (no other IDEs are supported)
