@@ -4,7 +4,6 @@
 #include <Common/Poly.h>
 
 #include <type_traits>
-#include <memory>
 
 namespace LX::FuncAST
 {
@@ -327,8 +326,8 @@ namespace LX::FuncAST
 	{
 		public:
 			// Constructor
-			IfStatement(TokenTypes::Func type, Node condition, std::unique_ptr<IfStatement> chain) :
-				m_Type(type), m_Condition(condition), m_Chain(std::move(chain)), Node_T(NodeType::IF_STATEMENT)
+			IfStatement(TokenTypes::Func type, Node condition) :
+				m_Type(type), m_Condition(condition), Node_T(NodeType::IF_STATEMENT)
 			{}
 
 			// Getter for polymorphism
@@ -345,9 +344,6 @@ namespace LX::FuncAST
 
 			// Body
 			Node m_Body; // Linked list of the contents
-
-			// Next in the chain (if any)
-			std::unique_ptr<IfStatement> m_Chain;
 	};
 
 	class WhileLoop : public Node_T
@@ -367,8 +363,8 @@ namespace LX::FuncAST
 			// Condition of the loop
 			Node m_Condition;
 
-			// Body
-			Node m_Body; // Linked list of the contents
+			// Body represented as a linked list
+			Node m_Body;
 	};
 
 	class ForLoop : public Node_T
@@ -388,8 +384,8 @@ namespace LX::FuncAST
 			// Condition of the loop
 			Node m_Condition;
 
-			// Body
-			// (unknown) m_Body; // Dont know how this will work yet
+			// Body represented as a linked list
+			Node m_Body;
 	};
 
 	class ReturnStatement : public Node_T
