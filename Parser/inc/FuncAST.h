@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Common/Macro.h>
 #include <Common/Poly.h>
 
 #include <type_traits>
@@ -36,7 +37,60 @@ namespace LX::FuncAST
 	};
 
 	// Foward declaration of the node type
-	class Node_T;
+	class Node;
+
+	// Base type for Nodes to inherit from
+	class Node_T
+	{
+		private:
+			// The type of the node
+			NodeType m_Type;
+
+			// The next node of the list
+			Node_T* m_Next;
+
+		public:
+			// Constructor to inherit from for setting type
+			Node_T(NodeType type)
+				: m_Type(type), m_Next(nullptr)
+			{}
+
+			// Virtual deconstructor because of polymorphism
+			virtual ~Node_T()
+			{
+				if (m_Next != nullptr)
+				{
+					delete m_Next;
+				}
+			}
+
+			// Returns the type of the Node (set by the constructor)
+			inline NodeType Type() const
+			{
+				return m_Type;
+			}
+
+			// Returns the next node in a wrapper for easier use
+			Node Next();
+
+			// Creates the next node and adds it to the linked list
+			template<typename T, typename... Args>
+			Node CreateNew(Args&&... args)
+			{
+				// Compile time check for correct type
+				static_assert(std::is_base_of_v<Node_T, T>, "T must derive from Node_T");
+
+				// Checks memory has not already been allocated to prevent memory leaks
+				if (m_Next != nullptr)
+				{
+					LOG("Node_T::CreateNew has been called on a node with a next already created");
+					return nullptr;
+				}
+
+				// Then creates the object
+				m_Next = new T(std::forward<Args>(args)...);
+			}
+	};
 
 	// Safe way to access the nodes
 	class Node
@@ -47,7 +101,8 @@ namespace LX::FuncAST
 		public:
 			// Constructor for the node
 			explicit Node(Node_T* _ptr = nullptr)
-				: ptr(_ptr) {}
+				: ptr(_ptr) {
+			}
 
 			// Getter that returns nullptr if wrong type
 			template<typename T> inline T* as()
@@ -66,19 +121,11 @@ namespace LX::FuncAST
 			}
 	};
 
-	// Base type for Nodes to inherit from
-	class Node_T : public PolyBase<NodeType, NodeType::UNDEFINED>
+	// Has to be defined here to prevent errors
+	inline Node Node_T::Next()
 	{
-		public:
-			// Constructor to inherit from for setting type
-			Node_T(NodeType type) : PolyBase(type) {}
-
-			// Virtual because of polymorphism
-			virtual ~Node_T() {}
-
-			// Next node in the list
-			Node m_Next;
-	};
+		return Node(m_Next);
+	}
 
 
 	// -- All AST Nodes -- //
