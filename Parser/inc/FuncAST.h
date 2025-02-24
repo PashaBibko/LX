@@ -43,13 +43,22 @@ namespace LX::FuncAST
 	class Node_T
 	{
 		private:
+			// Friends the wrapper class for access
+			friend class Node;
+
 			// The type of the node
 			NodeType m_Type;
 
 			// The next node of the list
 			Node_T* m_Next;
 
-		public:
+			// Returns the type of the Node (set by the constructor)
+			inline NodeType Type() const
+			{
+				return m_Type;
+			}
+
+		protected:
 			// Constructor to inherit from for setting type
 			Node_T(NodeType type)
 				: m_Type(type), m_Next(nullptr)
@@ -58,37 +67,11 @@ namespace LX::FuncAST
 			// Virtual deconstructor because of polymorphism
 			virtual ~Node_T()
 			{
+				// Delets the next in the list if it has been allocated
 				if (m_Next != nullptr)
 				{
 					delete m_Next;
 				}
-			}
-
-			// Returns the type of the Node (set by the constructor)
-			inline NodeType Type() const
-			{
-				return m_Type;
-			}
-
-			// Returns the next node in a wrapper for easier use
-			Node Next();
-
-			// Creates the next node and adds it to the linked list
-			template<typename T, typename... Args>
-			Node CreateNew(Args&&... args)
-			{
-				// Compile time check for correct type
-				static_assert(std::is_base_of_v<Node_T, T>, "T must derive from Node_T");
-
-				// Checks memory has not already been allocated to prevent memory leaks
-				if (m_Next != nullptr)
-				{
-					LOG("Node_T::CreateNew has been called on a node with a next already created");
-					return nullptr;
-				}
-
-				// Then creates the object
-				m_Next = new T(std::forward<Args>(args)...);
 			}
 	};
 
@@ -100,7 +83,7 @@ namespace LX::FuncAST
 
 		public:
 			// Constructor for the node
-			explicit Node(Node_T* _ptr = nullptr)
+			Node(Node_T* _ptr = nullptr)
 				: ptr(_ptr) {
 			}
 
@@ -119,14 +102,34 @@ namespace LX::FuncAST
 			{
 				return ptr;
 			}
+
+			// Goes foward in the linked list
+			void Next()
+			{
+				// Stops read access violations
+				if (ptr == nullptr)
+				{
+					throw std::runtime_error("Contents of Node are null");
+				}
+
+				// Else traverses the linked list
+				ptr = ptr->m_Next;
+			}
+
+			// Pushes to the list
+			template<typename T, typename... Args>
+			void Push(Args&&... args)
+			{
+				// Compile time check for correct type
+				static_assert(std::is_base_of_v<Node_T, T>, "T must derive from Node_T");
+
+				// Gets the pointer it is assigning too
+				Node_T*& asignee = (ptr == nullptr) ? ptr : ptr->m_Next;
+
+				// Creates the object
+				asignee = new T(std::forward<Args>(args)...);
+			}
 	};
-
-	// Has to be defined here to prevent errors
-	inline Node Node_T::Next()
-	{
-		return Node(m_Next);
-	}
-
 
 	// -- All AST Nodes -- //
 	// Constructors will be moved to a .cpp file "later"
