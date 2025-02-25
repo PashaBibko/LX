@@ -32,6 +32,11 @@ namespace LX
 		size_t endOfLastBlock = 0;
 	};
 
+	struct TokenOutput
+	{
+		std::vector<TokenSection<FuncToken>> funcTokens;
+	};
+
 	class Lexer
 	{
 		private:
@@ -54,9 +59,9 @@ namespace LX
 			std::vector<SourceSection> Split();
 
 			//
-			std::vector<EmptyTokenSection> Tokenise(std::vector<SourceSection>& sections);
+			void Tokenise(std::vector<SourceSection>& sections, TokenOutput& tokens);
 
 		public:
-			Lexer(const std::string& src, std::vector<EmptyTokenSection>& tokens);
+			Lexer(const std::string& src, TokenOutput& tokens);
 	};
 }

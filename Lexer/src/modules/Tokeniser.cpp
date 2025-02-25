@@ -159,24 +159,7 @@ namespace LX
 		}
 	}
 
-	// Union to allow for easier changing between EmptyTokenSection and it's true type
-	union TokenVector
-	{
-		public:
-			// Default type
-			EmptyTokenSection* empty;
-
-			// Types passed to functions
-
-			TokenSection<FuncToken>* func;
-
-			// Constructor to make sure the pointer is not null
-			TokenVector(EmptyTokenSection& ref)
-				: empty(&ref) {
-			}
-	};
-
-	static SectionType TokeniseDeclaration(TokenVector vec, const std::string_view& source)
+	static SectionType TokeniseDeclaration(std::vector<DecToken>& tokens, const std::string_view& source)
 	{
 		static TokeniserSettings<TokenTypes::Dec> settings =
 		{
@@ -196,12 +179,12 @@ namespace LX
 		};
 		
 
-		TokeniseSource<TokenTypes::Dec, DecToken>(vec.empty->DecTokens(), settings, source);
+		TokeniseSource<TokenTypes::Dec, DecToken>(tokens, settings, source);
 
 		return SectionType::LX_FUNCTION;
 	}
 
-	static void TokeniseFunctionDefinition(TokenVector vec, const std::string_view& source)
+	static void TokeniseFunctionDefinition(TokenSection<FuncToken>& tokens, const std::string_view& source)
 	{
 		static TokeniserSettings<TokenTypes::Func> settings =
 		{
@@ -347,38 +330,33 @@ namespace LX
 			}
 		};
 
-		TokeniseSource<TokenTypes::Func, FuncToken>(vec.func->ContentsToken(), settings, source);
+		TokeniseSource<TokenTypes::Func, FuncToken>(tokens.ContentsToken(), settings, source);
 	}
 
-	std::vector<EmptyTokenSection> Lexer::Tokenise(std::vector<SourceSection>& sections)
+	void Lexer::Tokenise(std::vector<SourceSection>& sections, TokenOutput& tokens)
 	{
-		// Creates the output vector and reserves all the space that should be needed
-		std::vector<EmptyTokenSection> tokenSections;
-		tokenSections.reserve(sections.size());
-
+		// Loops over the sections
 		for (const auto& section : sections)
 		{
-			// Creates a new object in the vector and creates a reference to it
-			tokenSections.push_back(EmptyTokenSection());
-			TokenVector tokens(tokenSections.back());
-
 			// Tokenises the declaration
-			SectionType type = TokeniseDeclaration(tokens, section.GetDeclaration());
+			std::vector<DecToken> declaration;
+			SectionType type = TokeniseDeclaration(declaration, section.GetDeclaration());
 
 			// Finds and calls the correct function for the body of the section
 			switch (type)
 			{
 				case SectionType::LX_FUNCTION:
-					TokeniseFunctionDefinition(tokens, section.GetDefinition());
+				{
+					TokenSection<FuncToken>& tokenSect = tokens.funcTokens.emplace_back();
+					tokenSect.m_DecTokens = declaration;
+
+					TokeniseFunctionDefinition(tokenSect, section.GetDefinition());
 					break;
+				}
 
 				default:
 					throw std::runtime_error("Something went horribly wrong if you are seeing this");
 			}
 		}
-
-		// Shrinks vector to avoid more memory being allocated than needed before returning
-		tokenSections.shrink_to_fit();
-		return tokenSections;
 	}
 }

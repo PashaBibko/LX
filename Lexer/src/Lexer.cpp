@@ -92,7 +92,7 @@ namespace LX
 		}
 	}
 
-	Lexer::Lexer(const std::string& src, std::vector<EmptyTokenSection>& tokens)
+	Lexer::Lexer(const std::string& src, TokenOutput& tokens)
 		: m_Source(src)
 	{
 		// Checks source is a valid length
@@ -126,16 +126,16 @@ namespace LX
 
 		#endif // LEXER_SPLITTER_LOGGING
 
-		tokens = Tokenise(sections);
+		Tokenise(sections, tokens);
 
 		#ifdef LEXER_TOKENISER_LOGGING
 
 		LOG_BREAK;
-		LOG("Token section count: " << tokens.size());
+		LOG("Token section count: " << tokens.funcTokens.size());
 
 		int counter = 0;
 
-		for (EmptyTokenSection& tokenSect : tokens)
+		for (TokenSection<FuncToken>& tokenSect : tokens.funcTokens)
 		{
 			LOG_BREAK;
 			LOG("Token section: " << counter);
@@ -145,22 +145,8 @@ namespace LX
 			LOG("Declaration tokens");
 			LOG_BREAK;
 
-			union FunctionTokens
-			{
-				public:
-					TokenSection<FuncToken> funcTokens;
-					EmptyTokenSection emptyTokens;
-
-					FunctionTokens() { new (&emptyTokens)EmptyTokenSection(); }
-					~FunctionTokens() {}
-			};
-
 			//
-			FunctionTokens funcTokens;
-			funcTokens.emptyTokens = tokenSect;
-
-			//
-			for (DecToken& token : funcTokens.funcTokens.m_DecTokens)
+			for (DecToken& token : tokenSect.m_DecTokens)
 			{
 				LOG(token.m_Type << " {" << token.m_Contents << '}');
 			}
@@ -169,7 +155,7 @@ namespace LX
 			LOG("Content tokens");
 			LOG_BREAK;
 
-			for (FuncToken& token : funcTokens.funcTokens.m_Contents)
+			for (FuncToken& token : tokenSect.m_Contents)
 			{
 				LOG(token.m_Type << " {" << token.m_Contents << '}');
 			}

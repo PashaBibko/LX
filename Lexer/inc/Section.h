@@ -15,7 +15,7 @@ namespace LX
 	{
 		LX_FUNCTION,
 
-		UNDEFINED = 0
+		UNDEFINED = -1
 	};
 
 	class SourceSection final
@@ -43,8 +43,7 @@ namespace LX
 	};
 	
 	template<typename TokenType>
-	class TokenSection : public PolyBase
-		<SectionType, SectionType::UNDEFINED>
+	class TokenSection
 	{
 		private:
 			// Friends the lexer to allow it to add to the vectors
@@ -80,10 +79,10 @@ namespace LX
 			// Getter to allow pushing to the declaration
 			inline std::vector<DecToken>& DecTokens() { return m_DecTokens; }
 
+			// Getter to reference the declaration
+			inline const std::vector<DecToken>& DecTokens() const { return m_DecTokens; }
+
 			// Getter to allow pushing to the contents
 			inline std::vector<TokenType>& ContentsToken() { return m_Contents; }
 	};
-
-	// Shorter way to write this cursed type
-	using EmptyTokenSection = TokenSection<TokenBase<short, -1>>;
 }

@@ -3,7 +3,10 @@
 #include <Common/Macro.h>
 #include <Common/Poly.h>
 
+#include <Lexer/inc/Token.h>
+
 #include <type_traits>
+#include <vector>
 
 namespace LX::FuncAST
 {
@@ -430,13 +433,13 @@ namespace LX
 	struct FunctionAST
 	{
 		// The function declaration
-		std::vector<DecToken>& declaration;
+		const std::vector<DecToken>& declaration;
 
 		// Body of the function
 		FuncAST::Node body;
 
 		// Constructor
-		FunctionAST(std::vector<DecToken>& dec)
+		FunctionAST(const std::vector<DecToken>& dec)
 			: declaration(dec)
 		{}
 	};

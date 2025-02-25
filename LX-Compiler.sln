@@ -18,6 +18,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{FFD642
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Parser", "Parser\Parser.vcxproj", "{15586E6C-694E-492C-A789-BEEF3E504B69}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1C716CE7-D500-4F7A-8D65-80F1C6D4F5B4} = {1C716CE7-D500-4F7A-8D65-80F1C6D4F5B4}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

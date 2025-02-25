@@ -22,6 +22,9 @@
     <ClInclude Include="inc\FuncAST.h" />
     <ClInclude Include="inc\Parser.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\FunctionParser.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
