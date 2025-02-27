@@ -81,13 +81,17 @@ namespace LX::FuncAST
 	class Node
 	{
 		private:
-			Node_T* ptr;
+			Node_T* m_Ptr;
+			Node_T* m_Root;
 
 		public:
 			// Constructor for the node
-			Node(Node_T* _ptr = nullptr)
-				: ptr(_ptr) {
-			}
+			Node(Node_T* ptr = nullptr)
+				: m_Ptr(ptr), m_Root(nullptr)
+			{}
+
+			// Returns true if not empty
+			explicit operator bool() const { return m_Ptr != nullptr; }
 
 			// Getter that returns nullptr if wrong type
 			template<typename T> inline T* as()
@@ -96,26 +100,26 @@ namespace LX::FuncAST
 				static_assert(std::is_base_of_v<Node_T, T>, "T must derive from Node_T");
 
 				// Only returns the pointer if it is of that type
-				return (T::EnumVal() == ptr->Type()) ? (T*)ptr : nullptr;
+				return (T::EnumVal() == m_Ptr->Type()) ? (T*)m_Ptr : nullptr;
 			}
 
 			// Specialistion for the Node_T type as it should always be allowed
 			template<> inline Node_T* as<Node_T>()
 			{
-				return ptr;
+				return m_Ptr;
 			}
 
 			// Goes foward in the linked list
 			void Next()
 			{
 				// Stops read access violations
-				if (ptr == nullptr)
+				if (m_Ptr == nullptr)
 				{
 					throw std::runtime_error("Contents of Node are null");
 				}
 
 				// Else traverses the linked list
-				ptr = ptr->m_Next;
+				m_Ptr = m_Ptr->m_Next;
 			}
 
 			// Pushes to the list
@@ -125,12 +129,31 @@ namespace LX::FuncAST
 				// Compile time check for correct type
 				static_assert(std::is_base_of_v<Node_T, T>, "T must derive from Node_T");
 
-				// Gets the pointer it is assigning too
-				Node_T*& asignee = (ptr == nullptr) ? ptr : ptr->m_Next;
+				// Checks if it is the first in the list in which case:
+				// - We need to set it as the root
+				// - Asign it to m_Ptr instead of m_Next
+				if (m_Ptr == nullptr) [[unlikely]]
+				{
+					// Creates the object which is the root of the list
+					m_Ptr = new T(std::forward<Args>(args)...);
 
-				// Creates the object
-				asignee = new T(std::forward<Args>(args)...);
+					// So we store a pointer to it for later
+					m_Root = m_Ptr;
+				}
+
+				// Else creates it as the next node
+				else
+				{
+					// Creates the object as the next
+					m_Ptr->m_Next = new T(std::forward<Args>(args)...);
+					
+					// And traverses foward
+					m_Ptr = m_Ptr->m_Next;
+				}
 			}
+
+			// Gets the root as a node type
+			Node AsList() { return Node(m_Root); }
 	};
 
 	// -- All AST Nodes -- //
@@ -140,7 +163,7 @@ namespace LX::FuncAST
 	{
 		public:
 			// Constructor
-			Identifier(const std::string& name) :
+			Identifier(const std::string_view& name) :
 				m_Name(name), Node_T(NodeType::IDENTIFIER)
 			{}
 
@@ -151,7 +174,7 @@ namespace LX::FuncAST
 			}
 
 			// Name of the identifier
-			const std::string m_Name;
+			const std::string_view m_Name;
 
 			// Will eventually hold information like namespace (parent)
 	};
