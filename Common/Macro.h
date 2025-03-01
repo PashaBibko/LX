@@ -12,7 +12,7 @@
 
 #ifdef RELEASE
 #define VEC_EMPLACE(vec, ...) vec.emplace_back(__VA_ARGS__)
-#else
+#else // RELEASE
 #define VEC_EMPLACE(vec, ...) vec.push_back({__VA_ARGS__})
 #endif // RELEASE
 
@@ -28,9 +28,17 @@
 #ifdef RELEASE
 #define LOG(x)
 #define LOG_BREAK
-#else
+#else // RELEASE
 #include <iostream>
-#define LOG(x) std::cout << x << std::endl
+//#define LOG_TRACE // Uncomment this line to Log where it is called
+#ifdef LOG_TRACE
+#include <filesystem>
+#define LOG(x) std::cout <<\
+	"File: {" << std::filesystem::path(__FILE__).filename().string() <<\
+	"} on line: {" << __LINE__ << "} in function: {" << __func__ << "}\n\t" << x << "\n" << std::endl
+#else // LOG_TRACE
+#define LOG(x) std::cout << x << std::endl;
+#endif // LOG_TRACE
 #define LOG_BREAK std::cout << "|-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|" << std::endl
 #endif // RELEASE
 
@@ -39,4 +47,5 @@
 #ifndef RELEASE
 //#define LEXER_SPLITTER_LOGGING
 #define LEXER_TOKENISER_LOGGING
+#define PARSER_AST_LOGGING
 #endif // RELEASE 
