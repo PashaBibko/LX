@@ -21,4 +21,6 @@ func<int> main()
 	and finally this #
 
 	return add(1, 2);
+
+	"string literal int func return ref"
 }

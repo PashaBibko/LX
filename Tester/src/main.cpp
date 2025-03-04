@@ -9,6 +9,8 @@
 
 int main()
 {
+	namespace AST = LX::FuncAST;
+
 	// Stops errors
 	try
 	{

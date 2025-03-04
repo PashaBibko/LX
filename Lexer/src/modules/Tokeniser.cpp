@@ -53,8 +53,12 @@ namespace LX
 		std::unordered_map<std::string, TokenEnum> keywords;
 		std::unordered_map<char, typename TokeniserSettings::OperatorMap<TokenEnum>> operators;
 
-		TokeniserSettings(std::unordered_map<std::string, TokenEnum> keywordMap, std::unordered_map<char, OperatorMap<TokenEnum>> operatorMap)
-			: keywords(keywordMap), operators(operatorMap) {}
+		bool tokeniseStringLiterals;
+		TokenEnum stringLiteralEnum;
+
+		TokeniserSettings(std::unordered_map<std::string, TokenEnum> keywordMap, std::unordered_map<char, OperatorMap<TokenEnum>> operatorMap, bool shouldTokenString = false, TokenEnum stringToken = (TokenEnum) - 1)
+			: keywords(keywordMap), operators(operatorMap), tokeniseStringLiterals(shouldTokenString), stringLiteralEnum(stringToken)
+		{}
 	};
 
 	template<typename TokenEnum, typename Token>
@@ -71,6 +75,14 @@ namespace LX
 
 		// Is the source currently in a comment
 		bool inComment = false;
+
+		// Is the source in a string literal
+		// Will always be false if not enables
+		bool inStringLiteral = false;
+
+		// Start location of the string literal
+		// Unused if string literal is not enabled
+		size_t startOfStringLiteral = 0;
 
 		// Loops over the string view to tokenise it
 		while (index < source.length())
@@ -90,6 +102,50 @@ namespace LX
 
 			// Skips over the rest of the logic if within a comment
 			if (inComment)
+			{
+				index++;
+				continue;
+			}
+
+			// Does string literal logic if enabled
+			if (settings.tokeniseStringLiterals == true)
+			{
+				// Updates tracker if needed
+				if (current == '"')
+				{
+					// If at the start of a string literal
+					if (inStringLiteral == false)
+					{
+						// Sets the start of the string
+						startOfStringLiteral = index + 1;
+
+						// Updates tracker
+						inStringLiteral = true;
+
+						// Goes to next iteration of loop
+						index++;
+						continue;
+					}
+
+					// If at the end of a string literal
+					if (inStringLiteral == true)
+					{
+						// Adds the string literal to the vector
+						std::string_view literal(source.data() + startOfStringLiteral, index - startOfStringLiteral);
+						vec.emplace_back(settings.stringLiteralEnum, literal);
+
+						// Updates tracker
+						inStringLiteral = false;
+
+						// Goes to next iteration of loop
+						index++;
+						continue;
+					}
+				}
+			}
+
+			// Skips over rest of logic if in a string literal
+			if (inStringLiteral == true)
 			{
 				index++;
 				continue;
@@ -327,7 +383,10 @@ namespace LX
 				{ ';', { TokenTypes::Func::SEMI_COLON,  {} }},
 				{ ',', { TokenTypes::Func::COMMA,		{} }},
 				{ '.', { TokenTypes::Func::DOT,         {} }}
-			}
+			},
+
+			// Allow tokensing of string literals //
+			true, TokenTypes::Func::STRING_LITERAL
 		};
 
 		TokeniseSource<TokenTypes::Func, FuncToken>(tokens.ContentsToken(), settings, source);

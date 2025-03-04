@@ -26,6 +26,11 @@ namespace LX
 		{}
 	};
 
+	static AST::Node ParseBracketExpression(ParserInfo& info)
+	{
+		//return AST::Node(nullptr);
+	}
+
 	static void ParsePrimary(ParserInfo& info)
 	{
 		// Switches over the enum type
@@ -35,6 +40,10 @@ namespace LX
 				info.list.Push<AST::Identifier>(info.tokens[info.index].m_Contents);
 				info.index++;
 				break;
+
+			//case Token::Func::OPEN_PAREN:
+				//info.list.Push<AST::BracketExpression>(info);
+				//break;
 
 			default:
 				LOG("Unknown token type: " << (short)info.tokens[info.index].m_Type);
