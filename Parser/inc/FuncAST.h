@@ -90,11 +90,15 @@ namespace LX::FuncAST
 				: m_Ptr(ptr), m_Root(nullptr)
 			{}
 
+			Node(Node_T& ref)
+				: m_Ptr(&ref), m_Root(nullptr)
+			{}
+
 			// Returns true if not empty
 			explicit operator bool() const { return m_Ptr != nullptr; }
 
 			// Getter that returns nullptr if wrong type
-			template<typename T> inline T* as()
+			template<typename T> inline T* as() const
 			{
 				// Compile time check for correct type
 				static_assert(std::is_base_of_v<Node_T, T>, "T must derive from Node_T");
@@ -104,7 +108,7 @@ namespace LX::FuncAST
 			}
 
 			// Specialistion for the Node_T type as it should always be allowed
-			template<> inline Node_T* as<Node_T>()
+			template<> inline Node_T* as<Node_T>() const
 			{
 				return m_Ptr;
 			}
@@ -132,7 +136,7 @@ namespace LX::FuncAST
 				// Checks if it is the first in the list in which case:
 				// - We need to set it as the root
 				// - Asign it to m_Ptr instead of m_Next
-				if (m_Ptr == nullptr) [[unlikely]]
+				if (m_Ptr == nullptr) _UNLIKELY
 				{
 					// Creates the object which is the root of the list
 					m_Ptr = new T(std::forward<Args>(args)...);
@@ -150,6 +154,16 @@ namespace LX::FuncAST
 					// And traverses foward
 					m_Ptr = m_Ptr->m_Next;
 				}
+			}
+
+			// Gets the current type
+			NodeType CurrentType() const
+			{
+				// Stops read access violations
+				if (m_Ptr == nullptr) { return NodeType::UNDEFINED; }
+				
+				// Else returns the type of the current node
+				return m_Ptr->m_Type;
 			}
 
 			// Gets the root as a node type

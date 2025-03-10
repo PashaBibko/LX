@@ -30,7 +30,7 @@
 #define LOG_BREAK
 #else // RELEASE
 #include <iostream>
-//#define LOG_TRACE // Uncomment this line to log where it is called
+#define LOG_TRACE // Uncomment this line to log where it is called
 #ifdef LOG_TRACE
 #include <filesystem>
 #define LOG(x) std::cout <<\

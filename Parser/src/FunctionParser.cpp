@@ -4,10 +4,22 @@
 
 #include <Lexer/inc/Lexer.h>
 
+#include <array>
+
 namespace LX
 {
 	namespace Token = TokenTypes;
 	namespace AST = FuncAST;
+
+	enum class ParserState
+	{
+		BRANCH,
+		DECLARATION,
+		ASSIGN,
+		FUNC_CALL,
+		OPERATION,
+		PRIMARY
+	};
 
 	struct ParserInfo
 	{
@@ -20,9 +32,12 @@ namespace LX
 		// The list of nodes
 		FuncAST::Node list;
 
+		// The state of the parser
+		ParserState state;
+
 		// Constructor
 		explicit ParserInfo(std::vector<FuncToken>& _tokens)
-			: tokens(_tokens), index(0), list(nullptr)
+			: tokens(_tokens), index(0), list(nullptr), state(ParserState::BRANCH)
 		{}
 	};
 
@@ -31,7 +46,7 @@ namespace LX
 		//return AST::Node(nullptr);
 	}
 
-	static void ParsePrimary(ParserInfo& info)
+	static bool ParsePrimary(ParserInfo& info)
 	{
 		// Switches over the enum type
 		switch (info.tokens[info.index].m_Type)
@@ -39,7 +54,7 @@ namespace LX
 			case Token::Func::IDENTIFIER:
 				info.list.Push<AST::Identifier>(info.tokens[info.index].m_Contents);
 				info.index++;
-				break;
+				return false;
 
 			//case Token::Func::OPEN_PAREN:
 				//info.list.Push<AST::BracketExpression>(info);
@@ -48,38 +63,42 @@ namespace LX
 			default:
 				LOG("Unknown token type: " << (short)info.tokens[info.index].m_Type);
 				info.index++;
-				break;
+				return false;
 		}
 	}
 
-	static void ParseOperation(ParserInfo& info)
+	static bool ParseOperation(ParserInfo& info)
 	{
-		// Calls next function in the stack
-		ParsePrimary(info);
+		LOG("");
+		info.index++;
+		return false;
 	}
 
-	static void ParseFuncCall(ParserInfo& info)
+	static bool ParseFuncCall(ParserInfo& info)
 	{
-		// Calls next function in the stack
-		ParseOperation(info);
+		LOG("");
+		return true;
 	}
 
-	static void ParseAssignment(ParserInfo& info)
+	static bool ParseAssignment(ParserInfo& info)
 	{
-		// Calls next function in the stack
-		ParseFuncCall(info);
+		LOG("");
+		return true;
 	}
 
-	static void ParseVarDeclaration(ParserInfo& info)
+	static bool ParseVarDeclaration(ParserInfo& info)
 	{
-		// Calls next function in the stack
-		ParseAssignment(info);
+		LOG("");
+		return true;
 	}
 
-	static void ParseBranch(ParserInfo& info)
+	static bool ParseBranch(ParserInfo& info)
 	{
-		// Calls next function in the stack
-		ParseVarDeclaration(info);
+		//
+		info.st
+
+		LOG("");
+		return true;
 	} 
 
 	FuncAST::Node Parser::ParseFunction(TokenSection<FuncToken>& section)
@@ -90,11 +109,43 @@ namespace LX
 		// Length of the token vector
 		size_t len = info.tokens.size();
 
+		// Alias for easier function pointer usage
+		// Returns bool and takes in a reference to parser info
+		using ParseFunction = bool(*)(ParserInfo&);
+
+		// Array of all the parsing functions to iterate over
+		static const std::array<ParseFunction, 6> funcs
+		{{
+			ParseBranch,
+			ParseVarDeclaration,
+			ParseAssignment,
+			ParseFuncCall,
+			ParseOperation,
+			ParsePrimary
+		}};
+
 		// Iterates over the tokens until complete
 		while (info.index < len)
 		{
-			// Calls function at the top of the call stack	
-			ParseBranch(info);
+			// Wether to call the current function
+			bool call = false;
+
+			// Index in the array
+			size_t index = 0;
+
+			// Iterates over the array
+			for (ParseFunction func : funcs)
+			{
+				// Works out wether to call the current function depending on the state
+				// Always true if it was already true
+				call = (index == (size_t)info.state) || (call);
+
+				// Calls the function from the array 
+				if (call) { call = func(info); }
+
+				// Iterate to the next index
+				index++;
+			}
 		}
 
 		// Returns the root of the list
