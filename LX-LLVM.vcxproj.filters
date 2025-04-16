@@ -13,6 +13,12 @@
     <ClInclude Include="common\Lexer.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="common\Parser.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\LLVM.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />

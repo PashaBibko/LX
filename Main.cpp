@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 
+#include <Parser.h>
 #include <Lexer.h>
 #include <Util.h>
 
