@@ -1,0 +1,4 @@
+# Ignore cache directories #
+
+x64/
+.vs/
