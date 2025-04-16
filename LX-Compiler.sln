@@ -1,9 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LX-LLVM", "LX-LLVM.vcxproj", "{CC37E36F-B3B3-41B0-A887-01E8EFE84994}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LX-Compiler", "LX-LLVM.vcxproj", "{CC37E36F-B3B3-41B0-A887-01E8EFE84994}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4E4019F5-12E0-4EE2-9658-A0DD3038EEDA} = {4E4019F5-12E0-4EE2-9658-A0DD3038EEDA}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lexer", "Lexer\Lexer.vcxproj", "{4E4019F5-12E0-4EE2-9658-A0DD3038EEDA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +26,14 @@ Global
 		{CC37E36F-B3B3-41B0-A887-01E8EFE84994}.Release|x64.Build.0 = Release|x64
 		{CC37E36F-B3B3-41B0-A887-01E8EFE84994}.Release|x86.ActiveCfg = Release|Win32
 		{CC37E36F-B3B3-41B0-A887-01E8EFE84994}.Release|x86.Build.0 = Release|Win32
+		{4E4019F5-12E0-4EE2-9658-A0DD3038EEDA}.Debug|x64.ActiveCfg = Debug|x64
+		{4E4019F5-12E0-4EE2-9658-A0DD3038EEDA}.Debug|x64.Build.0 = Debug|x64
+		{4E4019F5-12E0-4EE2-9658-A0DD3038EEDA}.Debug|x86.ActiveCfg = Debug|Win32
+		{4E4019F5-12E0-4EE2-9658-A0DD3038EEDA}.Debug|x86.Build.0 = Debug|Win32
+		{4E4019F5-12E0-4EE2-9658-A0DD3038EEDA}.Release|x64.ActiveCfg = Release|x64
+		{4E4019F5-12E0-4EE2-9658-A0DD3038EEDA}.Release|x64.Build.0 = Release|x64
+		{4E4019F5-12E0-4EE2-9658-A0DD3038EEDA}.Release|x86.ActiveCfg = Release|Win32
+		{4E4019F5-12E0-4EE2-9658-A0DD3038EEDA}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

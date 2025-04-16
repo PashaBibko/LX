@@ -4,11 +4,11 @@
     <ShowAllFiles>false</ShowAllFiles>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>build-test/Main.lx build-test/Main.ll</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>build-test/Main.lx build-test/Main.ll build-test/Log.txt</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>build-test/Main.lx build-test/Main.ll</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>build-test/Main.lx build-test/Main.ll build-test/Log.txt</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

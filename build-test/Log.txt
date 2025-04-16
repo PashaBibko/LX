@@ -1,0 +1,9 @@
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Started lexing file
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+Token::FUNCTION:	func
+Token::IDENTIFIER:	main
+Token::IDENTIFIER:	print
+Token::STRING_LITERAL:	Hello World!
