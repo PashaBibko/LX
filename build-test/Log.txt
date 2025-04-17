@@ -5,7 +5,13 @@ Started lexing file
 
 Token::FUNCTION
 Token::IDENTIFIER:	main
-Token::IDENTIFIER:	return
+Unknown: 3
 Token::NUMBER_LITERAL:	34
 Token::ADD
-Token::NUMBER_LITERAL:	4
+Token::NUMBER_LITERAL:	4324
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Started parsing tokens
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+AST length: 1

@@ -45,6 +45,7 @@ namespace LX
 		{ "else"		, Token::ELSE		},
 		{ "elif"		, Token::ELIF		},
 		{ "func"		, Token::FUNCTION	},
+		{ "return"		, Token::RETURN		}
 	};
 
 	static const std::unordered_map<char, Token::TokenType> operators =
