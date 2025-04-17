@@ -1,2 +1,3 @@
-int main
-    return a## + b
+func main
+    return 34 + 4
+    

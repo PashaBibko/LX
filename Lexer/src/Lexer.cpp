@@ -30,6 +30,7 @@ namespace LX
 			TOKEN_CASE(Token::SUB);
 			TOKEN_CASE(Token::MUL);
 			TOKEN_CASE(Token::DIV);
+			TOKEN_CASE(Token::NUMBER_LITERAL);
 
 			default:
 				return "Unknown: " + std::to_string(type);
@@ -58,7 +59,7 @@ namespace LX
 	{
 		if (auto keyword = keywords.find(word); keyword != keywords.end())
 		{
-			tokens.push_back({ keyword->second, word });
+			tokens.push_back({ keyword->second, "" });
 		}
 
 		else
@@ -66,6 +67,24 @@ namespace LX
 			tokens.push_back({ Token::IDENTIFIER, word });
 		}
 	}
+
+	struct LexerInfo
+	{
+		std::streamsize index = 0;
+
+		std::streamsize startOfWord = 0;
+		std::streamsize startOfNumberLiteral = 0;
+		std::streamsize startOfStringLiteral = 0;
+
+		bool isAlpha						: 1 = false;
+		bool isNumeric						: 1 = false;
+		bool inComment						: 1 = false;
+		bool inStringLiteral				: 1 = false;
+		bool isNextCharAlpha				: 1 = false;
+		bool isNextCharNumeric				: 1 = false;
+		bool wasLastCharAlpha				: 1 = false;
+		bool wasLastCharNumeric				: 1 = false;
+	};
 
 	const std::vector<Token> LX::LexicalAnalyze(std::ifstream& src, std::ofstream* log)
 	{
@@ -87,69 +106,110 @@ namespace LX
 		src.read(&contents[0], len); // Transfers file to string
 
 		// Trackers for when the program is iterating over the file //
-
-		std::streamsize index = 0;
-
-		std::streamsize startOfWord = 0;
-		std::streamsize startOfStringLiteral = 0;
-
-		bool isAlpha = false;
-		bool inComment = false;
-		bool inStringLiteral = false;
-		bool wasLastCharAlpha = false;
+		LexerInfo info;
 		
 		// Iterates over the file and turns it into tokens //
-		while (index < len)
+		while (info.index < len)
 		{
 			// Stores the current character for easy access
-			const char current = contents[index];
+			const char current = contents[info.index];
 
-			// Works out if the current character is alphabetic
-			isAlpha = (current >= 'a' && current <= 'z') || (current >= 'A' && current <= 'Z');
+			//
+			if (info.index + 1 < len)
+			{	
+				const char next = contents[info.index + 1];
+
+				info.isNextCharAlpha = (next >= 'a' && next <= 'z') || (next >= 'A' && next <= 'Z');
+				info.isNextCharNumeric = (next >= '0' && next <= '9');
+			}
+
+			else
+			{
+				info.isNextCharAlpha = false;
+				info.isNextCharNumeric = false;
+			}
+
+			// Works out if the current character is alphabetic or numeric
+			info.isAlpha = (current >= 'a' && current <= 'z') || (current >= 'A' && current <= 'Z');
+			info.isNumeric = (current >= '0' && current <= '9');
 
 			// Updates string literal tracker and skips over rest if in a string literal
 			if (current == '"')
 			{
 				// Start of string literal
-				if (inStringLiteral == false)
+				if (info.inStringLiteral == false)
 				{
 					// Updates the neccesarry trackers
-					startOfStringLiteral = index + 1;
-					inStringLiteral = true;
+					info.startOfStringLiteral = info.index + 1;
+					info.inStringLiteral = true;
 				}
 
 				// End of string literal
 				else
 				{
 					// Adds the string literal token to the token vector
-					std::string lit(contents.data() + startOfStringLiteral, index - startOfStringLiteral);
+					std::string lit(contents.data() + info.startOfStringLiteral, info.index - info.startOfStringLiteral);
 					tokens.push_back({ Token::STRING_LITERAL, lit });
 
 					// Updates trackers
-					inStringLiteral = false;
+					info.inStringLiteral = false;
 				}
 			}
 
 			// Skips over rest if within a string literal
-			else if (inStringLiteral);
+			else if (info.inStringLiteral);
 
 			// Updates comment state
 			else if (current == '#')
 			{
-				inComment = !inComment;
+				info.inComment = !info.inComment;
 			}
 
 			// Skips over if within a comment
-			else if (inComment);
+			else if (info.inComment);
 
 			// Start of a word
-			else if (isAlpha == true && wasLastCharAlpha == false)
+			else if (info.isAlpha == true && info.wasLastCharAlpha == false)
 			{
-				startOfWord = index;
+				info.startOfWord = info.index;
+
+				// Single letter word
+				if (info.isNextCharAlpha == false)
+				{
+					TokenizeWord({ contents.data() + info.startOfWord, 1 }, tokens);
+				}
+			}
+
+			// End of a word
+			else if (info.isAlpha == true && info.isNextCharAlpha == false)
+			{
+				TokenizeWord({ contents.data() + info.startOfWord, (unsigned __int64)((info.index + 1) - info.startOfWord) }, tokens);
 			}
 
 			// During a word
-			else if (isAlpha == true);
+			else if (info.isAlpha == true);
+
+			// Start of a number
+			else if (info.isNumeric == true && info.wasLastCharNumeric == false)
+			{
+				info.startOfNumberLiteral = info.index;
+
+				if (info.isNextCharNumeric == false)
+				{
+					std::string num(contents.data() + info.startOfNumberLiteral, (unsigned __int64)(info.index + 1) - info.startOfNumberLiteral);
+					tokens.push_back({ Token::NUMBER_LITERAL, num });
+				}
+			}
+
+			// End of a number
+			else if (info.isNumeric == true && info.isNextCharNumeric == false)
+			{
+				std::string num(contents.data() + info.startOfNumberLiteral, (unsigned __int64)(info.index + 1) - info.startOfNumberLiteral);
+				tokens.push_back({ Token::NUMBER_LITERAL, num });
+			}
+
+			// During a number
+			else if (info.isNumeric == true);
 
 			// Operators (+, -, /, *)
 			else if (auto op = operators.find(current); op != operators.end())
@@ -163,26 +223,14 @@ namespace LX
 			else
 			{
 				// Throws an error to alert the user
-				throw InvalidCharInSource(index, current);
-			}
-
-			// End of a word
-			if (isAlpha == false && wasLastCharAlpha == true)
-			{
-				TokenizeWord({ contents.data() + startOfWord, (unsigned __int64)(index - startOfWord) }, tokens);
+				throw InvalidCharInSource(info.index, current);
 			}
 
 			// Updates trackers //
 
-			index++;
-			wasLastCharAlpha = isAlpha;
-		}
-
-		// Words are only added the iteration after they end so it has to be done like this //
-		if (wasLastCharAlpha && isAlpha)
-		{
-			std::string word(contents.data() + startOfWord, index - startOfWord);
-			TokenizeWord(word, tokens);
+			info.index++;
+			info.wasLastCharAlpha = info.isAlpha;
+			info.wasLastCharNumeric = info.isNumeric;
 		}
 
 		// Logs the tokens if logging is on //

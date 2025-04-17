@@ -3,9 +3,9 @@
 Started lexing file
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-Token::IDENTIFIER:	int
+Token::FUNCTION
 Token::IDENTIFIER:	main
 Token::IDENTIFIER:	return
-Token::IDENTIFIER:	a
+Token::NUMBER_LITERAL:	34
 Token::ADD
-Token::IDENTIFIER:	b
+Token::NUMBER_LITERAL:	4

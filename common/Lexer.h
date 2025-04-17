@@ -39,6 +39,7 @@ namespace LX
 			// General tokens //
 
 			STRING_LITERAL,
+			NUMBER_LITERAL,
 			IDENTIFIER,
 			RETURN,
 
