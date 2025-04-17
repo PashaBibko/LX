@@ -40,6 +40,11 @@ namespace LX
 
 			STRING_LITERAL,
 			IDENTIFIER,
+			RETURN,
+
+			// Operators //
+
+			ADD, SUB, MUL, DIV,
 
 			// Keywords //
 

@@ -74,24 +74,32 @@ int main(int argc, char** argv)
 	{
 		// Tells the user the output file could not be opened
 		std::cout << "\nCould not open/create {" << argv[2] << "}\n";
+
+		return 3;
 	}
 
 	catch (LX::InvalidCharInSource& e)
 	{
 		//
 		std::cout << "\nInvalid character found in source file: {" << e.invalid << "} at index: " << e.index << "\n";
+
+		return 4;
 	}
 
 	catch (std::exception& e)
 	{
 		// Prints the std exception to the console
 		std::cout << "\nAn error occured:\n" << e.what() << std::endl;
+
+		return 5;
 	}
 
 	catch (...)
 	{
 		// Tells the user if an error has happened
 		std::cout << "\nAn Error occured\n";
+
+		return 6;
 	}
 
 	return 0;

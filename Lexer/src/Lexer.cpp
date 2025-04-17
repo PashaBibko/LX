@@ -12,7 +12,6 @@ namespace LX
 {
 	// Local macros cause im lazy //
 
-	#define ITERATE index++; continue
 	#define TOKEN_CASE(type) case type: return #type;
 
 	static std::string ToString(Token::TokenType type)
@@ -27,21 +26,46 @@ namespace LX
 			TOKEN_CASE(Token::ELSE);
 			TOKEN_CASE(Token::ELIF);
 			TOKEN_CASE(Token::FUNCTION);
+			TOKEN_CASE(Token::ADD);
+			TOKEN_CASE(Token::SUB);
+			TOKEN_CASE(Token::MUL);
+			TOKEN_CASE(Token::DIV);
 
 			default:
-				return std::string("Unknown: " + (short)type);
+				return "Unknown: " + std::to_string(type);
 		}
 	}
 
 	static const std::unordered_map<std::string, Token::TokenType> keywords =
 	{
-		{ "for", Token::FOR },
-		{ "while", Token::WHILE },
-		{ "if", Token::IF },
-		{ "else", Token::ELSE },
-		{ "elif", Token::ELIF },
-		{ "func", Token::FUNCTION },
+		{ "for"			, Token::FOR		},
+		{ "while"		, Token::WHILE		},
+		{ "if"			, Token::IF			},
+		{ "else"		, Token::ELSE		},
+		{ "elif"		, Token::ELIF		},
+		{ "func"		, Token::FUNCTION	},
 	};
+
+	static const std::unordered_map<char, Token::TokenType> operators =
+	{
+		{ '+', Token::ADD },
+		{ '-', Token::SUB },
+		{ '*', Token::MUL },
+		{ '/', Token::DIV }
+	};
+
+	static void TokenizeWord(const std::string& word, std::vector<Token>& tokens)
+	{
+		if (auto keyword = keywords.find(word); keyword != keywords.end())
+		{
+			tokens.push_back({ keyword->second, word });
+		}
+
+		else
+		{
+			tokens.push_back({ Token::IDENTIFIER, word });
+		}
+	}
 
 	const std::vector<Token> LX::LexicalAnalyze(std::ifstream& src, std::ofstream* log)
 	{
@@ -69,6 +93,7 @@ namespace LX
 		std::streamsize startOfWord = 0;
 		std::streamsize startOfStringLiteral = 0;
 
+		bool isAlpha = false;
 		bool inComment = false;
 		bool inStringLiteral = false;
 		bool wasLastCharAlpha = false;
@@ -79,6 +104,9 @@ namespace LX
 			// Stores the current character for easy access
 			const char current = contents[index];
 
+			// Works out if the current character is alphabetic
+			isAlpha = (current >= 'a' && current <= 'z') || (current >= 'A' && current <= 'Z');
+
 			// Updates string literal tracker and skips over rest if in a string literal
 			if (current == '"')
 			{
@@ -88,7 +116,6 @@ namespace LX
 					// Updates the neccesarry trackers
 					startOfStringLiteral = index + 1;
 					inStringLiteral = true;
-					ITERATE;
 				}
 
 				// End of string literal
@@ -100,69 +127,62 @@ namespace LX
 
 					// Updates trackers
 					inStringLiteral = false;
-					ITERATE;
 				}
 			}
 
 			// Skips over rest if within a string literal
-			if (inStringLiteral) { ITERATE; }
+			else if (inStringLiteral);
 
 			// Updates comment state
-			if (current == '#')
+			else if (current == '#')
 			{
 				inComment = !inComment;
-
-				ITERATE;
 			}
 
 			// Skips over if within a comment
-			if (inComment) { ITERATE; }
+			else if (inComment);
 
-			// Works out if the current character is alphabetic
-			bool isAlpha = (current >= 'a' && current <= 'z') || (current >= 'A' && current <= 'Z');
-
-			if (isAlpha == true)
+			// Start of a word
+			else if (isAlpha == true && wasLastCharAlpha == false)
 			{
-				// Start of a word
-				if (wasLastCharAlpha == false)
-				{
-					// Updates trackers
-					wasLastCharAlpha = true;
-					startOfWord = index;
-				}
+				startOfWord = index;
+			}
 
-				ITERATE;
+			// During a word
+			else if (isAlpha == true);
+
+			// Operators (+, -, /, *)
+			else if (auto op = operators.find(current); op != operators.end())
+			{
+				tokens.push_back({ op->second, "" });
+			}
+
+			// If it is here and not whitespace that means it's an invalid character
+			else if (current == ' ' || current == '\t' || current == '\r' || current == '\n');
+
+			else
+			{
+				// Throws an error to alert the user
+				throw InvalidCharInSource(index, current);
 			}
 
 			// End of a word
 			if (isAlpha == false && wasLastCharAlpha == true)
 			{
-				// Adds the word token to the token vector
-				std::string word(contents.data() + startOfWord, index - startOfWord);
-
-				if (auto keyword = keywords.find(word); keyword != keywords.end())
-				{
-					tokens.push_back({ keyword->second, word });
-				}
-
-				else
-				{
-					tokens.push_back({ Token::IDENTIFIER, word });
-				}
+				TokenizeWord({ contents.data() + startOfWord, (unsigned __int64)(index - startOfWord) }, tokens);
 			}
 
-			// Operators will eventually go here
+			// Updates trackers //
 
-			// If it is here and not whitespace that means it's an invalid character
-			if (current == ' ' || current == '\t' || current == '\r' || current == '\n')
-			{
-				// Updates trackers
-				wasLastCharAlpha = isAlpha;
-				ITERATE;
-			}
+			index++;
+			wasLastCharAlpha = isAlpha;
+		}
 
-			// Throws an error to alert the user
-			throw InvalidCharInSource(index, current);
+		// Words are only added the iteration after they end so it has to be done like this //
+		if (wasLastCharAlpha && isAlpha)
+		{
+			std::string word(contents.data() + startOfWord, index - startOfWord);
+			TokenizeWord(word, tokens);
 		}
 
 		// Logs the tokens if logging is on //
@@ -170,7 +190,15 @@ namespace LX
 		{
 			for (auto& token : tokens)
 			{
-				SafeLog(log, ToString(token.type), ":\t", token.contents);
+				if (token.contents.empty() == false)
+				{
+					SafeLog(log, ToString(token.type), ":\t", token.contents);
+				}
+
+				else
+				{
+					SafeLog(log, ToString(token.type));
+				}
 			}
 		}
 

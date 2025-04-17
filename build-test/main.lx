@@ -1,2 +1,2 @@
-func main
-    print "Hello World!"
+int main
+    return a## + b

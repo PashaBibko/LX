@@ -3,7 +3,9 @@
 Started lexing file
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-Token::FUNCTION:	func
+Token::IDENTIFIER:	int
 Token::IDENTIFIER:	main
-Token::IDENTIFIER:	print
-Token::STRING_LITERAL:	Hello World!
+Token::IDENTIFIER:	return
+Token::IDENTIFIER:	a
+Token::ADD
+Token::IDENTIFIER:	b
