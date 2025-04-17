@@ -2,11 +2,13 @@
 
 // Lexer foward declares fstream components so we can use them here //
 #include <Lexer.h>
+#include <LLVM.h>
 
 #include <memory>
 
 // Foward declares all items of the llvm lib that we need //
 // Done to avoid including LLVM.h to shorten compile times //
+/*
 namespace llvm
 {
 	class Value;
@@ -18,7 +20,7 @@ namespace llvm
 
 	template<typename T1 = ConstantFolder, typename T2 = IRBuilderDefaultInserter>
 	class IRBuilder;
-}
+}*/
 
 // The nodes of the abstract syntax tree constructed by the parser from the tokens //
 namespace LX::AST
@@ -65,14 +67,11 @@ namespace LX::AST
 	class NumberLiteral : public Node
 	{
 		public:
-			NumberLiteral(std::string num)
-				: Node(Node::NUMBER_LITERAL), m_Number(num)
-			{}
+			// Constructor to set values and automatically set type
+			NumberLiteral(std::string num);
 
-			llvm::Value* GenIR(llvm::LLVMContext& context, llvm::Module& module, llvm::IRBuilder<>& builder)
-			{
-				return nullptr;
-			}
+			// Function for generating LLVN IR (Intermediate representation) //
+			llvm::Value* GenIR(llvm::LLVMContext& context, llvm::Module& module, llvm::IRBuilder<>& builder) override;
 
 		private:
 			// The number it stores
@@ -85,14 +84,11 @@ namespace LX::AST
 	class Operation : public Node
 	{
 		public:
-			Operation(std::unique_ptr<Node> lhs, Token::TokenType op, std::unique_ptr<Node> rhs)
-				: Node(Node::OPERATION), m_Lhs(std::move(lhs)), m_Operand(op), m_Rhs(std::move(rhs))
-			{}
+			// Constructor to set values and automatically set type
+			Operation(std::unique_ptr<Node> lhs, Token::TokenType op, std::unique_ptr<Node> rhs);
 
-			llvm::Value* GenIR(llvm::LLVMContext& context, llvm::Module& module, llvm::IRBuilder<>& builder)
-			{
-				return nullptr;
-			}
+			// Function for generating LLVN IR (Intermediate representation) //
+			llvm::Value* GenIR(llvm::LLVMContext& context, llvm::Module& module, llvm::IRBuilder<>& builder) override;
 
 		private:
 			// The sides of the operation
@@ -107,14 +103,11 @@ namespace LX::AST
 	class ReturnStatement : public Node
 	{
 		public:
-			ReturnStatement(std::unique_ptr<Node> val)
-				: Node(Node::RETURN_STATEMENT), m_Val(std::move(val))
-			{}
+			// Constructor to set values and automatically set type
+			ReturnStatement(std::unique_ptr<Node> val);
 
-			llvm::Value* GenIR(llvm::LLVMContext& context, llvm::Module& module, llvm::IRBuilder<>& builder)
-			{
-				return nullptr;
-			}
+			// Function for generating LLVN IR (Intermediate representation) //
+			llvm::Value* GenIR(llvm::LLVMContext& context, llvm::Module& module, llvm::IRBuilder<>& builder) override;
 
 		private:
 			// What it is returning (can be null)
@@ -124,6 +117,8 @@ namespace LX::AST
 
 namespace LX
 {
+	struct IRGenerationError {};
+
 	struct FunctionDefinition
 	{
 		FunctionDefinition()
@@ -143,4 +138,6 @@ namespace LX
 	};
 
 	FileAST TurnTokensIntoAbstractSyntaxTree(std::vector<Token>& tokens, std::ofstream* log);
+
+	void GenerateIR(FileAST& ast);
 }

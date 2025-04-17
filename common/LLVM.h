@@ -2,7 +2,7 @@
 
 // Helper file for including all neccesarry parts of LLVM //
 #ifdef _MSC_VER
-	
+
 	// Disables all warnings as LLVM files have a lot of Data-loss casts that won't cause issues //
 	#pragma warning(push)
 	#pragma warning(disable : 4244)

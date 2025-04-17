@@ -131,6 +131,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\AST-Constructors.cpp" />
+    <ClCompile Include="src\AST-LLVM.cpp" />
+    <ClCompile Include="src\GenIR.cpp" />
     <ClCompile Include="src\Parser.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
