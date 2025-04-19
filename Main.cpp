@@ -56,9 +56,6 @@ int main(int argc, char** argv)
 		// Turns the tokens into an AST
 		LX::FileAST AST = LX::TurnTokensIntoAbstractSyntaxTree(tokens, log.get());
 
-		// Turns the AST into something
-		LX::GenerateIR(AST);
-
 		// Returns success
 		return 0;
 	}

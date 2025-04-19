@@ -2,7 +2,6 @@
 
 // Lexer foward declares fstream components so we can use them here //
 #include <Lexer.h>
-#include <LLVM.h>
 
 #include <memory>
 
@@ -54,9 +53,6 @@ namespace LX::AST
 		// Virtual destructor because of polymorphism //
 		virtual ~Node() = default;
 
-		// Function for generating LLVN IR (Intermediate representation) //
-		virtual llvm::Value* GenIR(llvm::LLVMContext& context, llvm::Module& module, llvm::IRBuilder<>& builder) = 0;
-
 		// Function for generating C/C++ code (Currently not implemented) //
 		//virtual void GenC() = 0;
 
@@ -69,9 +65,6 @@ namespace LX::AST
 		public:
 			// Constructor to set values and automatically set type
 			NumberLiteral(std::string num);
-
-			// Function for generating LLVN IR (Intermediate representation) //
-			llvm::Value* GenIR(llvm::LLVMContext& context, llvm::Module& module, llvm::IRBuilder<>& builder) override;
 
 		private:
 			// The number it stores
@@ -86,9 +79,6 @@ namespace LX::AST
 		public:
 			// Constructor to set values and automatically set type
 			Operation(std::unique_ptr<Node> lhs, Token::TokenType op, std::unique_ptr<Node> rhs);
-
-			// Function for generating LLVN IR (Intermediate representation) //
-			llvm::Value* GenIR(llvm::LLVMContext& context, llvm::Module& module, llvm::IRBuilder<>& builder) override;
 
 		private:
 			// The sides of the operation
@@ -105,9 +95,6 @@ namespace LX::AST
 		public:
 			// Constructor to set values and automatically set type
 			ReturnStatement(std::unique_ptr<Node> val);
-
-			// Function for generating LLVN IR (Intermediate representation) //
-			llvm::Value* GenIR(llvm::LLVMContext& context, llvm::Module& module, llvm::IRBuilder<>& builder) override;
 
 		private:
 			// What it is returning (can be null)
@@ -138,6 +125,4 @@ namespace LX
 	};
 
 	FileAST TurnTokensIntoAbstractSyntaxTree(std::vector<Token>& tokens, std::ofstream* log);
-
-	void GenerateIR(FileAST& ast);
 }

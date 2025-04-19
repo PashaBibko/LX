@@ -140,7 +140,6 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="common\LLVM.h" />
     <ClInclude Include="common\Parser.h" />
     <ClInclude Include="common\Lexer.h" />
     <ClInclude Include="common\Util.h" />
