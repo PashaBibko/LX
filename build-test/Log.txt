@@ -8,10 +8,4 @@ Token::IDENTIFIER:	main
 Unknown: 3
 Token::NUMBER_LITERAL:	3
 Token::ADD
-Token::NUMBER_LITERAL:	4
-
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-Started parsing tokens
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-AST length: 1
+Token::NUMBER_LITERAL:	56
