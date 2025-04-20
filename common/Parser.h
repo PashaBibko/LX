@@ -2,25 +2,15 @@
 
 // Lexer foward declares fstream components so we can use them here //
 #include <Lexer.h>
-#include <LLVM.h>
 
 #include <memory>
 
 // Foward declares all items of the llvm lib that we need //
 // Done to avoid including LLVM.h to shorten compile times //
-/*
-namespace llvm
-{
-	class Value;
-	class LLVMContext;
-	class Module;
+namespace llvm { class Value; }
 
-	class ConstantFolder;
-	class IRBuilderDefaultInserter;
-
-	template<typename T1 = ConstantFolder, typename T2 = IRBuilderDefaultInserter>
-	class IRBuilder;
-}*/
+// Foward declares the wrapper around the LLVM objects we need to pass around // 
+namespace LX { struct InfoLLVM; }
 
 // The nodes of the abstract syntax tree constructed by the parser from the tokens //
 namespace LX::AST
@@ -46,16 +36,14 @@ namespace LX::AST
 			UNDEFINED = -1
 		};
 
-		// Constructor to set the node type //
-		Node(NodeType type)
-			: m_Type(type)
-		{}
+		// Constructor to set the node type (no others provided) //
+		Node(NodeType type);
 
 		// Virtual destructor because of polymorphism //
 		virtual ~Node() = default;
 
 		// Function for generating LLVN IR (Intermediate representation) //
-		virtual llvm::Value* GenIR(llvm::LLVMContext& context, llvm::Module& module, llvm::IRBuilder<>& builder) = 0;
+		virtual llvm::Value* GenIR(InfoLLVM& LLVM) = 0;
 
 		// Function for generating C/C++ code (Currently not implemented) //
 		//virtual void GenC() = 0;
@@ -63,81 +51,36 @@ namespace LX::AST
 		// The type of the node //
 		const NodeType m_Type;
 	};
-
-	class NumberLiteral : public Node
-	{
-		public:
-			// Constructor to set values and automatically set type
-			NumberLiteral(std::string num);
-
-			// Function for generating LLVN IR (Intermediate representation) //
-			llvm::Value* GenIR(llvm::LLVMContext& context, llvm::Module& module, llvm::IRBuilder<>& builder) override;
-
-		private:
-			// The number it stores
-			// Yes the number is stored as a string
-			// It's horrible I know
-			std::string m_Number;
-	};
-
-	//
-	class Operation : public Node
-	{
-		public:
-			// Constructor to set values and automatically set type
-			Operation(std::unique_ptr<Node> lhs, Token::TokenType op, std::unique_ptr<Node> rhs);
-
-			// Function for generating LLVN IR (Intermediate representation) //
-			llvm::Value* GenIR(llvm::LLVMContext& context, llvm::Module& module, llvm::IRBuilder<>& builder) override;
-
-		private:
-			// The sides of the operation
-			// Unary operations are handled by a different class
-			std::unique_ptr<Node> m_Lhs, m_Rhs;
-
-			// The operation to be applied to the two sides
-			Token::TokenType m_Operand;
-	};
-
-	//
-	class ReturnStatement : public Node
-	{
-		public:
-			// Constructor to set values and automatically set type
-			ReturnStatement(std::unique_ptr<Node> val);
-
-			// Function for generating LLVN IR (Intermediate representation) //
-			llvm::Value* GenIR(llvm::LLVMContext& context, llvm::Module& module, llvm::IRBuilder<>& builder) override;
-
-		private:
-			// What it is returning (can be null)
-			std::unique_ptr<Node> m_Val;
-	};
 }
 
 namespace LX
 {
+	// Thrown if there was an error during IR Generation //
 	struct IRGenerationError {};
 
+	// Holds all needed info about a function //
+	// Currently only holds the body but in the future will hold: name, params, namespace/class-member
 	struct FunctionDefinition
 	{
-		FunctionDefinition()
-			: body{}
-		{}
+		// Defualt constructor (none other given) //
+		FunctionDefinition();
 		
+		// The instructions of the body of the function //
 		std::vector<std::unique_ptr<AST::Node>> body;
 	};
 
 	struct FileAST
 	{
-		FileAST()
-			: functions{}
-		{}
+		// Default constructor (none other given) //
+		FileAST();
 
+		// All the functions within this file //
 		std::vector<FunctionDefinition> functions;
 	};
 
+	// Turns the tokens of a file into it's abstract syntax tree equivalent //
 	FileAST TurnTokensIntoAbstractSyntaxTree(std::vector<Token>& tokens, std::ofstream* log);
 
+	// Turns an abstract binary tree into LLVM intermediate representation //
 	void GenerateIR(FileAST& ast);
 }

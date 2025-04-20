@@ -9,9 +9,3 @@ Unknown: 3
 Token::NUMBER_LITERAL:	3
 Token::ADD
 Token::NUMBER_LITERAL:	56
-
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-Started parsing tokens
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-AST length: 1

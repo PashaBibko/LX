@@ -53,6 +53,13 @@ int main(int argc, char** argv)
 		// Create tokens out of the input file
 		std::vector<LX::Token>tokens = LX::LexicalAnalyze(inpFile, log.get());
 
+		// Saves the log //
+		if (log != nullptr)
+		{
+			log->close();
+			//log->open(argv[3]);
+		}
+
 		// Turns the tokens into an AST
 		LX::FileAST AST = LX::TurnTokensIntoAbstractSyntaxTree(tokens, log.get());
 

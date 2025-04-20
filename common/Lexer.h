@@ -6,7 +6,7 @@
 // Foward declarations of STD classes to minimise includes //
 namespace std
 {
-	template<typename T1 = char>
+	template<typename T1>
 	struct char_traits;
 
 	template<typename T1, typename T2>
@@ -24,6 +24,7 @@ namespace std
 
 namespace LX
 {
+	// Error type with index and character to alert the user that LX does not understand that symbol //
 	struct InvalidCharInSource
 	{
 		std::streamsize index;

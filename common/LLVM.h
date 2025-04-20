@@ -21,5 +21,5 @@
 	#pragma warning(pop)
 
 #else
-	#error This code only works with MSVC / VS22
+	#error This code is only designed to work with MSVC due to the use of vcpkg and other aspects
 #endif // _MSC_VER
