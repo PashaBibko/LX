@@ -45,10 +45,8 @@ namespace LX
 			case Token::NUMBER_LITERAL:
 				return std::make_unique<AST::NumberLiteral>(p.tokens[p.index++].contents);
 
-			// Default just alerts the user of an error //
-			// TODO: Actually make this error tell the user something useful //
+			// Returns nullptr, the parsing function that recives that value will decide if that is valid //
 			default:
-				std::cout << "UNKNOWN TOKEN: " << p.tokens[p.index].type << std::endl;
 				p.index++;
 				return nullptr;
 		}
@@ -66,6 +64,7 @@ namespace LX
 			{
 				// Parses the left hand side of the operation //
 				std::unique_ptr<AST::Node> lhs = ParsePrimary(p);
+				ThrowIf<UnexpectedToken>(lhs == nullptr, Token::UNDEFINED, "value", p.tokens[p.index - 1]);
 
 				// Stores the operator to pass into the AST node //
 				Token::TokenType op = p.tokens[p.index].type;
@@ -73,6 +72,7 @@ namespace LX
 
 				// Parses the right hand of the operation //
 				std::unique_ptr<AST::Node> rhs = ParseOperation(p);
+				ThrowIf<UnexpectedToken>(rhs == nullptr, Token::UNDEFINED, "value", p.tokens[p.index - 1]);
 
 				// Returns an AST node as all of the components combined together //
 				return std::make_unique<AST::Operation>(std::move(lhs), op, std::move(rhs));

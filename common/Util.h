@@ -2,6 +2,9 @@
 
 #include <fstream>
 
+// Defining this is only if you are at the point where you should be using a debugger //
+#define LOG_EVERYTHING
+
 namespace LX
 {
 	template<typename T, typename... Args>

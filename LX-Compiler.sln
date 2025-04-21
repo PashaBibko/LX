@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LX-Compiler", "LX-LLVM.vcxproj", "{CC37E36F-B3B3-41B0-A887-01E8EFE84994}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Frontend", "LX-LLVM.vcxproj", "{CC37E36F-B3B3-41B0-A887-01E8EFE84994}"
 	ProjectSection(ProjectDependencies) = postProject
 		{3125CA11-9F6D-4A4F-AFC1-37FEB3BBD9FA} = {3125CA11-9F6D-4A4F-AFC1-37FEB3BBD9FA}
 		{4E4019F5-12E0-4EE2-9658-A0DD3038EEDA} = {4E4019F5-12E0-4EE2-9658-A0DD3038EEDA}

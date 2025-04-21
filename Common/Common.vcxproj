@@ -129,14 +129,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Console.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="Console.h" />
     <ClInclude Include="Lexer.h" />
     <ClInclude Include="LLVM.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="Util.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\Console.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

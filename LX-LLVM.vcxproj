@@ -24,7 +24,7 @@
     <ProjectGuid>{cc37e36f-b3b3-41b0-a887-01e8efe84994}</ProjectGuid>
     <RootNamespace>LXLLVM</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Compiler-Frontend</ProjectName>
+    <ProjectName>Frontend</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

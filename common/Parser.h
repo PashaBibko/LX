@@ -61,6 +61,20 @@ namespace LX
 	// Thrown if there was an error during IR Generation //
 	struct IRGenerationError {};
 
+	// Thrown if there was an unexpected (incorrect) token //
+	struct UnexpectedToken
+	{
+		// The token type that should be there //
+		Token::TokenType expected;
+
+		// If there are multiple expected types there is an option for a custom message //
+		std::string override;
+
+		// What token was actually at that position //
+		// Stored as Token not TokenType to store the location of it within the source //
+		Token got;
+	};
+
 	// Holds all needed info about a function //
 	// Currently only holds the body but in the future will hold: name, params, namespace/class-member
 	struct FunctionDefinition
