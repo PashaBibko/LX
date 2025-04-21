@@ -3,6 +3,7 @@
 #include <Util.h>
 #include <AST.h>
 
+#include <filesystem>
 #include <iostream>
 
 namespace LX
@@ -38,12 +39,16 @@ namespace LX
 		}
 
 		// Verifies the function works //
-		ThrowIf<int>(llvm::verifyFunction(*func), &llvm::errs()); // <- TODO: Make error type
+		ThrowIf<int>(llvm::verifyFunction(*func)); // <- TODO: Make error type
 	}
 
 	// Turns an abstract binary tree into LLVM intermediate representation //
-	void GenerateIR(FileAST& ast, const std::string& name)
+	void GenerateIR(FileAST& ast, const std::string& name, const std::filesystem::path& IRPath)
 	{
+		// Opens the file to output the IR //
+		std::error_code EC;
+		llvm::raw_fd_ostream file(IRPath.string(), EC);
+
 		// Creates the LLVM variables needed for generating IR that are shared between functions //
 		InfoLLVM LLVM(name);
 
@@ -53,7 +58,7 @@ namespace LX
 			GenerateFunctionIR(func, LLVM);
 		}
 
-		// Outputs the IR to the console //
-		LLVM.module.print(llvm::outs(), nullptr);
+		// Outputs the IR to the output file //
+		LLVM.module.print(file, nullptr);
 	}
 }

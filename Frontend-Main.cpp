@@ -46,6 +46,7 @@ int main(int argc, char** argv)
 		// Opens / Creates the output file //
 		std::ofstream outFile(outPath);
 		LX::ThrowIf<LX::InvalidOutputFilePath>(outFile.is_open() == false);
+		outFile.close(); // Opened just to check we can
 
 		// Opens the log file (if there is one specified //
 		if (argc == 4)
@@ -67,7 +68,7 @@ int main(int argc, char** argv)
 		LX::SafeFlush(log.get());
 
 		// Turns the AST into LLVM IR //
-		LX::GenerateIR(AST, inpPath.filename().string());
+		LX::GenerateIR(AST, inpPath.filename().string(), outPath);
 		LX::SafeFlush(log.get());
 
 		// Returns success

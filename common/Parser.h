@@ -5,6 +5,9 @@
 
 #include <memory>
 
+// Foward declares STD stuff that is passed around //
+namespace std::filesystem { class path; }
+
 // Foward declares all items of the llvm lib that we need //
 // Done to avoid including LLVM.h to shorten compile times //
 namespace llvm { class Value; }
@@ -85,5 +88,5 @@ namespace LX
 	FileAST TurnTokensIntoAbstractSyntaxTree(std::vector<Token>& tokens, std::ofstream* log);
 
 	// Turns an abstract binary tree into LLVM intermediate representation //
-	void GenerateIR(FileAST& ast, const std::string& name);
+	void GenerateIR(FileAST& ast, const std::string& name, const std::filesystem::path& IRPath);
 }
