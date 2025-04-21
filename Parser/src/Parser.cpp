@@ -37,12 +37,13 @@ namespace LX
 			// Number literals just require them to be turned into an AST node //
 			// Note: Number literals are stored as strings because i'm a masochist //
 			case Token::NUMBER_LITERAL:
-				return std::make_unique<AST::NumberLiteral>(p.tokens[p.index].contents);
+				return std::make_unique<AST::NumberLiteral>(p.tokens[p.index++].contents);
 
 			// Default just alerts the user of an error //
 			// TODO: Actually make this error tell the user something useful //
 			default:
 				std::cout << "UNKNOWN TOKEN: " << p.tokens[p.index].type << std::endl;
+				p.index++;
 				return nullptr;
 		}
 	}
@@ -53,21 +54,23 @@ namespace LX
 		// Checks if the next token is an operator //
 		// TODO: Add more than just add //
 		// TODO: Make this not crash when at the end //
-		if (p.tokens[p.index + 1].type == Token::ADD)
+		if (p.index + 1 < p.len) [[likely]]
 		{
-			// Parses the left hand side of the operation //
-			std::unique_ptr<AST::Node> lhs = ParsePrimary(p);
-			p.index++;
+			if (p.tokens[p.index + 1].type == Token::ADD)
+			{
+				// Parses the left hand side of the operation //
+				std::unique_ptr<AST::Node> lhs = ParsePrimary(p);
 
-			// Stores the operator to pass into the AST node //
-			Token::TokenType op = p.tokens[p.index].type;
-			p.index++;
+				// Stores the operator to pass into the AST node //
+				Token::TokenType op = p.tokens[p.index].type;
+				p.index++;
 
-			// Parses the right hand of the operation //
-			std::unique_ptr<AST::Node> rhs = ParsePrimary(p);
+				// Parses the right hand of the operation //
+				std::unique_ptr<AST::Node> rhs = ParseOperation(p);
 
-			// Returns an AST node as all of the components combined together //
-			return std::make_unique<AST::Operation>(std::move(lhs), op, std::move(rhs));
+				// Returns an AST node as all of the components combined together //
+				return std::make_unique<AST::Operation>(std::move(lhs), op, std::move(rhs));
+			}
 		}
 
 		// Else goes down the call stack //
@@ -130,9 +133,8 @@ namespace LX
 						// Actually parses the function
 						std::unique_ptr<AST::Node> node = Parse(p);
 
-						// Adds it to the vector and iterates to the next token
+						// Adds it to the vector
 						func.body.push_back(std::move(node));
-						p.index++;
 					}
 
 					// Goes to the next iteration of the loop //
