@@ -24,6 +24,7 @@ int main(int argc, char** argv)
 	// Creates the file paths outside of the try-catch so they can be used in errors //
 	std::filesystem::path inpPath;
 	std::filesystem::path outPath;
+	std::filesystem::path logPath;
 
 	// Creates the log-file out of the try-catch so it can be closed propely if an error is thrown //
 	std::unique_ptr<std::ofstream> log = nullptr;
@@ -37,9 +38,6 @@ int main(int argc, char** argv)
 		inpPath = argv[1];
 		outPath = argv[2];
 
-		// Prints the full paths to the console to let the user know compiling is being done //
-		std::cout << std::filesystem::absolute(inpPath) << " -> " << std::filesystem::absolute(outPath) << std::endl;
-
 		// Checks the input file exists and opens it //
 		LX::ThrowIf<LX::InvalidInputFilePath>(std::filesystem::exists(inpPath) == false);
 		std::ifstream inpFile(inpPath, std::ios::binary | std::ios::ate); // Opens in binary at the end for microptimisation //
@@ -52,9 +50,13 @@ int main(int argc, char** argv)
 		// Opens the log file (if there is one specified //
 		if (argc == 4)
 		{
-			log = std::make_unique<std::ofstream>(argv[3]);
+			logPath = argv[3];
+			log = std::make_unique<std::ofstream>(logPath);
 			LX::ThrowIf<LX::InvalidLogFilePath>(log->is_open() == false);
 		}
+
+		// Prints the full paths to the console to let the user know compiling is being done //
+		std::cout << std::filesystem::absolute(inpPath) << " -> " << std::filesystem::absolute(outPath) << std::endl;
 
 		// Create tokens out of the input file //
 		std::vector<LX::Token>tokens = LX::LexicalAnalyze(inpFile, log.get());
@@ -71,26 +73,60 @@ int main(int argc, char** argv)
 
 	catch (LX::IncorrectCommandLineArgs)
 	{
-		// Displays to the console of how to use the program
-		std::cout << "\nUsage: [source file] [output file] (optional)[log file]\n";
+		// Prints out how to correctly use the program //
+		LX::PrintStringAsColor("Error: ", LX::Color::LIGHT_RED);
+		std::cout << "Incorrect use of " << std::filesystem::path(argv[0]).filename().string() << ":\n\n";
+		std::cout << "Usage: ";
+		LX::PrintStringAsColor("[source file] [output file] [optional args]", LX::Color::WHITE);
+		std::cout << "\n\nOptional arguments:\n";
+		std::cout << "\tLog file for additional information\n\n";
 
+		// Warns the user that they are better of using a build system //
+		LX::PrintStringAsColor("Warning:\n", LX::Color::LIGHT_YELLOW);
+		std::cout << "\tIf you are seeing this message it is probably because you are not using a build-system\n";
+		std::cout << "\tWorking with a build system is recommended for use of " << std::filesystem::path(argv[0]).filename().string() << "\n";
+		std::cout << "\tOne can be found here: NULL\n\n"; // <- TODO: Make a build system
+
+		// Returns Exit id of 1 so other process can be alerted of the error //
 		return 1;
 	}
 
 	catch (LX::InvalidInputFilePath)
 	{
-		// Tells user the input file could not be found
-		std::cout << "\nFile path: {" << argv[1] << "} could not be opened\n";
+		// Tells the user the input file could not be found and how to fix the issue //
+		LX::PrintStringAsColor("Error: ", LX::Color::LIGHT_RED);
+		std::cout << "Invalid file path: ";
+		LX::PrintStringAsColor(inpPath.string(), LX::Color::WHITE);
+		std::cout << "\n\nMake sure the file exists and the process has the correct path to the file\n";
 
+		// Returns Exit id of 2 so other process can be alerted of the error //
 		return 2;
 	}
 
 	catch (LX::InvalidOutputFilePath)
 	{
-		// Tells the user the output file could not be opened
-		std::cout << "\nCould not open/create {" << argv[2] << "}\n";
+		// Tells the user that the output file could not be found/created //
+		LX::PrintStringAsColor("Error: ", LX::Color::LIGHT_RED);
+		std::cout << "Invalid file path: ";
+		LX::PrintStringAsColor(outPath.string(), LX::Color::WHITE);
+		std::cout << "\n\nThe file could not be created or written to.\n";
+		std::cout << "Check it is a valid file path and it has the permissions to modify the file\n";
 
+		// Returns Exit id of 3 so other process can be alerted of the error //
 		return 3;
+	}
+
+	catch (LX::InvalidLogFilePath)
+	{
+		// Tells the user that the log file cound not be found/created //
+		LX::PrintStringAsColor("Error: ", LX::Color::LIGHT_RED);
+		std::cout << "Invalid file path: ";
+		LX::PrintStringAsColor(logPath.string(), LX::Color::WHITE);
+		std::cout << "\n\nThe file could not be created or written to.\n";
+		std::cout << "Check it is a valid file path and it has the permissions to modify the file\n";
+
+		// Returns Exit id of 4 so other process can be alerted of the error //
+		return 4;
 	}
 
 	catch (LX::InvalidCharInSource& e)
@@ -107,7 +143,7 @@ int main(int argc, char** argv)
 		// Prints the error with the relevant information to the console //
 		std::cout << "\n";
 		LX::PrintStringAsColor("Error: ", LX::Color::LIGHT_RED);
-		std::cout << "invalid character found in ";
+		std::cout << "Invalid character found in ";
 		LX::PrintStringAsColor(inpPath.filename().string(), LX::Color::WHITE);
 		std::cout << ":\n";
 		std::cout << "Line: " << std::setw(lineNumberWidthInConsole) << e.line << " | " << e.lineContents << "\n";
@@ -115,26 +151,27 @@ int main(int argc, char** argv)
 		LX::PrintStringAsColor("^", LX::Color::LIGHT_RED);
 		std::cout << "\n";
 
-		// Returns Exit-id of 4 so other process can be alerted of the error //
-		return 4;
+		// Returns Exit id of 5 so other process can be alerted of the error //
+		return 5;
 	}
 
 	catch (std::exception& e)
 	{
-		// Prints the std exception to the console
-		std::cout << "\nAn error occured:\n" << e.what() << std::endl;
-
-		return 5;
+		// Prints the std exception to the console //
+		// Any errors here are problems with the code //
+		std::cout << "\nAn error occured, Please report this on the github page:\n" << e.what() << std::endl;
+		return -1; // -1 exit code means an unknown error
 	}
 
 	catch (...)
 	{
-		// Tells the user if an error has happened
-		std::cout << "\nAn Error occured\n";
-
-		return 6;
+		// Tells the user if an error has happened //
+		// Any errors here are problems with the code //
+		std::cout << "An unknown error occured. Please report this on the github page.\n";
+		return -1; // -1 exit code means an unknown error
 	}
 	
 	// -1 means an error slipped through (IDK how, it's here just in case)
-	return -1;
+	std::cout << "An unknown error occured. Please report this on the github page.\n";
+	return -1; // -1 exit code means an unknown error
 }
