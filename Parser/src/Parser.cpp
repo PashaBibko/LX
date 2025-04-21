@@ -7,6 +7,12 @@
 
 namespace LX
 {
+	template<Token::TokenType type>
+	static inline void ExpectToken(const Token& t)
+	{
+		ThrowIf<int>(type != t.type);
+	}
+
 	// Local struct so everything can be public //
 	struct Parser
 	{
@@ -118,13 +124,16 @@ namespace LX
 			{
 				case Token::FUNCTION:
 				{
-					// Skips over function token + name token
-					// TODO: Store function name in the type
-					p.index++; p.index++;
+					// Skips over function token + name token //
+					p.index++;
 
 					// Pushes a new function to the vector and gets a reference to it for adding the body //
 					output.functions.emplace_back();
 					FunctionDefinition& func = output.functions.back();
+
+					// Assigns the function name //
+					ExpectToken<Token::IDENTIFIER>(p.tokens[p.index]);
+					func.name = p.tokens[p.index++].contents;
 
 					// Loops over the body until it reaches the end //
 					// TODO: Detect the end instead of looping over the entire token vector
@@ -144,7 +153,8 @@ namespace LX
 				// Lets the user know there is an error //
 				// TODO: Makes this error actually output useful information //
 				default:
-					std::cout << "UNKNOWN TOKEN FOUND" << std::endl;
+					std::cout << "UNKNOWN TOKEN FOUND: " << p.tokens[p.index].type << std::endl;
+					return output;
 			}
 		}
 

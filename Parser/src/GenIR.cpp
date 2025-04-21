@@ -8,7 +8,7 @@
 namespace LX
 {
 	// Tells the generator if the current node is allowed to be within a top-level context //
-	// TODO: Make this function do something other than return true
+	// TODO: Make this function do something other than return true //
 	static constexpr bool IsValidTopLevelNode(AST::Node::NodeType type)
 	{
 		return true;
@@ -20,7 +20,7 @@ namespace LX
 		// Creates the functions signature and return type //
 
 		llvm::FunctionType* retType = llvm::FunctionType::get(llvm::Type::getInt32Ty(LLVM.context), false); // <- Defaults to int currently
-		llvm::Function* func = llvm::Function::Create(retType, llvm::Function::ExternalLinkage, "main", LLVM.module); // Defaults to main currently
+		llvm::Function* func = llvm::Function::Create(retType, llvm::Function::ExternalLinkage, funcAST.name, LLVM.module);
 		llvm::BasicBlock* entry = llvm::BasicBlock::Create(LLVM.context, "entry", func);
 		LLVM.builder.SetInsertPoint(entry);
 
@@ -42,10 +42,10 @@ namespace LX
 	}
 
 	// Turns an abstract binary tree into LLVM intermediate representation //
-	void GenerateIR(FileAST& ast)
+	void GenerateIR(FileAST& ast, const std::string& name)
 	{
 		// Creates the LLVM variables needed for generating IR that are shared between functions //
-		InfoLLVM LLVM("add_itns");
+		InfoLLVM LLVM(name);
 
 		// Loops over the functions to generate their LLVM IR //
 		for (auto& func : ast.functions)

@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <iostream>
+#include <iomanip>
 
 namespace LX
 {
@@ -32,11 +33,40 @@ namespace LX
 			TOKEN_CASE(Token::MUL);
 			TOKEN_CASE(Token::DIV);
 			TOKEN_CASE(Token::NUMBER_LITERAL);
+			TOKEN_CASE(Token::RETURN);
 
 			default:
 				return "Unknown: " + std::to_string(type);
 		}
 	}
+
+	// Struct to store the current information of the lexer //
+	struct LexerInfo
+	{
+		// Current trackers of where in the source it is //
+
+		std::streamsize line = 1; // <- Lines start on 1 (probably because of non-programmer's)
+		std::streamsize index = 0;
+		std::streamsize column = 0; // <- Columns start on 1 (probably because of non-programmer's)
+
+		// Trackers for when a multi-char token started //
+
+		std::streamsize startOfWord = 0;
+		std::streamsize startOfNumberLiteral = 0;
+		std::streamsize startOfStringLiteral = 0;
+
+		// Different flags of the lexer //
+		// Stored as a bitset to minimse memory allocated (basically no difference, because only one exists at any given time) //
+
+		bool isAlpha : 1 = false;
+		bool isNumeric : 1 = false;
+		bool inComment : 1 = false;
+		bool inStringLiteral : 1 = false;
+		bool isNextCharAlpha : 1 = false;
+		bool isNextCharNumeric : 1 = false;
+		bool wasLastCharAlpha : 1 = false;
+		bool wasLastCharNumeric : 1 = false;
+	};
 
 	// All the keywords the lexer currently supports with their token-enum equivalents //
 	static const std::unordered_map<std::string, Token::TokenType> keywords =
@@ -61,45 +91,20 @@ namespace LX
 	};
 
 	// Checks if the given word is a keyword before adding it to the tokens //
-	static void TokenizeWord(const std::string& word, std::vector<Token>& tokens)
+	static void TokenizeWord(const std::string& word, std::vector<Token>& tokens, LexerInfo& info)
 	{
 		// Checks the map for a check and if so adds it with its enum equivalent //
 		if (auto keyword = keywords.find(word); keyword != keywords.end())
 		{
-			tokens.push_back({ keyword->second, "" });
+			tokens.push_back({ keyword->second, "", info.line, info.column - (std::streamsize)word.size(), (std::streamsize)word.size()});
 		}
 
 		// Else adds it as a type of IDENTIFIER //
 		else
 		{
-			tokens.push_back({ Token::IDENTIFIER, word });
+			tokens.push_back({ Token::IDENTIFIER, word, info.line, info.column - (std::streamsize)word.size(), (std::streamsize)word.size()});
 		}
 	}
-
-	// Struct to store the current information of the lexer //
-	struct LexerInfo
-	{
-		// Current index within the lexer //
-		std::streamsize index = 0;
-
-		// Trackers for when a multi-char token started //
-
-		std::streamsize startOfWord = 0;
-		std::streamsize startOfNumberLiteral = 0;
-		std::streamsize startOfStringLiteral = 0;
-
-		// Different flags of the lexer //
-		// Stored as a bitset to minimse memory allocated (basically no difference, because only one exists at any given time) //
-
-		bool isAlpha						: 1 = false;
-		bool isNumeric						: 1 = false;
-		bool inComment						: 1 = false;
-		bool inStringLiteral				: 1 = false;
-		bool isNextCharAlpha				: 1 = false;
-		bool isNextCharNumeric				: 1 = false;
-		bool wasLastCharAlpha				: 1 = false;
-		bool wasLastCharNumeric				: 1 = false;
-	};
 
 	const std::vector<Token> LX::LexicalAnalyze(std::ifstream& src, std::ofstream* log)
 	{
@@ -168,7 +173,7 @@ namespace LX
 				{
 					// Adds the string literal token to the token vector //
 					std::string lit(contents.data() + info.startOfStringLiteral, info.index - info.startOfStringLiteral);
-					tokens.push_back({ Token::STRING_LITERAL, lit });
+					tokens.push_back({ Token::STRING_LITERAL, lit, info.line, info.column - (std::streamsize)lit.length(), (std::streamsize)lit.length() });
 
 					// Updates trackers //
 					info.inStringLiteral = false;
@@ -197,7 +202,7 @@ namespace LX
 				if (info.isNextCharAlpha == false)
 				{
 					// Calls the function designed to handle the tokenisation of words //
-					TokenizeWord({ contents.data() + info.startOfWord, 1 }, tokens);
+					TokenizeWord({ contents.data() + info.startOfWord, 1 }, tokens, info);
 				}
 			}
 
@@ -205,7 +210,7 @@ namespace LX
 			else if (info.isAlpha == true && info.isNextCharAlpha == false)
 			{
 				// Calls the function designed to handle the tokenisation of words //
-				TokenizeWord({ contents.data() + info.startOfWord, (unsigned __int64)((info.index + 1) - info.startOfWord) }, tokens);
+				TokenizeWord({ contents.data() + info.startOfWord, (unsigned __int64)((info.index + 1) - info.startOfWord) }, tokens, info);
 			}
 
 			// During a word //
@@ -222,7 +227,7 @@ namespace LX
 				{
 					// Pushes the number to the token vector. Number literals are stored as string in the tokens //
 					std::string num(contents.data() + info.startOfNumberLiteral, (unsigned __int64)(info.index + 1) - info.startOfNumberLiteral);
-					tokens.push_back({ Token::NUMBER_LITERAL, num });
+					tokens.push_back({ Token::NUMBER_LITERAL, num, info.line, info.column - (std::streamsize)num.size(), (std::streamsize)num.size()});
 				}
 			}
 
@@ -231,7 +236,7 @@ namespace LX
 			{
 				// Pushes the number to the token vector. Number literals are stored as string in the tokens //
 				std::string num(contents.data() + info.startOfNumberLiteral, (unsigned __int64)(info.index + 1) - info.startOfNumberLiteral);
-				tokens.push_back({ Token::NUMBER_LITERAL, num });
+				tokens.push_back({ Token::NUMBER_LITERAL, num, info.line, info.column - (std::streamsize)num.size(), (std::streamsize)num.size()});
 			}
 
 			// During a number //
@@ -240,21 +245,49 @@ namespace LX
 			// Operators (+, -, /, *) //
 			else if (auto op = operators.find(current); op != operators.end())
 			{
-				tokens.push_back({ op->second, "" });
+				tokens.push_back({ op->second, "", info.line, info.column, 1});
 			}
 
 			// If it is here and not whitespace that means it's an invalid character //
-			else if (current == ' ' || current == '\t' || current == '\r' || current == '\n');
+			else if (current == ' ' || current == '\r');
+
+			// Skips over an extra 3 spaces as tabs SHOULD ALWAYS take up 4 spaces //
+			// Only for the column and not index //
+			else if (current == '\t')
+			{
+				info.column = info.column + 3;
+			}
+
+			// Increments the line number and resets the column on entering a new line //
+			else if (current == '\n')
+			{
+				info.column = 0;
+				info.line++;
+			}
 
 			else
 			{
+				// Finds the start of the line //
+				size_t start = contents.rfind('\n', info.index);
+				if (start == std::string::npos) { start = 0; } // std::npos means none was found so defaults to 1
+				else { start = start + 1; } // Skips the new line character
+
+				// Finds the end of the line //
+				size_t end = contents.find('\n', info.index);
+				if (end == std::string::npos) { end = contents.size(); } // If it reaches the end with no /n it defaults to the length of the string
+
+				// The line where the invalid character is //
+				std::string line = contents.substr(start, end - start);
+
 				// Throws an error to alert the user of the invalid character //
-				throw InvalidCharInSource(info.index, current);
+				throw InvalidCharInSource(info.column, info.line, line, contents[info.index]);
 			}
 
 			// Updates trackers to their default state of a new character //
 
 			info.index++;
+			info.column++;
+
 			info.wasLastCharAlpha = info.isAlpha;
 			info.wasLastCharNumeric = info.isNumeric;
 		}
@@ -266,12 +299,12 @@ namespace LX
 			{
 				if (token.contents.empty() == false)
 				{
-					SafeLog(log, ToString(token.type), ":\t", token.contents);
+					SafeLog(log, "{ Line: ", std::left, std::setw(3), token.line, ", Column: ", std::setw(3), token.index, ", Length: ", std::setw(2), token.length, "} ", std::setw(30), ToString(token.type) + ":", "{", token.contents, "}");
 				}
 
 				else
 				{
-					SafeLog(log, ToString(token.type));
+					SafeLog(log, "{ Line: ", std::left, std::setw(3), token.line, ", Column: ", std::setw(3), token.index, ", Length: ", std::setw(2), token.length, "} ", ToString(token.type));
 				}
 			}
 		}

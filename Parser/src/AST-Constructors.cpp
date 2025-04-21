@@ -11,7 +11,7 @@ namespace LX
 
 	// Reserves space for nodes (stops excess allocations) //
 	FunctionDefinition::FunctionDefinition()
-		: body{}
+		: body{}, name{}
 	{ body.reserve(32); }
 
 	// Reserves space for functions (stops excess allocations) //

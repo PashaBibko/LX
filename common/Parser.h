@@ -64,6 +64,9 @@ namespace LX
 	{
 		// Defualt constructor (none other given) //
 		FunctionDefinition();
+
+		// The name of the function //
+		std::string name;
 		
 		// The instructions of the body of the function //
 		std::vector<std::unique_ptr<AST::Node>> body;
@@ -82,5 +85,5 @@ namespace LX
 	FileAST TurnTokensIntoAbstractSyntaxTree(std::vector<Token>& tokens, std::ofstream* log);
 
 	// Turns an abstract binary tree into LLVM intermediate representation //
-	void GenerateIR(FileAST& ast);
+	void GenerateIR(FileAST& ast, const std::string& name);
 }
