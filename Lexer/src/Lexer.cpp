@@ -40,6 +40,22 @@ namespace LX
 		}
 	}
 
+	static constexpr bool CanBePartOfNumberLiteral(const char c)
+	{
+		return (c == '.') || (c == 'f');
+	}
+
+	static std::string PrintChar(const char c)
+	{
+		switch (c)
+		{
+			case '\n': return R"(\n)";
+			case '\t': return R"(\t)";
+			case '\r': return R"(\r)";
+			default: return std::string(1, c);
+		}
+	}
+
 	// Struct to store the current information of the lexer //
 	struct LexerInfo
 	{
@@ -66,6 +82,7 @@ namespace LX
 		bool isNextCharNumeric : 1 = false;
 		bool wasLastCharAlpha : 1 = false;
 		bool wasLastCharNumeric : 1 = false;
+		bool lexingNumber : 1 = false;
 	};
 
 	// All the keywords the lexer currently supports with their token-enum equivalents //
@@ -143,7 +160,7 @@ namespace LX
 
 				// Sets flags depending on the value of the next character //
 				info.isNextCharAlpha = (next >= 'a' && next <= 'z') || (next >= 'A' && next <= 'Z');
-				info.isNextCharNumeric = (next >= '0' && next <= '9');
+				info.isNextCharNumeric = (next >= '0' && next <= '9') || CanBePartOfNumberLiteral(next);
 			}
 
 			else
@@ -192,6 +209,37 @@ namespace LX
 			// Skips over if within a comment //
 			else if (info.inComment);
 
+			// Start of a number //
+			else if (info.isNumeric == true && info.wasLastCharNumeric == false && info.lexingNumber == false)
+			{
+				// Stores the start of the number //
+				info.startOfNumberLiteral = info.index;
+
+				// Checks if it as the end (single char numbers) //
+				if (info.isNextCharNumeric == false)
+				{
+					// Pushes the number to the token vector. Number literals are stored as string in the tokens //
+					std::string num(contents.data() + info.startOfNumberLiteral, (unsigned __int64)(info.index + 1) - info.startOfNumberLiteral);
+					tokens.push_back({ Token::NUMBER_LITERAL, num, info.line, info.column - (std::streamsize)num.size(), (std::streamsize)num.size() });
+				}
+
+				// Stores it is lexing a number literal //
+				else { info.lexingNumber = true; }
+			}
+
+			// End of a number //
+			else if ((info.isNumeric == true || CanBePartOfNumberLiteral(current)) && info.isNextCharNumeric == false && info.lexingNumber == true)
+			{
+				// Pushes the number to the token vector. Number literals are stored as string in the tokens //
+				std::string num(contents.data() + info.startOfNumberLiteral, (unsigned __int64)(info.index + 1) - info.startOfNumberLiteral);
+				tokens.push_back({ Token::NUMBER_LITERAL, num, info.line, info.column - (std::streamsize)num.size(), (std::streamsize)num.size() });
+				info.lexingNumber = false; // Stops storing it is lexing a number
+			}
+
+			// During a number //
+			else if (info.isNumeric == true);
+			else if (info.lexingNumber == true && CanBePartOfNumberLiteral(current));
+
 			// Start of a word //
 			else if (info.isAlpha == true && info.wasLastCharAlpha == false)
 			{
@@ -216,32 +264,6 @@ namespace LX
 			// During a word //
 			else if (info.isAlpha == true);
 
-			// Start of a number //
-			else if (info.isNumeric == true && info.wasLastCharNumeric == false)
-			{
-				// Stores the start of the number //
-				info.startOfNumberLiteral = info.index;
-
-				// Checks if it as the end (single char numbers) //
-				if (info.isNextCharNumeric == false)
-				{
-					// Pushes the number to the token vector. Number literals are stored as string in the tokens //
-					std::string num(contents.data() + info.startOfNumberLiteral, (unsigned __int64)(info.index + 1) - info.startOfNumberLiteral);
-					tokens.push_back({ Token::NUMBER_LITERAL, num, info.line, info.column - (std::streamsize)num.size(), (std::streamsize)num.size()});
-				}
-			}
-
-			// End of a number //
-			else if (info.isNumeric == true && info.isNextCharNumeric == false)
-			{
-				// Pushes the number to the token vector. Number literals are stored as string in the tokens //
-				std::string num(contents.data() + info.startOfNumberLiteral, (unsigned __int64)(info.index + 1) - info.startOfNumberLiteral);
-				tokens.push_back({ Token::NUMBER_LITERAL, num, info.line, info.column - (std::streamsize)num.size(), (std::streamsize)num.size()});
-			}
-
-			// During a number //
-			else if (info.isNumeric == true);
-
 			// Operators (+, -, /, *) //
 			else if (auto op = operators.find(current); op != operators.end())
 			{
@@ -265,6 +287,7 @@ namespace LX
 				info.line++;
 			}
 
+			// Throws an error with all the relevant information //s
 			else
 			{
 				// Finds the start of the line //
@@ -283,6 +306,22 @@ namespace LX
 				throw InvalidCharInSource(info.column, info.line, line, contents[info.index]);
 			}
 
+			// Log dumps A LOT of info //
+
+			SafeLog
+			(
+				log,
+				"Is Alpha: ", info.isAlpha,
+				" Is Numeric: ", info.isNumeric,
+				" In Comment: ", info.inComment,
+				" In String: ", info.inStringLiteral,
+				" Next Char Alpha: ", info.isNextCharAlpha,
+				" Next Char Numeric: ", info.wasLastCharNumeric,
+				" Last Char Numeric: ", info.wasLastCharAlpha,
+				" Lexing number: ", info.lexingNumber,
+				" Current: {", PrintChar(current), "}"
+			);
+
 			// Updates trackers to their default state of a new character //
 
 			info.index++;
@@ -295,6 +334,8 @@ namespace LX
 		// Logs the tokens if logging is on //
 		if (log != nullptr)
 		{
+			SafeLog(log, LOG_BREAK, "Tokens", LOG_BREAK);
+
 			for (auto& token : tokens)
 			{
 				if (token.contents.empty() == false)
@@ -307,6 +348,8 @@ namespace LX
 					SafeLog(log, "{ Line: ", std::left, std::setw(3), token.line, ", Column: ", std::setw(3), token.index, ", Length: ", std::setw(2), token.length, "} ", ToString(token.type));
 				}
 			}
+
+			SafeLog(log, "\n END OF TOKENS");
 		}
 
 		// Shrinks the vector down to minimum size before returning to avoid excess memory being allocated

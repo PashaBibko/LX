@@ -60,12 +60,15 @@ int main(int argc, char** argv)
 
 		// Create tokens out of the input file //
 		std::vector<LX::Token>tokens = LX::LexicalAnalyze(inpFile, log.get());
+		LX::SafeFlush(log.get());
 
 		// Turns the tokens into an AST //
 		LX::FileAST AST = LX::TurnTokensIntoAbstractSyntaxTree(tokens, log.get());
+		LX::SafeFlush(log.get());
 
 		// Turns the AST into LLVM IR //
 		LX::GenerateIR(AST, inpPath.filename().string());
+		LX::SafeFlush(log.get());
 
 		// Returns success
 		return 0;
