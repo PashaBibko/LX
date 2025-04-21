@@ -155,23 +155,19 @@ int main(int argc, char** argv)
 		return 5;
 	}
 
+	// Catches any std errors, there should be none //
 	catch (std::exception& e)
 	{
 		// Prints the std exception to the console //
 		// Any errors here are problems with the code //
-		std::cout << "\nAn error occured, Please report this on the github page:\n" << e.what() << std::endl;
-		return -1; // -1 exit code means an unknown error
+		std::cout << e.what() << std::endl;
 	}
 
-	catch (...)
-	{
-		// Tells the user if an error has happened //
-		// Any errors here are problems with the code //
-		std::cout << "An unknown error occured. Please report this on the github page.\n";
-		return -1; // -1 exit code means an unknown error
-	}
+	// Default catches any non-specified errors //
+	catch (...) {}
 	
-	// -1 means an error slipped through (IDK how, it's here just in case)
+	// Closes the log if it is open to get as much info as possible //
+	if (log != nullptr) { log->close(); }
 	std::cout << "An unknown error occured. Please report this on the github page.\n";
 	return -1; // -1 exit code means an unknown error
 }
