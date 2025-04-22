@@ -3,6 +3,7 @@
 x64/
 .vs/
 
-# Ignore user-specific files #
+# Ignore runtime outputs #
 
-*.user
+*.ll
+log
