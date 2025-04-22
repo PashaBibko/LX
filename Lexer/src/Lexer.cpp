@@ -5,6 +5,7 @@
 #include <string_view>
 #include <fstream>
 #include <vector>
+#include <string>
 
 #include <iostream>
 #include <iomanip>
@@ -114,13 +115,13 @@ namespace LX
 		// Checks the map for a check and if so adds it with its enum equivalent //
 		if (auto keyword = keywords.find(word); keyword != keywords.end())
 		{
-			tokens.push_back({ keyword->second, info, "", (std::streamsize)word.size() });
+			tokens.push_back({ keyword->second, info, (std::streamsize)word.size() });
 		}
 
 		// Else adds it as a type of IDENTIFIER //
 		else
 		{
-			tokens.push_back({ Token::IDENTIFIER, info, word, (std::streamsize)word.size() });
+			tokens.push_back({ Token::IDENTIFIER, info, (std::streamsize)word.size() });
 		}
 	}
 
@@ -182,7 +183,7 @@ namespace LX
 				{
 					// Adds the string literal token to the token vector //
 					std::string lit(contents.data() + info.startOfStringLiteral, info.index - info.startOfStringLiteral);
-					tokens.push_back({ Token::STRING_LITERAL, info, lit, (std::streamsize)lit.length() + 1 });
+					tokens.push_back({ Token::STRING_LITERAL, info, (std::streamsize)lit.length() + 2 }); // Adding two makes the "" be stored as well
 
 					// Updates trackers //
 					info.inStringLiteral = false;
@@ -212,7 +213,7 @@ namespace LX
 				{
 					// Pushes the number to the token vector. Number literals are stored as string in the tokens //
 					std::string num(contents.data() + info.startOfNumberLiteral, (unsigned __int64)(info.index + 1) - info.startOfNumberLiteral);
-					tokens.push_back({ Token::NUMBER_LITERAL, info, num, (std::streamsize)num.size() });
+					tokens.push_back({ Token::NUMBER_LITERAL, info, (std::streamsize)num.size() });
 				}
 
 				// Stores it is lexing a number literal //
@@ -224,7 +225,7 @@ namespace LX
 			{
 				// Pushes the number to the token vector. Number literals are stored as string in the tokens //
 				std::string num(contents.data() + info.startOfNumberLiteral, (unsigned __int64)(info.index + 1) - info.startOfNumberLiteral);
-				tokens.push_back({ Token::NUMBER_LITERAL, info, num, (std::streamsize)num.size() });
+				tokens.push_back({ Token::NUMBER_LITERAL, info, (std::streamsize)num.size() });
 				info.lexingNumber = false; // Stops storing it is lexing a number
 			}
 
@@ -259,7 +260,7 @@ namespace LX
 			// Operators (+, -, /, *) //
 			else if (auto op = operators.find(current); op != operators.end())
 			{
-				tokens.push_back({ op->second, info, "", 1 });
+				tokens.push_back({ op->second, info, 1 });
 			}
 
 			// If it is here and not whitespace that means it's an invalid character //
@@ -323,15 +324,14 @@ namespace LX
 
 			for (auto& token : tokens)
 			{
-				if (token.contents.empty() == false)
-				{
-					SafeLog(log, std::left, "{ Line: ", std::setw(3), token.line, ", Index: ", std::setw(3), token.index, ", Length: ", std::setw(2), token.length, " } ", std::setw(30), ToStringNoFormat(token.type) + ":", "{", token.contents, "}");
-				}
-
-				else
-				{
-					SafeLog(log, std::left, "{ Line: ", std::setw(3), token.line, ", Index: ", std::setw(3), token.index, ", Length: ", std::setw(2), token.length, " } ", ToStringNoFormat(token.type));
-				}
+				SafeLog
+				(
+					log, std::left, 
+					"{ Line: ", std::setw(3), token.line, 
+					", Index: ", std::setw(3), token.index,
+					", Length: ", std::setw(2), token.length, " } ",
+					std::setw(30), ToStringNoFormat(token.type) + ":", "{", token.GetContents(), "}"
+				);
 			}
 
 			SafeLog(log, "\n END OF TOKENS");

@@ -43,7 +43,7 @@ namespace LX
 			// Number literals just require them to be turned into an AST node //
 			// Note: Number literals are stored as strings because i'm a masochist //
 			case Token::NUMBER_LITERAL:
-				return std::make_unique<AST::NumberLiteral>(p.tokens[p.index++].contents);
+				return std::make_unique<AST::NumberLiteral>(p.tokens[p.index++].GetContents());
 
 			// Returns nullptr, the parsing function that recives that value will decide if that is valid //
 			default:
@@ -133,7 +133,7 @@ namespace LX
 
 					// Assigns the function name //
 					ExpectToken<Token::IDENTIFIER>(p.tokens[p.index]);
-					func.name = p.tokens[p.index++].contents;
+					func.name = p.tokens[p.index++].GetContents();
 
 					// Loops over the body until it reaches the end //
 					// TODO: Detect the end instead of looping over the entire token vector

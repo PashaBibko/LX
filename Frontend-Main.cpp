@@ -44,6 +44,7 @@ int main(int argc, char** argv)
 
 	// Creates the contents string outside of the try-catch so they can be used in errors //
 	std::string contents;
+	LX::Token::source = &contents;
 
 	// Creates the log-file out of the try-catch so it can be closed propely if an error is thrown //
 	std::unique_ptr<std::ofstream> log = nullptr;
@@ -212,9 +213,9 @@ int main(int argc, char** argv)
 		std::cout << "\n";
 
 		// Prints the code with the error to the console //
-		std::string errorSquiggle(e.got.length, '^');
+		std::string errorSquiggle(e.got.length, '~');
 		std::cout << "Line: " << std::setw(lineNumberWidthInConsole) << e.got.line << " | " << line << "\n";
-		std::cout << "      " << std::setw(lineNumberWidthInConsole) << "" << " | " << std::setw(e.got.column - 1) << "";
+		std::cout << "      " << std::setw(lineNumberWidthInConsole) << "" << " | " << std::setw(e.got.column) << "";
 		LX::PrintStringAsColor(errorSquiggle, LX::Color::LIGHT_RED);
 		std::cout << "\n";
 
