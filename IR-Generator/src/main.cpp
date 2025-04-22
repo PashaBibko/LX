@@ -180,7 +180,7 @@ int main(int argc, char** argv)
 		LX::PrintStringAsColor(inpPath.filename().string(), LX::Color::WHITE);
 		std::cout << ":\n";
 		std::cout << "Line: " << std::setw(lineNumberWidthInConsole) << e.line << " | " << line << "\n";
-		std::cout << "      " << std::setw(lineNumberWidthInConsole) << ""     << " | " << std::setw(e.col);
+		std::cout << "      " << std::setw(lineNumberWidthInConsole) << "" << " | " << std::setw(e.col);
 		LX::PrintStringAsColor("^", LX::Color::LIGHT_RED);
 		std::cout << "\n";
 
@@ -197,7 +197,7 @@ int main(int argc, char** argv)
 
 		// Gets the line of the error //
 		std::string line = LX::GetLineAtIndexOf(contents, e.got.index);
-		
+
 		// Prints the error to the console with the relevant info //
 		std::cout << "\n";
 		LX::PrintStringAsColor("Error: ", LX::Color::LIGHT_RED);
@@ -233,7 +233,7 @@ int main(int argc, char** argv)
 
 	// Default catches any non-specified errors //
 	catch (...) {}
-	
+
 	// Closes the log if it is open to get as much info as possible //
 	if (log != nullptr) { log->close(); }
 	std::cout << "An unknown error occured. Please report this on the github page.\n";
