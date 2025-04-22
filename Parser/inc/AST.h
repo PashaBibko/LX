@@ -2,6 +2,8 @@
 
 #include <LLVM.h>
 
+#include <memory>
+
 namespace LX
 {
 	// Wrapper over the LLVM variables for easier passing around //
@@ -14,6 +16,9 @@ namespace LX
 		llvm::Module module;
 		llvm::IRBuilder<> builder;
 	};
+
+	// Function to turn a AST node into string //
+	std::string ToString(std::unique_ptr<AST::Node>& node);
 }
 
 namespace LX::AST

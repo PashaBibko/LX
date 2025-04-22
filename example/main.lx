@@ -1,2 +1,9 @@
+func add
+{
+    return 1 + 2
+}
+
 func main
+{
     return 375 + 32
+}

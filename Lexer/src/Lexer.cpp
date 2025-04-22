@@ -34,6 +34,12 @@ namespace LX
 			TOKEN_CASE(Token::DIV);
 			TOKEN_CASE(Token::NUMBER_LITERAL);
 			TOKEN_CASE(Token::RETURN);
+			TOKEN_CASE(Token::OPEN_BRACE);
+			TOKEN_CASE(Token::CLOSE_BRACE);
+			TOKEN_CASE(Token::OPEN_BRACKET);
+			TOKEN_CASE(Token::CLOSE_BRACKET);
+			TOKEN_CASE(Token::OPEN_PAREN);
+			TOKEN_CASE(Token::CLOSE_PAREN);
 
 			default:
 				return "Unknown: " + std::to_string(type);
@@ -97,6 +103,17 @@ namespace LX
 		{ "elif"		, Token::ELIF		},
 		{ "func"		, Token::FUNCTION	},
 		{ "return"		, Token::RETURN		}
+	};
+
+	// All the symbols supported by the lexer //
+	static const std::unordered_map<char, Token::TokenType> symbols =
+	{
+		{ '{', Token::OPEN_BRACKET		},
+		{ '}', Token::CLOSE_BRACKET		},
+		{ '[', Token::OPEN_BRACE		},
+		{ ']', Token::CLOSE_BRACE		},
+		{ '(', Token::OPEN_PAREN		},
+		{ ')', Token::CLOSE_PAREN		}
 	};
 
 	// All the single-char operators currently supported by the lexer with their token-enum equivalents //
@@ -256,6 +273,12 @@ namespace LX
 
 			// During a word //
 			else if (info.isAlpha == true);
+
+			// Symbols //
+			else if (auto sym = symbols.find(current); sym != symbols.end())
+			{
+				tokens.push_back({ sym->second, info, 1 });
+			}
 
 			// Operators (+, -, /, *) //
 			else if (auto op = operators.find(current); op != operators.end())

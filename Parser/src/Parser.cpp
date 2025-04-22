@@ -7,18 +7,12 @@
 
 namespace LX
 {
-	template<Token::TokenType type>
-	static inline void ExpectToken(const Token& t)
-	{
-		ThrowIf<int>(type != t.type);
-	}
-
 	// Local struct so everything can be public //
 	struct Parser
 	{
 		// Passes constructor args to members //
 		Parser(std::vector<Token>& _tokens, std::ofstream* _log)
-			: tokens(_tokens), log(_log), index(0), len(_tokens.size())
+			: tokens(_tokens), log(_log), index(0), len(_tokens.size()), scopeDepth(0)
 		{}
 
 		// Tokens created by the lexer //
@@ -32,6 +26,9 @@ namespace LX
 
 		// Current index within the token vector //
 		size_t index;
+
+		// Current scope depth //
+		size_t scopeDepth;
 	};
 
 	// Base of the call stack to handle the simplest of tokens //
@@ -44,6 +41,18 @@ namespace LX
 			// Note: Number literals are stored as strings because i'm a masochist //
 			case Token::NUMBER_LITERAL:
 				return std::make_unique<AST::NumberLiteral>(p.tokens[p.index++].GetContents());
+
+			//
+			case Token::OPEN_BRACKET:
+				p.scopeDepth++;
+				p.index++;
+				return nullptr;
+
+			case Token::CLOSE_BRACE:
+				ThrowIf<UnexpectedToken>(p.scopeDepth == 0, Token::UNDEFINED, "need a different error", p.tokens[p.index]);
+				p.scopeDepth--;
+				p.index++;
+				return nullptr;
 
 			// Returns nullptr, the parsing function that recives that value will decide if that is valid //
 			default:
@@ -90,7 +99,7 @@ namespace LX
 		if (p.tokens[p.index].type == Token::RETURN)
 		{
 			// If so it adds an AST node with the value being returned //
-			// TODO: Allow this to return nullptr //
+			// Does not mind if this returns nullptr as that just means nothing was returned //
 			p.index++;
 			return std::make_unique<AST::ReturnStatement>(ParseOperation(p));
 		}
@@ -99,11 +108,15 @@ namespace LX
 		return ParseOperation(p);
 	}
 	
-	// Helper function to call the top of the Parse-Call-Stack
+	// Helper function to call the top of the Parse-Call-Stack //
 	static inline std::unique_ptr<AST::Node> Parse(Parser& p)
 	{
-		// ParseReturn is currently the topmost function in the call stack //
-		return ParseReturn(p);
+		// Parses the current token //
+		std::unique_ptr<AST::Node> out = ParseReturn(p);
+
+		// Checks it is valid before returning //
+		ThrowIf<UnexpectedToken>(out == nullptr, Token::UNDEFINED, "top level statement", p.tokens[p.index - 1]);
+		return out;
 	}
 
 	// Turns the tokens of a file into it's abstract syntax tree equivalent //
@@ -124,7 +137,7 @@ namespace LX
 			{
 				case Token::FUNCTION:
 				{
-					// Skips over function token + name token //
+					// Skips over function token //
 					p.index++;
 
 					// Pushes a new function to the vector and gets a reference to it for adding the body //
@@ -132,19 +145,29 @@ namespace LX
 					FunctionDefinition& func = output.functions.back();
 
 					// Assigns the function name //
-					ExpectToken<Token::IDENTIFIER>(p.tokens[p.index]);
+					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, "", p.tokens[p.index]);
 					func.name = p.tokens[p.index++].GetContents();
+
+					// Checks for opening bracket '{' //
+					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::OPEN_BRACKET, Token::OPEN_BRACKET, "", p.tokens[p.index]);
+					p.index++;
 
 					// Loops over the body until it reaches the end //
 					// TODO: Detect the end instead of looping over the entire token vector
-					while (p.index < p.len)
+					while (p.index < p.len && (p.tokens[p.index].type == Token::CLOSE_BRACKET && p.scopeDepth == 0) == false)
 					{
 						// Actually parses the function
 						std::unique_ptr<AST::Node> node = Parse(p);
 
+						// Logs the node to the log //
+						SafeLog(log, ToString(node));
+
 						// Adds it to the vector
 						func.body.push_back(std::move(node));
 					}
+
+					// Skips over closing bracket //
+					p.index++;
 
 					// Goes to the next iteration of the loop //
 					continue;
@@ -153,7 +176,7 @@ namespace LX
 				// Lets the user know there is an error //
 				// TODO: Makes this error actually output useful information //
 				default:
-					std::cout << "UNKNOWN TOKEN FOUND: " << p.tokens[p.index].type << std::endl;
+					std::cout << "UNKNOWN TOKEN FOUND: " << ToString(p.tokens[p.index].type) << std::endl;
 					return output;
 			}
 		}

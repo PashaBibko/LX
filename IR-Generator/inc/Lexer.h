@@ -75,6 +75,12 @@ namespace LX
 			IDENTIFIER,
 			RETURN,
 
+			// Symbols //
+
+			OPEN_BRACKET, CLOSE_BRACKET,
+			OPEN_BRACE, CLOSE_BRACE,
+			OPEN_PAREN, CLOSE_PAREN,
+
 			// Operators //
 
 			ADD, SUB, MUL, DIV,
