@@ -27,7 +27,6 @@ namespace LX::AST
 		{
 			// General Nodes //
 
-			IDENTIFIER,
 			NUMBER_LITERAL,
 			OPERATION,
 
@@ -47,6 +46,9 @@ namespace LX::AST
 
 		// Function for generating LLVN IR (Intermediate representation) //
 		virtual llvm::Value* GenIR(InfoLLVM& LLVM) = 0;
+
+		// Function to log the node to a file //
+		virtual void Log(std::ofstream* log, unsigned depth) = 0;
 
 		// Function for generating C/C++ code (Currently not implemented) //
 		//virtual void GenC() = 0;

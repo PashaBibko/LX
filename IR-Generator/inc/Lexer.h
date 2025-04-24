@@ -81,6 +81,8 @@ namespace LX
 			OPEN_BRACE, CLOSE_BRACE,
 			OPEN_PAREN, CLOSE_PAREN,
 
+			COMMA,
+
 			// Operators //
 
 			ADD, SUB, MUL, DIV,

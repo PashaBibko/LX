@@ -1,9 +1,4 @@
-func add
+func main()
 {
     return 1 + 2
-}
-
-func main
-{
-    return 375 + 32
 }

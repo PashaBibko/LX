@@ -42,12 +42,13 @@ namespace LX
 			case Token::NUMBER_LITERAL:
 				return std::make_unique<AST::NumberLiteral>(p.tokens[p.index++].GetContents());
 
-			//
+			// TODO: Fix this //
 			case Token::OPEN_BRACKET:
 				p.scopeDepth++;
 				p.index++;
 				return nullptr;
 
+			// TODO: Fix this //
 			case Token::CLOSE_BRACE:
 				ThrowIf<UnexpectedToken>(p.scopeDepth == 0, Token::UNDEFINED, "need a different error", p.tokens[p.index]);
 				p.scopeDepth--;
@@ -148,19 +149,31 @@ namespace LX
 					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, "", p.tokens[p.index]);
 					func.name = p.tokens[p.index++].GetContents();
 
+					// Checks for opening paren '(' //
+					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::OPEN_PAREN, Token::OPEN_PAREN, "", p.tokens[p.index]);
+					p.index++;
+
+					// Loops over all the arguments of the function //
+					while (p.index < p.len && (p.tokens[p.index].type == Token::CLOSE_PAREN) == false)
+					{
+						p.index++;
+					}
+
+					// Skips over close bracket //
+					p.index++;
+
 					// Checks for opening bracket '{' //
 					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::OPEN_BRACKET, Token::OPEN_BRACKET, "", p.tokens[p.index]);
 					p.index++;
 
 					// Loops over the body until it reaches the end //
-					// TODO: Detect the end instead of looping over the entire token vector
 					while (p.index < p.len && (p.tokens[p.index].type == Token::CLOSE_BRACKET && p.scopeDepth == 0) == false)
 					{
 						// Actually parses the function
 						std::unique_ptr<AST::Node> node = Parse(p);
 
 						// Logs the node to the log //
-						SafeLog(log, ToString(node));
+						if (log != nullptr) { node->Log(log, 0); }
 
 						// Adds it to the vector
 						func.body.push_back(std::move(node));

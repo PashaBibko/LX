@@ -113,7 +113,8 @@ namespace LX
 		{ '[', Token::OPEN_BRACE		},
 		{ ']', Token::CLOSE_BRACE		},
 		{ '(', Token::OPEN_PAREN		},
-		{ ')', Token::CLOSE_PAREN		}
+		{ ')', Token::CLOSE_PAREN		},
+		{ ',', Token::COMMA				}
 	};
 
 	// All the single-char operators currently supported by the lexer with their token-enum equivalents //

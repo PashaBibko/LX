@@ -178,9 +178,11 @@ int main(int argc, char** argv)
 		LX::PrintStringAsColor("Error: ", LX::Color::LIGHT_RED);
 		std::cout << "Invalid character found in ";
 		LX::PrintStringAsColor(inpPath.filename().string(), LX::Color::WHITE);
-		std::cout << ":\n";
+		std::cout << " {";
+		LX::PrintStringAsColor(std::string(1, e.invalid), LX::Color::LIGHT_RED);
+		std::cout << "}:\n";
 		std::cout << "Line: " << std::setw(lineNumberWidthInConsole) << e.line << " | " << line << "\n";
-		std::cout << "      " << std::setw(lineNumberWidthInConsole) << "" << " | " << std::setw(e.col);
+		std::cout << "      " << std::setw(lineNumberWidthInConsole) << "" << " | " << std::setw(e.col + 1);
 		LX::PrintStringAsColor("^", LX::Color::LIGHT_RED);
 		std::cout << "\n";
 
@@ -215,7 +217,7 @@ int main(int argc, char** argv)
 		// Prints the code with the error to the console //
 		std::string errorSquiggle(e.got.length, '~');
 		std::cout << "Line: " << std::setw(lineNumberWidthInConsole) << e.got.line << " | " << line << "\n";
-		std::cout << "      " << std::setw(lineNumberWidthInConsole) << "" << " | " << std::setw(e.got.column) << "";
+		std::cout << "      " << std::setw(lineNumberWidthInConsole) << "" << " | " << std::setw(e.got.column + 1) << "";
 		LX::PrintStringAsColor(errorSquiggle, LX::Color::LIGHT_RED);
 		std::cout << "\n";
 

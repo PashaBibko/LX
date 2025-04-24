@@ -16,9 +16,6 @@ namespace LX
 		llvm::Module module;
 		llvm::IRBuilder<> builder;
 	};
-
-	// Function to turn a AST node into string //
-	std::string ToString(std::unique_ptr<AST::Node>& node);
 }
 
 namespace LX::AST
@@ -32,6 +29,9 @@ namespace LX::AST
 
 			// Function for generating LLVN IR (Intermediate representation) //
 			llvm::Value* GenIR(InfoLLVM& LLVM) override;
+
+			// Function to log the node to a file //
+			void Log(std::ofstream* log, unsigned depth) override;
 
 		private:
 			// The number it stores //
@@ -48,6 +48,9 @@ namespace LX::AST
 
 			// Function for generating LLVN IR (Intermediate representation) //
 			llvm::Value* GenIR(InfoLLVM& LLVM) override;
+
+			// Function to log the node to a file //
+			void Log(std::ofstream* log, unsigned depth) override;
 
 		private:
 			// The sides of the operation //
@@ -67,6 +70,9 @@ namespace LX::AST
 
 			// Function for generating LLVN IR (Intermediate representation) //
 			llvm::Value* GenIR(InfoLLVM& LLVM) override;
+
+			// Function to log the node to a file //
+			void Log(std::ofstream* log, unsigned depth) override;
 
 		private:
 			// What it is returning (can be null) //
