@@ -144,6 +144,7 @@
     <ClCompile Include="src\AST-Loggers.cpp" />
     <ClCompile Include="src\GenIR.cpp" />
     <ClCompile Include="src\Parser.cpp" />
+    <ClCompile Include="src\Scope.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\AST.h" />

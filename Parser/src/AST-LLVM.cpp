@@ -66,4 +66,9 @@ namespace LX::AST
 			return out;
 		}
 	}
+
+	// Function for generating LLVN IR (Intermediate representation) //
+	llvm::Value* VariableDeclaration::GenIR(InfoLLVM& LLVM)
+	{
+	}
 }

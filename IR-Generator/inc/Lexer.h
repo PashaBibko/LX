@@ -75,6 +75,10 @@ namespace LX
 			IDENTIFIER,
 			RETURN,
 
+			// Built-in types //
+
+			INT_DEC,
+
 			// Symbols //
 
 			OPEN_BRACKET, CLOSE_BRACKET,
@@ -82,6 +86,10 @@ namespace LX
 			OPEN_PAREN, CLOSE_PAREN,
 
 			COMMA,
+
+			//
+
+			ASSIGN,
 
 			// Operators //
 

@@ -182,7 +182,7 @@ int main(int argc, char** argv)
 		LX::PrintStringAsColor(std::string(1, e.invalid), LX::Color::LIGHT_RED);
 		std::cout << "}:\n";
 		std::cout << "Line: " << std::setw(lineNumberWidthInConsole) << e.line << " | " << line << "\n";
-		std::cout << "      " << std::setw(lineNumberWidthInConsole) << "" << " | " << std::setw(e.col + 1);
+		std::cout << "      " << std::setw(lineNumberWidthInConsole) << "" << " | " << std::setw(e.col - 1) << "";
 		LX::PrintStringAsColor("^", LX::Color::LIGHT_RED);
 		std::cout << "\n";
 
@@ -217,7 +217,7 @@ int main(int argc, char** argv)
 		// Prints the code with the error to the console //
 		std::string errorSquiggle(e.got.length, '~');
 		std::cout << "Line: " << std::setw(lineNumberWidthInConsole) << e.got.line << " | " << line << "\n";
-		std::cout << "      " << std::setw(lineNumberWidthInConsole) << "" << " | " << std::setw(e.got.column + 1) << "";
+		std::cout << "      " << std::setw(lineNumberWidthInConsole) << "" << " | " << std::setw(e.got.column) << "";
 		LX::PrintStringAsColor(errorSquiggle, LX::Color::LIGHT_RED);
 		std::cout << "\n";
 

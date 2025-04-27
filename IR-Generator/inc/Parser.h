@@ -3,6 +3,7 @@
 // Lexer foward declares fstream components so we can use them here //
 #include <Lexer.h>
 
+#include <unordered_map>
 #include <memory>
 
 // Foward declares STD stuff that is passed around //
@@ -77,8 +78,51 @@ namespace LX
 		Token got;
 	};
 
+	class Scope
+	{
+		public:
+			// Struct to store all the info of a variable (excluding name as that is stored in the map) //
+			struct __declspec(novtable) Variable final
+			{
+				// Default constructor //
+				Variable() {}
+
+				// Will hold the type as part of the type here //
+
+				// The value of the variable //
+				llvm::Value* val = nullptr;
+			};
+
+			// Error thrown if the user tried to create a variable that already existed //
+			struct __declspec(novtable) VariableAlreadyExists final {};
+
+			// Error thrown if user tries to access variable that does not exist //
+			struct __declspec(novtable) VariableDoesntExist final {};
+
+			// Default constructor //
+			Scope()
+				: m_LocalVariables{}, m_Child(nullptr)
+			{}
+
+			// Gets a variable from the scope by it's name //
+			Variable* GetVarOfName(const std::string& name);
+
+			// Creates a variable of the given name, returns nullptr if a variable with that name already exists //
+			Variable* CreateVar(const std::string& name);
+
+		private:
+			// Base logic for getting a variable by it's name without any error checking //
+			Variable* GetVarOfNameImpl(const std::string& name);
+
+			// Holds all the variables in the scope (excluding ones owned by the children //
+			std::unordered_map<std::string, Variable> m_LocalVariables;
+
+			// Holds a section of the scope, for example the variables created in a while loop //
+			std::unique_ptr<Scope> m_Child;
+	};
+
 	// Holds all needed info about a function //
-	// Currently only holds the body but in the future will hold: name, params, namespace/class-member
+	// Currently only holds the body but in the future will hold: params, namespace/class-member //
 	struct FunctionDefinition
 	{
 		// Defualt constructor (none other given) //
@@ -86,6 +130,9 @@ namespace LX
 
 		// The name of the function //
 		std::string name;
+
+		// The scope off the function //
+		Scope scope;
 		
 		// The instructions of the body of the function //
 		std::vector<std::unique_ptr<AST::Node>> body;

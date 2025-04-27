@@ -65,7 +65,7 @@ namespace LX::AST
 	class ReturnStatement : public Node
 	{
 		public:
-			// Constructor to set values and automatically set type
+			// Constructor to set values and automatically set type //
 			ReturnStatement(std::unique_ptr<Node> val);
 
 			// Function for generating LLVN IR (Intermediate representation) //
@@ -77,5 +77,25 @@ namespace LX::AST
 		private:
 			// What it is returning (can be null) //
 			std::unique_ptr<Node> m_Val;
+	};
+
+	// Node to represent the declaration of a variable within the AST //
+	class VariableDeclaration : public Node
+	{
+		public:
+			// Constructor to set values and automatically set type //
+			VariableDeclaration(const std::string& name);
+
+			// Function for generating LLVN IR (Intermediate representation) //
+			llvm::Value* GenIR(InfoLLVM& LLVM) override;
+
+			// Function to log the node to a file //
+			void Log(std::ofstream* log, unsigned depth) override;
+
+		private:
+			// Name of the variable //
+			std::string m_Name;
+
+			// Doesnt need to store type as everything is currently int //
 	};
 }

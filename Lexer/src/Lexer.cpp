@@ -40,6 +40,8 @@ namespace LX
 			TOKEN_CASE(Token::CLOSE_BRACKET);
 			TOKEN_CASE(Token::OPEN_PAREN);
 			TOKEN_CASE(Token::CLOSE_PAREN);
+			TOKEN_CASE(Token::ASSIGN);
+			TOKEN_CASE(Token::INT_DEC);
 
 			default:
 				return "Unknown: " + std::to_string(type);
@@ -102,7 +104,8 @@ namespace LX
 		{ "else"		, Token::ELSE		},
 		{ "elif"		, Token::ELIF		},
 		{ "func"		, Token::FUNCTION	},
-		{ "return"		, Token::RETURN		}
+		{ "return"		, Token::RETURN		},
+		{ "int"			, Token::INT_DEC	}
 	};
 
 	// All the symbols supported by the lexer //
@@ -114,7 +117,8 @@ namespace LX
 		{ ']', Token::CLOSE_BRACE		},
 		{ '(', Token::OPEN_PAREN		},
 		{ ')', Token::CLOSE_PAREN		},
-		{ ',', Token::COMMA				}
+		{ ',', Token::COMMA				},
+		{ '=', Token::ASSIGN			}
 	};
 
 	// All the single-char operators currently supported by the lexer with their token-enum equivalents //
