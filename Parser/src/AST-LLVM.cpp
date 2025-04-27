@@ -70,5 +70,10 @@ namespace LX::AST
 	// Function for generating LLVN IR (Intermediate representation) //
 	llvm::Value* VariableDeclaration::GenIR(InfoLLVM& LLVM)
 	{
+		// Creates the variable within the scope //
+		LLVM.scope->CreateVar(m_Name);
+
+		// Creates the declaration within the IR //
+		return LLVM.builder.CreateAlloca(LLVM.builder.getInt32Ty(), nullptr, m_Name);
 	}
 }

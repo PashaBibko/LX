@@ -40,4 +40,10 @@ namespace LX::AST
 			m_Val->Log(log, depth + 1);
 		}
 	}
+
+	void VariableDeclaration::Log(std::ofstream* log, unsigned depth)
+	{
+		(*log) << std::string(depth, '\t');
+		(*log) << "Variable declaration: " << m_Name << "\n";
+	}
 }

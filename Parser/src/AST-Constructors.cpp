@@ -6,7 +6,7 @@ namespace LX
 {
 	// Default constructor that just initalises LLVM variables that it holds //
 	InfoLLVM::InfoLLVM(std::string name)
-		: context{}, builder(context), module(name, context)
+		: context{}, builder(context), module(name, context), scope(nullptr)
 	{}
 
 	// Reserves space for nodes (stops excess allocations) //
@@ -40,5 +40,10 @@ namespace LX::AST
 	// Passes constructor args to values and sets type //
 	ReturnStatement::ReturnStatement(std::unique_ptr<Node> val)
 		: Node(Node::RETURN_STATEMENT), m_Val(std::move(val))
+	{}
+
+	// Passes constructor args to values and sets type //
+	VariableDeclaration::VariableDeclaration(const std::string& name)
+		: Node(Node::VARIABLE_DECLARATION), m_Name(name)
 	{}
 }
