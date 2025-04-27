@@ -108,12 +108,33 @@ namespace LX
 		// Else goes down the call stack //
 		return ParseOperation(p);
 	}
+
+	// Handles variable declarations, if not calls ParseReturn //
+	static std::unique_ptr<AST::Node> ParseVarDeclaration(Parser& p)
+	{
+		// Checks if the current token is a declaration //
+		if (p.tokens[p.index].type == Token::INT_DEC)
+		{
+			// Skips over the dec token //
+			p.index++;
+
+			// Checks for the variable name //
+			ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, "", p.tokens[p.index]);
+			p.index++; // <- Goes over the identifier token
+
+			// Returns the variable declaration as an AST node by creating it with it's name //
+			return std::make_unique<AST::VariableDeclaration>(p.tokens[p.index - 1].GetContents());
+		}
+
+		// Else goes down the call stack //
+		return ParseReturn(p);
+	}
 	
 	// Helper function to call the top of the Parse-Call-Stack //
 	static inline std::unique_ptr<AST::Node> Parse(Parser& p)
 	{
 		// Parses the current token //
-		std::unique_ptr<AST::Node> out = ParseReturn(p);
+		std::unique_ptr<AST::Node> out = ParseVarDeclaration(p);
 
 		// Checks it is valid before returning //
 		ThrowIf<UnexpectedToken>(out == nullptr, Token::UNDEFINED, "top level statement", p.tokens[p.index - 1]);
@@ -154,6 +175,7 @@ namespace LX
 					p.index++;
 
 					// Loops over all the arguments of the function //
+					// TODO: Do something with the parameters
 					while (p.index < p.len && (p.tokens[p.index].type == Token::CLOSE_PAREN) == false)
 					{
 						p.index++;
