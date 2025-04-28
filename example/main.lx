@@ -7,7 +7,7 @@ func main()
     b = 7
 
     int c
-    c = a + b
+    c = a / b
 
     return c
 }

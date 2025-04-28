@@ -43,9 +43,33 @@ namespace LX::AST
 		}
 
 		// Generates the IR of the operation //
-		// TODO: Support other operators other than ADD //
-		// TODO: Make the error actually output information //
-		llvm::Value* out = LLVM.builder.CreateAdd(lhs, rhs);
+		llvm::Value* out = nullptr;
+
+		// Creates the correct operation depending on the operand //
+		switch (m_Operand)
+		{
+			case Token::ADD:
+				out = LLVM.builder.CreateAdd(lhs, rhs);
+				break;
+
+			case Token::SUB:
+				out = LLVM.builder.CreateSub(lhs, rhs);
+				break;
+
+			case Token::MUL:
+				out = LLVM.builder.CreateMul(lhs, rhs);
+				break;
+
+			case Token::DIV:
+				out = LLVM.builder.CreateSDiv(lhs, rhs);
+				break;
+
+			default:
+				// TODO: Add an error here
+				out = nullptr;
+		}
+		
+		// Checks it all went succesfully before returning //
 		ThrowIf<IRGenerationError>(out == nullptr);
 		return out;
 	}

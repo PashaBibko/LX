@@ -7,6 +7,22 @@
 
 namespace LX
 {
+	// Util function for working out if a token is a two sided operator //
+	static bool IsTwoSidedOperator(Token::TokenType t)
+	{
+		switch (t)
+		{
+			case Token::ADD:
+			case Token::SUB:
+			case Token::DIV:
+			case Token::MUL:
+				return true;
+
+			default:
+				return false;
+		}
+	}
+
 	// Local struct so everything can be public //
 	struct Parser
 	{
@@ -73,7 +89,7 @@ namespace LX
 		// TODO: Add more than just add //
 		if (p.index + 1 < p.len) [[likely]]
 		{
-			if (p.tokens[p.index + 1].type == Token::ADD)
+			if (IsTwoSidedOperator(p.tokens[p.index + 1].type))
 			{
 				// Parses the left hand side of the operation //
 				std::unique_ptr<AST::Node> lhs = ParsePrimary(p);
