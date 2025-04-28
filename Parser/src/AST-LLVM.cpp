@@ -92,6 +92,9 @@ namespace LX::AST
 
 	llvm::Value* VariableAccess::GenIR(InfoLLVM& LLVM)
 	{
-		return nullptr;
+		llvm::AllocaInst* var = LLVM.scope->GetVar(m_Name);
+		ThrowIf<Scope::VariableDoesntExist>(var == nullptr);
+
+		return LLVM.builder.CreateLoad(llvm::Type::getInt32Ty(LLVM.context), var, m_Name + "_val");
 	}
 }

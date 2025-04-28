@@ -3,10 +3,10 @@
 This is my custom compiled language written in C++ based off of the LLVM toolchain. Do not use the language in it's current state unless you are insane.
 
 ### Planned features
-- Variables
 - Operations (Maths + BinOp)
 - Functions
 - More than just int as a type
+- References / Pointers
 - Structs / Classes (Polymorphism + vtables)
 
 ### Stuff I want to do later

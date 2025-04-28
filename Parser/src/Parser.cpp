@@ -42,6 +42,10 @@ namespace LX
 			case Token::NUMBER_LITERAL:
 				return std::make_unique<AST::NumberLiteral>(p.tokens[p.index++].GetContents());
 
+			// If an Identifier has got here it means a variable is being accessed //
+			case Token::IDENTIFIER:
+				return std::make_unique<AST::VariableAccess>(p.tokens[p.index++].GetContents());
+
 			// TODO: Fix this //
 			case Token::OPEN_BRACKET:
 				p.scopeDepth++;
