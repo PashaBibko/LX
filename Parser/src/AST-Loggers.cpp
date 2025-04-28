@@ -4,9 +4,9 @@
 
 namespace LX::AST
 {
-	void Node::Log(std::ofstream* log, unsigned depth)
+	void MultiNode::Log(std::ofstream* log, unsigned depth)
 	{
-		(*log) << std::string(depth, '\t') << "NULL node";
+		throw int(); // <- TODO: Make an error for this
 	}
 
 	void NumberLiteral::Log(std::ofstream* log, unsigned depth)
@@ -45,5 +45,20 @@ namespace LX::AST
 	{
 		(*log) << std::string(depth, '\t');
 		(*log) << "Variable declaration: " << m_Name << "\n";
+	}
+
+	void VariableAssignment::Log(std::ofstream* log, unsigned depth)
+	{
+		(*log) << std::string(depth, '\t');
+		(*log) << "Variable assignment:\n";
+		(*log) << std::string(depth + 1, '\t') << "To: " << m_Name << "\n";
+		(*log) << std::string(depth + 1, '\t') << "Value:\n";
+		m_Value.get()->Log(log, depth + 2);
+	}
+
+	void VariableAccess::Log(std::ofstream* log, unsigned depth)
+	{
+		(*log) << std::string(depth, '\t');
+		(*log) << "Variable: " << m_Name << '\n';
 	}
 }

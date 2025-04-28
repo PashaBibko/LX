@@ -6,7 +6,13 @@
 
 namespace LX::AST
 {
-	// Function for generating LLVN IR (Intermediate representation) //
+	// Function for genrating LLVM IR (Intermediate representation), will throw an error if called on this class //
+	llvm::Value* MultiNode::GenIR(InfoLLVM & LLVM)
+	{
+		throw int(); // <- TODO: Make an error type
+	}
+
+	// Function for generating LLVM IR (Intermediate representation) //
 	llvm::Value* NumberLiteral::GenIR(InfoLLVM& LLVM)
 	{
 		// Converts the string to it's int equivalent //
@@ -21,7 +27,7 @@ namespace LX::AST
 		return out;
 	}
 
-	// Function for generating LLVN IR (Intermediate representation) //
+	// Function for generating LLVM IR (Intermediate representation) //
 	llvm::Value* Operation::GenIR(InfoLLVM& LLVM)
 	{
 		// Generates the IR for both sides of the operation //
@@ -44,7 +50,7 @@ namespace LX::AST
 		return out;
 	}
 
-	// Function for generating LLVN IR (Intermediate representation) //
+	// Function for generating LLVM IR (Intermediate representation) //
 	llvm::Value* ReturnStatement::GenIR(InfoLLVM& LLVM)
 	{
 		// Checks if it is a void return //
@@ -67,7 +73,7 @@ namespace LX::AST
 		}
 	}
 
-	// Function for generating LLVN IR (Intermediate representation) //
+	// Function for generating LLVM IR (Intermediate representation) //
 	llvm::Value* VariableDeclaration::GenIR(InfoLLVM& LLVM)
 	{
 		// Creates the variable within the scope //
@@ -75,5 +81,15 @@ namespace LX::AST
 
 		// Creates the declaration within the IR //
 		return LLVM.builder.CreateAlloca(LLVM.builder.getInt32Ty(), nullptr, m_Name);
+	}
+
+	llvm::Value* VariableAssignment::GenIR(InfoLLVM& LLVM)
+	{
+		return nullptr;
+	}
+
+	llvm::Value* VariableAccess::GenIR(InfoLLVM& LLVM)
+	{
+		return nullptr;
 	}
 }

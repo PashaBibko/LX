@@ -67,7 +67,6 @@ namespace LX
 	{
 		// Checks if the next token is an operator //
 		// TODO: Add more than just add //
-		// TODO: Make this not crash when at the end //
 		if (p.index + 1 < p.len) [[likely]]
 		{
 			if (p.tokens[p.index + 1].type == Token::ADD)
@@ -120,21 +119,61 @@ namespace LX
 
 			// Checks for the variable name //
 			ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, "", p.tokens[p.index]);
+			std::string name = p.tokens[p.index].GetContents();
 			p.index++; // <- Goes over the identifier token
 
-			// Returns the variable declaration as an AST node by creating it with it's name //
-			return std::make_unique<AST::VariableDeclaration>(p.tokens[p.index - 1].GetContents());
+			// Returns the declaration if there is no default assignment to the variable // 
+			if (p.tokens[p.index].type != Token::ASSIGN)
+			{
+				// Creates the variable name from the contents of the token and returns it //
+				return std::make_unique<AST::VariableDeclaration>(name);
+			}
+
+			p.index++; // Skips over Token::ASSIGN
+
+			// Gets the value to be assigned to the variable //
+			std::unique_ptr<AST::Node> defaultVal = ParsePrimary(p);
+			ThrowIf<UnexpectedToken>(defaultVal.get() == nullptr, Token::UNDEFINED, "value", p.tokens[p.index - 1]);
+
+			return std::make_unique<AST::VariableDeclaration>(name);
 		}
 
 		// Else goes down the call stack //
 		return ParseReturn(p);
+	}
+
+	// Handles variable assignments, if not calls ParseVarDeclaration //
+	static std::unique_ptr<AST::Node> ParseVarAssignment(Parser& p)
+	{
+		// Checks if the next token is an equals //
+		if (p.index + 1 < p.len) [[likely]]
+		{
+			if (p.tokens[p.index + 1].type == Token::ASSIGN)
+			{
+				// Gets the variable that is being assigned too //
+				ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, "", p.tokens[p.index]);
+				std::string name = p.tokens[p.index].GetContents();
+
+				// Skips over the assign token and name of the variable //
+				p.index = p.index + 2;
+
+				// Gets the value that is being assigned //
+				std::unique_ptr<AST::Node> value = ParseOperation(p);
+
+				// Returns an AST node of the variable assignment with it's name and value //
+				return std::make_unique<AST::VariableAssignment>(name, std::move(value));
+			}
+		}
+
+		// Else goes down the call stack //
+		return ParseVarDeclaration(p);
 	}
 	
 	// Helper function to call the top of the Parse-Call-Stack //
 	static inline std::unique_ptr<AST::Node> Parse(Parser& p)
 	{
 		// Parses the current token //
-		std::unique_ptr<AST::Node> out = ParseVarDeclaration(p);
+		std::unique_ptr<AST::Node> out = ParseVarAssignment(p);
 
 		// Checks it is valid before returning //
 		ThrowIf<UnexpectedToken>(out == nullptr, Token::UNDEFINED, "top level statement", p.tokens[p.index - 1]);
@@ -191,14 +230,31 @@ namespace LX
 					// Loops over the body until it reaches the end //
 					while (p.index < p.len && (p.tokens[p.index].type == Token::CLOSE_BRACKET && p.scopeDepth == 0) == false)
 					{
-						// Actually parses the function
+						// Actually parses the function //
 						std::unique_ptr<AST::Node> node = Parse(p);
 
-						// Logs the node to the log //
-						if (log != nullptr) { node->Log(log, 0); }
+						// Expands the node if it contains multiple //
+						if (node->m_Type == AST::Node::MULTI_NODE)
+						{
+							for (std::unique_ptr<AST::Node>& containedNode : ((AST::MultiNode*)node.get())->nodes)
+							{
+								// Logs the node to the log //
+								if (log != nullptr) { node->Log(log, 0); }
 
-						// Adds it to the vector
-						func.body.push_back(std::move(node));
+								// Adds it to the vector //
+								func.body.push_back(std::move(containedNode));
+							}
+						}
+
+						// Else adds the singular node to the vector //
+						else
+						{
+							// Logs the node to the log //
+							if (log != nullptr) { node->Log(log, 0); }
+
+							// Adds it to the vector //
+							func.body.push_back(std::move(node));
+						}
 					}
 
 					// Skips over closing bracket //

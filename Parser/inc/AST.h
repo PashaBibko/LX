@@ -23,6 +23,22 @@ namespace LX
 
 namespace LX::AST
 {
+	class MultiNode : public Node
+	{
+		public:
+			// Constructor to auto set type //
+			MultiNode();
+
+			// Function for generating LLVM IR (Intermediate representation), will throw error if called on this class //
+			llvm::Value* GenIR(InfoLLVM& LLVM) override;
+
+			// Function to log the node to a file, will throw an error if called on this class //
+			void Log(std::ofstream* log, unsigned depth) override;
+
+			// The nodes that are contained within this node //
+			std::vector<std::unique_ptr<Node>> nodes;
+	};
+
 	// Node to represent any number within the AST //
 	class NumberLiteral : public Node
 	{
@@ -30,7 +46,7 @@ namespace LX::AST
 			// Constructor to set values and automatically set type //
 			NumberLiteral(std::string num);
 
-			// Function for generating LLVN IR (Intermediate representation) //
+			// Function for generating LLVM IR (Intermediate representation) //
 			llvm::Value* GenIR(InfoLLVM& LLVM) override;
 
 			// Function to log the node to a file //
@@ -49,7 +65,7 @@ namespace LX::AST
 			// Constructor to set values and automatically set type //
 			Operation(std::unique_ptr<Node> lhs, Token::TokenType op, std::unique_ptr<Node> rhs);
 
-			// Function for generating LLVN IR (Intermediate representation) //
+			// Function for generating LLVM IR (Intermediate representation) //
 			llvm::Value* GenIR(InfoLLVM& LLVM) override;
 
 			// Function to log the node to a file //
@@ -71,7 +87,7 @@ namespace LX::AST
 			// Constructor to set values and automatically set type //
 			ReturnStatement(std::unique_ptr<Node> val);
 
-			// Function for generating LLVN IR (Intermediate representation) //
+			// Function for generating LLVM IR (Intermediate representation) //
 			llvm::Value* GenIR(InfoLLVM& LLVM) override;
 
 			// Function to log the node to a file //
@@ -89,7 +105,7 @@ namespace LX::AST
 			// Constructor to set values and automatically set type //
 			VariableDeclaration(const std::string& name);
 
-			// Function for generating LLVN IR (Intermediate representation) //
+			// Function for generating LLVM IR (Intermediate representation) //
 			llvm::Value* GenIR(InfoLLVM& LLVM) override;
 
 			// Function to log the node to a file //
@@ -100,5 +116,44 @@ namespace LX::AST
 			std::string m_Name;
 
 			// Doesnt need to store type as everything is currently int //
+	};
+
+	// Node to represent the assignment of a variable within the AST //
+	class VariableAssignment : public Node
+	{
+		public:
+			// Constructor to set values and automatically set type //
+			VariableAssignment(const std::string& name, std::unique_ptr<AST::Node> val);
+
+			// Function for generating LLVM IR (Intermediate representation) //
+			llvm::Value* GenIR(InfoLLVM& LLVM) override;
+
+			// Function to log the node to a file //
+			void Log(std::ofstream* log, unsigned depth) override;
+
+		private:
+			// Name of the variable //
+			std::string m_Name;
+
+			// The value that will be assigned to the value //
+			std::unique_ptr<Node> m_Value;
+	};
+
+	// Node to represent accessing a variable within the AST //
+	class VariableAccess : public Node
+	{
+		public:
+			// Constructor to set values and automatically set type //
+			VariableAccess(const std::string& name);
+
+			// Function for generating LLVM IR (Intermediate representation) //
+			llvm::Value* GenIR(InfoLLVM& LLVM) override;
+
+			// Function to log the node to a file //
+			void Log(std::ofstream* log, unsigned depth) override;
+
+		private:
+			// The name of the variable //
+			std::string m_Name;
 	};
 }

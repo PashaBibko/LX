@@ -27,6 +27,11 @@ namespace LX::AST
 		: m_Type(type)
 	{}
 
+	// Automatically sets type //
+	MultiNode::MultiNode()
+		: Node(Node::MULTI_NODE), nodes{}
+	{}
+
 	// Passes constructor args to values and sets type //
 	NumberLiteral::NumberLiteral(std::string num)
 		: Node(Node::NUMBER_LITERAL), m_Number(num)
@@ -45,5 +50,15 @@ namespace LX::AST
 	// Passes constructor args to values and sets type //
 	VariableDeclaration::VariableDeclaration(const std::string& name)
 		: Node(Node::VARIABLE_DECLARATION), m_Name(name)
+	{}
+
+	// Passes constructor args to values and sets type //
+	VariableAssignment::VariableAssignment(const std::string& name, std::unique_ptr<AST::Node> val)
+		: Node(Node::VARIABLE_ASSIGNMENT), m_Name(name), m_Value(std::move(val))
+	{}
+
+	// Passes constructor args to values and sets type //
+	VariableAccess::VariableAccess(const std::string& name)
+		: Node(Node::VARIABLE_ACCESS), m_Name(name)
 	{}
 }

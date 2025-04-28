@@ -26,11 +26,20 @@ namespace LX::AST
 		// Used so a pointer to Node can be used and then turned into it's true type //
 		enum NodeType
 		{
+			// "Nodes" //
+
+			MULTI_NODE,
+
 			// General Nodes //
 
 			NUMBER_LITERAL,
 			OPERATION,
+
+			// Variable manipulation //
+
 			VARIABLE_DECLARATION,
+			VARIABLE_ASSIGNMENT,
+			VARIABLE_ACCESS,
 
 			// Control flow Nodes //
 
