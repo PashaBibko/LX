@@ -3,7 +3,7 @@
 // Lexer foward declares fstream components so we can use them here //
 #include <Lexer.h>
 
-#include <unordered_set>
+#include <unordered_map>
 #include <memory>
 
 // Foward declares STD stuff that is passed around //
@@ -11,7 +11,11 @@ namespace std::filesystem { class path; }
 
 // Foward declares all items of the llvm lib that we need //
 // Done to avoid including LLVM.h to shorten compile times //
-namespace llvm { class Value; }
+namespace llvm
+{
+	class Value;
+	class AllocaInst;
+}
 
 // Foward declares the wrapper around the LLVM objects we need to pass around // 
 namespace LX { struct InfoLLVM; }
@@ -103,14 +107,14 @@ namespace LX
 			{}
 
 			// Gets a variable from the scope by it's name //
-			bool DoesVarExist(const std::string& name);
+			llvm::AllocaInst* GetVar(const std::string& name);
 
 			// Creates a variable of the given name //
-			void CreateVar(const std::string& name);
+			llvm::AllocaInst* CreateVar(const std::string& name, InfoLLVM& LLVM);
 
 		private:
 			// Holds all the variables in the scope (excluding ones owned by the children //
-			std::unordered_set<std::string> m_LocalVariables;
+			std::unordered_map<std::string, llvm::AllocaInst*> m_LocalVariables;
 
 			// Holds a section of the scope, for example the variables created in a while loop //
 			std::unique_ptr<Scope> m_Child;

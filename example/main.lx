@@ -1,4 +1,5 @@
 func main()
 {
-    result = 3
+    int result
+    result = 4
 }

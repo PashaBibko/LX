@@ -77,15 +77,17 @@ namespace LX::AST
 	llvm::Value* VariableDeclaration::GenIR(InfoLLVM& LLVM)
 	{
 		// Creates the variable within the scope //
-		LLVM.scope->CreateVar(m_Name);
-
-		// Creates the declaration within the IR //
-		return LLVM.builder.CreateAlloca(LLVM.builder.getInt32Ty(), nullptr, m_Name);
+		return LLVM.scope->CreateVar(m_Name, LLVM);
 	}
 
 	llvm::Value* VariableAssignment::GenIR(InfoLLVM& LLVM)
 	{
-		return nullptr;
+		// Gets the variable from the current scope //
+		llvm::AllocaInst* asignee = LLVM.scope->GetVar(m_Name);
+		ThrowIf<Scope::VariableDoesntExist>(asignee == nullptr);
+
+		// Creates the assignment //
+		return LLVM.builder.CreateStore(m_Value->GenIR(LLVM), asignee);
 	}
 
 	llvm::Value* VariableAccess::GenIR(InfoLLVM& LLVM)

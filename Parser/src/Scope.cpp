@@ -1,10 +1,11 @@
 #include <Parser.h>
 
 #include <Util.h>
+#include <AST.h>
 
 namespace LX
 {
-	bool Scope::DoesVarExist(const std::string& name)
+	llvm::AllocaInst* Scope::GetVar(const std::string& name)
 	{
 		// Stores a pointer to the current scope //
 		Scope* current = this;
@@ -13,7 +14,7 @@ namespace LX
 		{
 			// Checks if the variable exists in the current scope //
 			bool exists = current->m_LocalVariables.contains(name);
-			if (exists) { return true; }
+			if (exists) { return m_LocalVariables[name]; }
 
 			// Travels to the next scope //
 			current = current->m_Child.get();
@@ -21,15 +22,16 @@ namespace LX
 		} while (current != nullptr);
 
 		// If it gets here it means it couldnt find the variable so it doesnt exist in the current context //
-		return false;
+		return nullptr;
 	}
 
-	void Scope::CreateVar(const std::string& name)
+	llvm::AllocaInst* Scope::CreateVar(const std::string& name, InfoLLVM& LLVM)
 	{
 		// Checks variable of the same name doesn't exist //
-		ThrowIf<Scope::VariableAlreadyExists>(DoesVarExist(name));
+		ThrowIf<Scope::VariableAlreadyExists>(GetVar(name) != nullptr);
 
 		// Else inserts it into the local set //
-		m_LocalVariables.insert(name);
+		m_LocalVariables[name] = LLVM.builder.CreateAlloca(LLVM.builder.getInt32Ty(), nullptr, name);
+		return m_LocalVariables[name];
 	}
 }
