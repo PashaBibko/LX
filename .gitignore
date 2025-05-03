@@ -12,3 +12,7 @@ obj/
 
 *.ll
 log
+
+# Ignore user specific options #
+
+.user
