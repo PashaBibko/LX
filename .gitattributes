@@ -1,2 +1,5 @@
-# Auto detect text files and perform LF normalization
+# Auto detect text files and perform LF normalization #
 * text=auto
+
+# Recognises LX files as a custom language #
+*.lx linguist-language=LX
