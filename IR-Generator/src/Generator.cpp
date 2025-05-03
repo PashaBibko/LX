@@ -35,7 +35,9 @@ namespace LX
 	}
 }
 
-int main(int argc, char** argv)
+//int main(int argc, char** argv)
+
+extern "C" int __declspec(dllexport) GenIR(const char* arg1, const char* arg2, const char* arg3)
 {
 	// Creates the file paths outside of the try-catch so they can be used in errors //
 	std::filesystem::path inpPath;
@@ -51,12 +53,9 @@ int main(int argc, char** argv)
 
 	try
 	{
-		// Checks there is the correct ammount of arguments //
-		LX::ThrowIf<LX::IncorrectCommandLineArgs>((argc == 3 || argc == 4) == false);
-
 		// Turns the file paths into the C++ type for handling them //
-		inpPath = argv[1];
-		outPath = argv[2];
+		inpPath = arg1;
+		outPath = arg2;
 
 		// Checks the input file exists and opens it //
 		LX::ThrowIf<LX::InvalidInputFilePath>(std::filesystem::exists(inpPath) == false);
@@ -75,9 +74,9 @@ int main(int argc, char** argv)
 		outFile.close(); // Opened just to check we can
 
 		// Opens the log file (if there is one specified //
-		if (argc == 4)
+		if (arg3 != nullptr)
 		{
-			logPath = argv[3];
+			logPath = arg3;
 			log = std::make_unique<std::ofstream>(logPath);
 			LX::ThrowIf<LX::InvalidLogFilePath>(log->is_open() == false);
 		}
@@ -99,26 +98,6 @@ int main(int argc, char** argv)
 
 		// Returns success
 		return 0;
-	}
-
-	catch (LX::IncorrectCommandLineArgs)
-	{
-		// Prints out how to correctly use the program //
-		LX::PrintStringAsColor("Error: ", LX::Color::LIGHT_RED);
-		std::cout << "Incorrect use of " << std::filesystem::path(argv[0]).filename().string() << ":\n\n";
-		std::cout << "Usage: ";
-		LX::PrintStringAsColor("[source file] [output file] [optional args]", LX::Color::WHITE);
-		std::cout << "\n\nOptional arguments:\n";
-		std::cout << "\tLog file for additional information\n\n";
-
-		// Warns the user that they are better of using a build system //
-		LX::PrintStringAsColor("Warning:\n", LX::Color::LIGHT_YELLOW);
-		std::cout << "\tIf you are seeing this message it is probably because you are not using a build-system\n";
-		std::cout << "\tWorking with a build system is recommended for use of " << std::filesystem::path(argv[0]).filename().string() << "\n";
-		std::cout << "\tOne can be found here: NULL\n\n"; // <- TODO: Make a build system
-
-		// Returns Exit id of 1 so other process can be alerted of the error //
-		return 1;
 	}
 
 	catch (LX::InvalidInputFilePath)

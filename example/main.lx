@@ -1,13 +1,4 @@
 func main()
 {
-    int a
-    a = 4
-
-    int b
-    b = 7
-
-    int c
-    c = a / b
-
-    return c
+    return 34
 }

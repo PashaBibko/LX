@@ -3,6 +3,11 @@
 x64/
 .vs/
 
+# Ignore build directories #
+
+bin/
+obj/
+
 # Ignore runtime outputs #
 
 *.ll

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "LX-Build": {
+      "commandName": "Project",
+      "workingDirectory": "$(SolutionDir)"
+    }
+  }
+}
