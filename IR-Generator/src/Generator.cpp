@@ -35,8 +35,6 @@ namespace LX
 	}
 }
 
-//int main(int argc, char** argv)
-
 extern "C" int __declspec(dllexport) GenIR(const char* arg1, const char* arg2, const char* arg3)
 {
 	// Creates the file paths outside of the try-catch so they can be used in errors //

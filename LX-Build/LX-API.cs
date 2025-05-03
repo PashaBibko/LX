@@ -11,7 +11,8 @@ namespace LX_Build
         private static partial bool SetDllDirectory(string lpPathName);
 
         // Imports the Frontend of the compiler //
-        [LibraryImport("Generator.dll", StringMarshalling = StringMarshalling.Custom, StringMarshallingCustomType = typeof(System.Runtime.InteropServices.Marshalling.AnsiStringMarshaller))]
+        [LibraryImport ("Generator.dll", StringMarshalling = StringMarshalling.Custom,
+            StringMarshallingCustomType = typeof(System.Runtime.InteropServices.Marshalling.AnsiStringMarshaller))]
         [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
         public static partial int GenIR(string arg1, string arg2, string? arg3);
 
