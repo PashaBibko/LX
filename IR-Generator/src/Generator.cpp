@@ -4,6 +4,8 @@
 #include <string>
 #include <memory>
 
+#include <llvm/Support/Error.h>
+
 #include <Console.h>
 #include <Parser.h>
 #include <Lexer.h>
@@ -35,7 +37,7 @@ namespace LX
 	}
 }
 
-extern "C" int __declspec(dllexport) GenIR(const char* arg1, const char* arg2, const char* arg3)
+extern "C" int __declspec(dllexport) GenIR(const char* a_inpPath, const char* a_outPath, const char* a_logPath)
 {
 	// Creates the file paths outside of the try-catch so they can be used in errors //
 	std::filesystem::path inpPath;
@@ -52,8 +54,8 @@ extern "C" int __declspec(dllexport) GenIR(const char* arg1, const char* arg2, c
 	try
 	{
 		// Turns the file paths into the C++ type for handling them //
-		inpPath = arg1;
-		outPath = arg2;
+		inpPath = a_inpPath;
+		outPath = a_outPath;
 
 		// Checks the input file exists and opens it //
 		LX::ThrowIf<LX::InvalidInputFilePath>(std::filesystem::exists(inpPath) == false);
@@ -72,9 +74,9 @@ extern "C" int __declspec(dllexport) GenIR(const char* arg1, const char* arg2, c
 		outFile.close(); // Opened just to check we can
 
 		// Opens the log file (if there is one specified //
-		if (arg3 != nullptr)
+		if (a_logPath != nullptr)
 		{
-			logPath = arg3;
+			logPath = a_logPath;
 			log = std::make_unique<std::ofstream>(logPath);
 			LX::ThrowIf<LX::InvalidLogFilePath>(log->is_open() == false);
 		}
@@ -85,14 +87,17 @@ extern "C" int __declspec(dllexport) GenIR(const char* arg1, const char* arg2, c
 		// Create tokens out of the input file //
 		std::vector<LX::Token>tokens = LX::LexicalAnalyze(contents, len, log.get());
 		LX::SafeFlush(log.get());
+		std::cout << "\t|- Created tokens" << std::endl;
 
 		// Turns the tokens into an AST //
 		LX::FileAST AST = LX::TurnTokensIntoAbstractSyntaxTree(tokens, log.get());
 		LX::SafeFlush(log.get());
+		std::cout << "\t|- Created AST" << std::endl;
 
 		// Turns the AST into LLVM IR //
 		LX::GenerateIR(AST, inpPath.filename().string(), outPath);
 		LX::SafeFlush(log.get());
+		std::cout << "\t|- Generated LLVM IR" << std::endl;
 
 		// Returns success
 		return 0;
@@ -202,19 +207,67 @@ extern "C" int __declspec(dllexport) GenIR(const char* arg1, const char* arg2, c
 		return 6;
 	}
 
+	catch (LX::Scope::VariableAlreadyExists)
+	{
+		std::cout << "Tried to create a variable that already exists\n";
+
+		return 7;
+	}
+
+	catch (LX::Scope::VariableDoesntExist)
+	{
+		std::cout << "Tried to access a variable that doesn't exist\n";
+
+		return 8;
+	}
+
 	// Catches any std errors, there should be none //
 	catch (std::exception& e)
 	{
+		// Closes the log if it is open to get as much info as possible //
+		if (log != nullptr) { log->close(); }
+
 		// Prints the std exception to the console //
 		// Any errors here are problems with the code //
+		std::cout << "An error occured. Please report this on the github page.\n" << std::endl;
 		std::cout << e.what() << std::endl;
+
+		// Exit code -1 means an undefined error //
+		return -1;
+	}
+
+	// Catches any LLVM errors, there should be none //
+	catch (llvm::Error& e)
+	{
+		// Closes the log if it is open to get as much info as possible //
+		if (log != nullptr) { log->close(); }
+
+		// Prints the LLVM error to the console //
+		std::cout << "A LLVM error occured. Please report this on the github page.\n" << std::endl;
+
+		// Exit code -1 means an undefined error //
+		return -1;
+	}
+
+	// Catches errors that i was too lazy to code //
+	catch (int)
+	{
+		// Closes the log if it is open to get as much info as possible //
+		if (log != nullptr) { log->close(); }
+
+		std::cout << "An placeholder error occured. Maybe use a language that wasn't coded by a lazy person.\n" << std::endl;
+
+		// Exit code -1 means an undefined error //
+		return -1;
 	}
 
 	// Default catches any non-specified errors //
-	catch (...) {}
+	catch (...)
+	{
+		// Closes the log if it is open to get as much info as possible //
+		if (log != nullptr) { log->close(); }
 
-	// Closes the log if it is open to get as much info as possible //
-	if (log != nullptr) { log->close(); }
-	std::cout << "An unknown error occured. Please report this on the github page.\n";
-	return -1; // -1 exit code means an unknown error
+		// Exit code -1 means an undefined error //
+		return -1;
+	}
 }

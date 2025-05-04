@@ -2,14 +2,25 @@
 
 This is my custom compiled language written in C++ based off of the LLVM toolchain. Do not use the language in it's current state unless you are insane.
 
-### Planned features
+### Planned features (in order)
 - Operations (Maths + BinOp)
 - Functions
 - More than just int as a type
 - References / Pointers
 - Structs / Classes (Polymorphism + vtables)
 
-### Stuff I want to do later
+### Codebase
+- Errors
+    - Inherit from a common class
+    - All simple errors (no members) use the same type
+    - ThrowIf Requires an error class
+    - No temporary throw int;
+- Logging
+    - Less templates
+    - Standard for formatting
+    - Choose what is logged
+
+### Stuff I want to do later (unordered)
 - I/O manager (Console, Files)
 - Debugger support
 - Extensions for vscode / vs22
@@ -17,17 +28,18 @@ This is my custom compiled language written in C++ based off of the LLVM toolcha
 - SSA (Static single assignment)
 - LX-Core (Basic Standard Lib)
 - SIMD (Single instruction, multiple data)
-- Built in features for multi-language code (C, C++, C#, Rust...)
+- Built in features for multi-language codebases (C, C++, C#, Rust...)
 - Custom Linker written in rust
 - Package manager
-- Custom optimiser (+ O3 in Clang)
+- Custom optimiser (as well O3 in Clang)
 - Complicated LX-Core:
     - Graphics APIs support
     - Networking support
     - WinAPI compatiability
 
-### Stuff I might do later
+### Stuff I might do later (but probably won't)
 - JIT (Just in time compiler) / Interpreter
 - Different compiler backends
 - Python support
 - Non-windows OS support
+- Database support

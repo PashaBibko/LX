@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
+using System.ComponentModel;
 
 namespace LX_Build
 {
@@ -45,7 +45,13 @@ namespace LX_Build
             LX_API.Init();
 
             // Generates LLVM IR with the example files //
-            _ = LX_API.GenIR("example/main.lx", "example/main.ll", "example/log");
+            int genExitCode = LX_API.GenIR("example/main.lx", "example/main.ll", "example/log");
+            if (genExitCode != 0)
+            {
+                Console.WriteLine("An error occured whilst generating LLVM IR");
+                Console.WriteLine($"Error code: {genExitCode}");
+                return;
+            }
 
             // Compilers the LLVM IR to an object file using the command line //
             CompileToObj("example/main.ll", "example/main.obj");

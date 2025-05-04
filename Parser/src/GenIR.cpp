@@ -55,6 +55,8 @@ namespace LX
 		// Loops over the functions to generate their LLVM IR //
 		for (auto& func : ast.functions)
 		{
+			std::cout << "\t|\t|- Generating function: " << func.name << "\n";
+
 			LLVM.scope = &func.scope; // Sets the current scope for the builder
 			GenerateFunctionIR(func, LLVM);
 		}
