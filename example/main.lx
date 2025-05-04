@@ -1,7 +1,7 @@
 func main()
 {
     int a
-    a = 783412
+    a = 7834
 
     int b
     b = 6

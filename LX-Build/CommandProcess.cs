@@ -1,37 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LX_Build
 {
     internal class CommandProcess
     {
-        private readonly string m_ErrorMessage;
-        private readonly int m_ExitCode;
+        private string m_ErrorMessage = string.Empty;
+        private int m_ExitCode = 0;
 
-        public int ExitCode() => m_ExitCode;
-
-        public string Error() => m_ErrorMessage;
-
-        public CommandProcess(string command)
+        private void HandleProcess(Process process)
         {
-            // Creates a process to run the command //
-            ProcessStartInfo info = new()
-            {
-                FileName = "cmd.exe",
-                Arguments = $"/c {command}",
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            };
-
-            // Starts the process //
-            using Process process = Process.Start(info);
-
             // Reads the streams of the output //
             string output = process.StandardOutput.ReadToEnd();
             string error = process.StandardError.ReadToEnd();
@@ -43,5 +21,49 @@ namespace LX_Build
             m_ExitCode = process.ExitCode;
             m_ErrorMessage = error;
         }
+
+        public CommandProcess(string command)
+        {
+            // Creates a process to run the command //
+            ProcessStartInfo info = new()
+            {
+                FileName = command,
+                Arguments = "",
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            // Starts the process and checks it is running //
+            using Process? process = Process.Start(info)
+                ?? throw new Exception($"Process failed to start: [{command}]");
+
+            HandleProcess(process);
+        }
+
+        public CommandProcess(string command, string arguments)
+        {
+            // Creates a process to run the command //
+            ProcessStartInfo info = new()
+            {
+                FileName = command,
+                Arguments = arguments,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            };
+
+            // Starts the process and checks it is running //
+            using Process? process = Process.Start(info)
+                ?? throw new Exception($"Process failed to start: [{command} {arguments}]");
+
+            HandleProcess(process);
+        }
+
+        public int ExitCode() => m_ExitCode;
+
+        public string Error() => m_ErrorMessage;
     }
 }

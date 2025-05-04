@@ -7,11 +7,11 @@ namespace LX_Build
     {
         static void CompileToObj(string inPath, string outPath)
         {
-            // The command to compile the IR to .obj //
-            string command = $"llc -filetype=obj -o \"{outPath}\" \"{inPath}\"";
+            // The arguments to compiler LLVM IR to object files //
+            string arguments = $"-filetype=obj -o \"{outPath}\" \"{inPath}\"";
 
             // Runs the command //
-            CommandProcess process = new(command);
+            CommandProcess process = new("llc", arguments);
 
             if (process.ExitCode() == 0)
             {
@@ -24,11 +24,11 @@ namespace LX_Build
 
         static void LinkToExe(string objectFile)
         {
-            // The command to link the object file to an .exe //
-            string command = $"lld-link /OUT:example/Main.exe {objectFile} /ENTRY:main";
+            // The arguments to turn object files into an .exe //
+            string arguments = $"/OUT:example/Main.exe {objectFile} /ENTRY:main";
 
             // Runs the command //
-            CommandProcess process = new(command);
+            CommandProcess process = new("lld-link", arguments);
 
             if (process.ExitCode() == 0)
             {
@@ -52,6 +52,13 @@ namespace LX_Build
 
             // Links the object file to an .exe //
             LinkToExe("example/main.obj");
+
+            // Runs the outputted .exe //
+            string command = "example/Main.exe";
+            CommandProcess exe = new(command);
+
+            // Outputs that the program ended with {x} exit code //
+            Console.WriteLine("\nProcess {Main.exe} finished with exit code: " + exe.ExitCode());
         }
     }
 }
