@@ -1,5 +1,6 @@
 #include <Parser.h>
 
+#include <ThrowIf.h>
 #include <Util.h>
 #include <AST.h>
 

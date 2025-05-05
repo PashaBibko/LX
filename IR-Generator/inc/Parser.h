@@ -3,6 +3,8 @@
 // Lexer foward declares fstream components so we can use them here //
 #include <Lexer.h>
 
+#include <Error.h>
+
 #include <unordered_map>
 #include <memory>
 
@@ -76,11 +78,19 @@ namespace LX::AST
 namespace LX
 {
 	// Thrown if there was an error during IR Generation //
-	struct IRGenerationError {};
+	CREATE_EMPTY_LX_ERROR_TYPE(IRGenerationError);
 
 	// Thrown if there was an unexpected (incorrect) token //
-	struct UnexpectedToken
+	struct UnexpectedToken : public RuntimeError
 	{
+		GENERATE_LX_ERROR_REQUIRED_FUNCTION_DECLARATIONS;
+
+		UnexpectedToken(Token::TokenType _expected, std::string _override, Token _got);
+
+		//
+		static std::string* s_Source;
+		static std::filesystem::path* s_SourceFile;
+
 		// The token type that should be there //
 		Token::TokenType expected;
 
@@ -96,10 +106,10 @@ namespace LX
 	{
 		public:
 			// Error thrown if the user tried to create a variable that already existed //
-			struct __declspec(novtable) VariableAlreadyExists final {};
+			CREATE_EMPTY_LX_ERROR_TYPE(VariableAlreadyExists);
 
 			// Error thrown if user tries to access variable that does not exist //
-			struct __declspec(novtable) VariableDoesntExist final {};
+			CREATE_EMPTY_LX_ERROR_TYPE(VariableDoesntExist);
 
 			// Default constructor //
 			Scope()

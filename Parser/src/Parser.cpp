@@ -1,5 +1,6 @@
 #include <Parser.h>
 
+#include <ThrowIf.h>
 #include <Util.h>
 #include <AST.h>
 
@@ -7,6 +8,9 @@
 
 namespace LX
 {
+	std::string* UnexpectedToken::s_Source = nullptr;
+	std::filesystem::path* UnexpectedToken::s_SourceFile = nullptr;
+
 	// Util function for working out if a token is a two sided operator //
 	static bool IsTwoSidedOperator(Token::TokenType t)
 	{
@@ -204,7 +208,7 @@ namespace LX
 	FileAST TurnTokensIntoAbstractSyntaxTree(std::vector<Token>& tokens, std::ofstream* log)
 	{
 		// Logs the start of the parsing
-		SafeLog(log, LOG_BREAK, "Started parsing tokens", LOG_BREAK);
+		SafeLog(log, LOG_BREAK, "Started parsing tokens", LOG_BREAK); 
 
 		// Creates the output storer and the parser //
 		FileAST output;

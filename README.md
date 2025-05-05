@@ -11,14 +11,14 @@ This is my custom compiled language written in C++ based off of the LLVM toolcha
 
 ### Codebase
 - Errors
-    - Inherit from a common class
     - All simple errors (no members) use the same type
-    - ThrowIf Requires an error class
-    - No temporary throw int;
 - Logging
     - Less templates
     - Standard for formatting
     - Choose what is logged
+- Refactor
+    - Use dynamic linking for debug builds (faster build times)
+    - General clean up
 
 ### Stuff I want to do later (unordered)
 - I/O manager (Console, Files)

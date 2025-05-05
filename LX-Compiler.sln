@@ -20,6 +20,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LX-Build", "LX-Build\LX-Bui
 		{C88042E2-0E09-4383-93F8-C79F9EE1E897} = {C88042E2-0E09-4383-93F8-C79F9EE1E897}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common-Include", "Common-Include", "{4AD62954-631A-4D0F-877E-E1C66E8CEC00}"
+	ProjectSection(SolutionItems) = preProject
+		common\Console.h = common\Console.h
+		common\Error.h = common\Error.h
+		common\ThrowIf.h = common\ThrowIf.h
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

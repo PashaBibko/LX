@@ -1,5 +1,7 @@
 #include <Parser.h>
 
+#include <ThrowIf.h>
+
 #include <Util.h>
 #include <AST.h>
 
@@ -28,7 +30,7 @@ namespace LX
 		// Generates the IR within the function by looping over the nodes //
 		for (auto& node : funcAST.body)
 		{
-			ThrowIf<int>(IsValidTopLevelNode(node->m_Type) == false); // <- TODO: replace with actual error type
+			ThrowIf<IRGenerationError>(IsValidTopLevelNode(node->m_Type) == false); // <- TODO: replace with actual error type
 			node->GenIR(LLVM);
 		}
 
@@ -39,7 +41,7 @@ namespace LX
 		}
 
 		// Verifies the function works //
-		ThrowIf<int>(llvm::verifyFunction(*func)); // <- TODO: Make error type
+		ThrowIf<IRGenerationError>(llvm::verifyFunction(*func)); // <- TODO: Make error type
 	}
 
 	// Turns an abstract binary tree into LLVM intermediate representation //
@@ -55,8 +57,6 @@ namespace LX
 		// Loops over the functions to generate their LLVM IR //
 		for (auto& func : ast.functions)
 		{
-			std::cout << "\t|\t|- Generating function: " << func.name << "\n";
-
 			LLVM.scope = &func.scope; // Sets the current scope for the builder
 			GenerateFunctionIR(func, LLVM);
 		}

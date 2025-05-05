@@ -45,11 +45,10 @@ namespace LX_Build
             LX_API.Init();
 
             // Generates LLVM IR with the example files //
-            int genExitCode = LX_API.GenIR("example/main.lx", "example/main.ll", "example/log");
-            if (genExitCode != 0)
+            if (LX_API.GenIR("example/main.lx", "example/main.ll", "example/log") != 0)
             {
-                Console.WriteLine("An error occured whilst generating LLVM IR");
-                Console.WriteLine($"Error code: {genExitCode}");
+                // Quits if the IR Generation fails //
+                // The C++ script handles all of the error message outputting //
                 return;
             }
 

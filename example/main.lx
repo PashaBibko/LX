@@ -1,12 +1,6 @@
-func add(int a, int b)
-{
-    return a + b
-}
-
 func main()
 {
-    int a
-    a = 7834
+    int a @ 
 
     int b
     b = 6

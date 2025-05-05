@@ -7,11 +7,6 @@
 
 namespace LX
 {
-	template<typename T, typename... Args>
-	// Helper function to throw given error if condition is true //
-	// Also micro-optimises to predict there is no errors thrown //
-	inline void ThrowIf(const bool condition, Args... args)
-	{ if (condition) [[unlikely]] { throw T(args...); }}
 
 	template<typename... Args>
 	// Helper function for logging //

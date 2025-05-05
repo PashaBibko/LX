@@ -1,17 +1,58 @@
 #include <Lexer.h>
 #include <Util.h>
 
+#include <ThrowIf.h>
+#include <Console.h>
+
+#include <sstream>
 #include <unordered_map>
 #include <string_view>
 #include <fstream>
 #include <vector>
 #include <string>
+#include <filesystem>
 
 #include <iostream>
 #include <iomanip>
 
 namespace LX
 {
+	std::string* InvalidCharInSource::s_Source = nullptr;
+	std::filesystem::path* InvalidCharInSource::s_SourceFile = nullptr;
+
+	InvalidCharInSource::InvalidCharInSource(std::streamsize _col, std::streamsize _line, std::streamsize _index, char _invalid)
+		: col(_col), line(_line), index(_index), invalid(_invalid)
+	{
+		// Calculates the length of the line number in the console so it is formatted correctly //
+		std::ostringstream oss;
+		oss << std::setw(3) << line;
+		size_t lineNumberWidthInConsole = std::max(oss.str().size(), (size_t)3);
+
+		// Gets the line of the error //
+		std::string errorLine = LX::GetLineAtIndexOf(*s_Source, index);
+
+		// Prints the error with the relevant information to the console //
+		std::cout << "\n";
+		LX::PrintStringAsColor("Error: ", LX::Color::LIGHT_RED);
+		std::cout << "Invalid character found in ";
+		LX::PrintStringAsColor(s_SourceFile->filename().string(), LX::Color::WHITE);
+		std::cout << " {";
+		LX::PrintStringAsColor(std::string(1, invalid), LX::Color::LIGHT_RED);
+		std::cout << "}:\n";
+		std::cout << "Line: " << std::setw(lineNumberWidthInConsole) << line << " | " << errorLine << "\n";
+		std::cout << "      " << std::setw(lineNumberWidthInConsole) << "" << " | " << std::setw(col - 1) << "";
+		LX::PrintStringAsColor("^", LX::Color::LIGHT_RED);
+		std::cout << "\n";
+	}
+
+	void InvalidCharInSource::PrintToConsole() const
+	{}
+
+	const char* InvalidCharInSource::ErrorType() const
+	{
+		return "Invalid char in source";
+	}
+
 	// Helper macro for outputting token type //
 	#define TOKEN_CASE(type) case type: return #type;
 
@@ -311,7 +352,7 @@ namespace LX
 			// Throws an error with all the relevant information //
 			else
 			{
-				throw InvalidCharInSource(info.column, info.line, info.index, contents[info.index]);
+				ThrowIf<InvalidCharInSource>(true, info.column, info.line, info.index, contents[info.index]);
 			}
 
 			// Log dumps A LOT of info //
