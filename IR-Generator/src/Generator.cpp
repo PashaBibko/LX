@@ -33,19 +33,15 @@ namespace LX
 	}
 }
 
-extern "C" int __declspec(dllexport) GenIR(const char* a_inpPath, const char* a_outPath, const char* a_logPath)
+extern "C" int __declspec(dllexport) GenIR(const char* a_inpPath, const char* a_outPath)
 {
 	// Creates the file paths outside of the try-catch so they can be used in errors //
 	std::filesystem::path inpPath;
 	std::filesystem::path outPath;
-	std::filesystem::path logPath;
 
 	// Creates the contents string outside of the try-catch so they can be used in errors //
 	std::string contents;
 	LX::Token::source = &contents;
-
-	// Creates the log-file out of the try-catch so it can be closed propely if an error is thrown //
-	std::unique_ptr<std::ofstream> log = nullptr;
 
 	try
 	{
@@ -69,33 +65,22 @@ extern "C" int __declspec(dllexport) GenIR(const char* a_inpPath, const char* a_
 		LX::ThrowIf<LX::InvalidFilePath>(outFile.is_open() == false, "output file path", outPath);
 		outFile.close(); // Opened just to check we can
 
-		// Opens the log file (if there is one specified //
-		if (a_logPath != nullptr)
-		{
-			logPath = a_logPath;
-			log = std::make_unique<std::ofstream>(logPath);
-			LX::ThrowIf<LX::InvalidFilePath>(log->is_open() == false, "log file path", logPath);
-		}
-
 		// Prints the full paths to the console to let the user know compiling is being done //
 		std::cout << std::filesystem::absolute(inpPath) << " -> " << std::filesystem::absolute(outPath) << std::endl;
 
 		// Create tokens out of the input file //
 		LX::InvalidCharInSource::s_Source = &contents;
 		LX::InvalidCharInSource::s_SourceFile = &inpPath;
-		std::vector<LX::Token>tokens = LX::LexicalAnalyze(contents, len, log.get());
-		LX::SafeFlush(log.get());
+		std::vector<LX::Token>tokens = LX::LexicalAnalyze(contents, len);
 
 		// Turns the tokens into an AST //
 		LX::UnexpectedToken::s_Source = &contents;
 		LX::UnexpectedToken::s_SourceFile = &inpPath;
 
-		LX::FileAST AST = LX::TurnTokensIntoAbstractSyntaxTree(tokens, log.get());
-		LX::SafeFlush(log.get());
+		LX::FileAST AST = LX::TurnTokensIntoAbstractSyntaxTree(tokens);
 
 		// Turns the AST into LLVM IR //
 		LX::GenerateIR(AST, inpPath.filename().string(), outPath);
-		LX::SafeFlush(log.get());
 
 		// Returns success
 		return 0;
@@ -103,9 +88,8 @@ extern "C" int __declspec(dllexport) GenIR(const char* a_inpPath, const char* a_
 
 	catch(LX::RuntimeError& e)
 	{
-		// Closes the log to save everything outputted to it after logging the error //
-		LX::SafeLog(log.get(), LX::LOG_BREAK, "Error thrown of type: ", e.ErrorType(), LX::LOG_BREAK);
-		if (log != nullptr) { log->close(); }
+		// Logs the error. Does not need to close it as it is done after this function returns //
+		LX::Log::LogNewSection("Error thrown of type: ", e.ErrorType());
 
 		// Logs the errors type to the console if built as Debug //
 		#ifdef _DEBUG
@@ -122,8 +106,8 @@ extern "C" int __declspec(dllexport) GenIR(const char* a_inpPath, const char* a_
 	// Catches any std errors, there should be none //
 	catch (std::exception& e)
 	{
-		// Closes the log if it is open to get as much info as possible //
-		if (log != nullptr) { log->close(); }
+		// Logs the error. Does not need to close it as it is done after this function returns //
+		LX::Log::LogNewSection("std::exception thrown: ", e.what());
 
 		// Prints the std exception to the console //
 		// Any errors here are problems with the code //
@@ -134,24 +118,9 @@ extern "C" int __declspec(dllexport) GenIR(const char* a_inpPath, const char* a_
 		return -1;
 	}
 
-	// Catches errors that i was too lazy to code //
-	catch (int)
-	{
-		// Closes the log if it is open to get as much info as possible //
-		if (log != nullptr) { log->close(); }
-
-		std::cout << "An placeholder error occured. Maybe use a language that wasn't coded by a lazy person.\n" << std::endl;
-
-		// Exit code -1 means an undefined error //
-		return -1;
-	}
-
 	// Default catches any non-specified errors //
 	catch (...)
 	{
-		// Closes the log if it is open to get as much info as possible //
-		if (log != nullptr) { log->close(); }
-
 		// Exit code -1 means an undefined error //
 		return -1;
 	}

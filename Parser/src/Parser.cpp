@@ -29,15 +29,12 @@ namespace LX
 	struct Parser
 	{
 		// Passes constructor args to members //
-		Parser(std::vector<Token>& _tokens, std::ofstream* _log)
-			: tokens(_tokens), log(_log), index(0), len(_tokens.size()), scopeDepth(0)
+		Parser(std::vector<Token>& _tokens)
+			: tokens(_tokens), index(0), len(_tokens.size()), scopeDepth(0)
 		{}
 
 		// Tokens created by the lexer //
 		std::vector<Token>& tokens;
-
-		// Log to output to (can be null) //
-		std::ofstream* log;
 
 		// Length of the the token vector //
 		const size_t len;
@@ -203,14 +200,14 @@ namespace LX
 	}
 
 	// Turns the tokens of a file into it's abstract syntax tree equivalent //
-	FileAST TurnTokensIntoAbstractSyntaxTree(std::vector<Token>& tokens, std::ofstream* log)
+	FileAST TurnTokensIntoAbstractSyntaxTree(std::vector<Token>& tokens)
 	{
 		// Logs the start of the parsing
-		SafeLog(log, LOG_BREAK, "Started parsing tokens", LOG_BREAK); 
+		Log::LogNewSection("Started parsing tokens"); 
 
 		// Creates the output storer and the parser //
 		FileAST output;
-		Parser p(tokens, log);
+		Parser p(tokens);
 
 		// Loops over the tokens and calls the correct parsing function //
 		// Which depends on their type and current state of the parser //
@@ -261,7 +258,7 @@ namespace LX
 							for (std::unique_ptr<AST::Node>& containedNode : ((AST::MultiNode*)node.get())->nodes)
 							{
 								// Logs the node to the log //
-								if (log != nullptr) { node->Log(log, 0); }
+								node->Log(0);
 
 								// Adds it to the vector //
 								func.body.push_back(std::move(containedNode));
@@ -272,7 +269,7 @@ namespace LX
 						else
 						{
 							// Logs the node to the log //
-							if (log != nullptr) { node->Log(log, 0); }
+							node->Log(0);
 
 							// Adds it to the vector //
 							func.body.push_back(std::move(node));
@@ -296,7 +293,7 @@ namespace LX
 
 		// Logs that AST has finished parsing //
 		// TODO: Make this output the AST in a human-readable form //
-		SafeLog(log, "AST length: ", output.functions[0].body.size());
+		Log::out("AST length: ", output.functions[0].body.size());
 
 		// Returns the output and shrinks all uneccesarry allocated memory
 		output.functions.shrink_to_fit();

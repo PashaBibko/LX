@@ -11,7 +11,8 @@
 	#define NOMINMAX
 	#define WIN32_LEAN_AND_MEAN
 	#include <Windows.h>
-
+	#undef NOMINMAX
+	#undef WIN32_LEAN_AND_MEAN
 // Else alerts the user that their system is not supported //
 #else
 	#error "This code is only designed to work on windows"
@@ -21,6 +22,17 @@
 #ifndef _MSC_VER
 	#error "This code is only designed to work with Visual Studio"
 #endif // _MSC_VER
+
+// My commonly used macros //
+
+#define RETURN_IF(condition) if (condition) { return; }
+#define RETURN_V_IF(value, condition) if (condition) { return value; }
+
+#ifdef COMMON_EXPORTS
+	#define COMMON_API __declspec(dllexport)
+#else
+	#define COMMON_API __declspec(dllimport)
+#endif // COMMON_EXPORTS
 
 // Includes commonly used STD files //
 

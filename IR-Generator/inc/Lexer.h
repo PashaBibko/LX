@@ -128,5 +128,5 @@ namespace LX
 	std::string ToString(Token::TokenType t);
 	
 	// Lexer function to take in a file and output a vector of tokens //
-	const std::vector<Token> LexicalAnalyze(const std::string& contents, const std::streamsize len, std::ofstream* log);
+	const std::vector<Token> LexicalAnalyze(const std::string& contents, const std::streamsize len);
 }

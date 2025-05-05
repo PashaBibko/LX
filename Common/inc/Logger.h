@@ -1,23 +1,51 @@
 namespace LX
 {
-	template<typename... Args>
-	inline void SafeLog(std::ofstream* log, Args... args)
+	class COMMON_API Log
 	{
-		if (log != nullptr)
-		{
-			(*log << ... << args);
-			(*log << '\n');
-		}
-	}
+		public:
+			// This class should never be constructed //
+			Log() = delete;
 
-	inline void SafeFlush(std::ofstream* log)
-	{
-		if (log != nullptr)
-		{
-			log->flush();
-		}
-	}
+			enum class Format
+			{
+				AUTO,
+				NONE
+			};
 
-	// Gives a standard way to mark a change between different sections within the log output //
-	constexpr const char* LOG_BREAK = "\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n";
+			template<Format format = Format::AUTO, typename... Args>
+			static void out(Args... args)
+			{
+				if constexpr (format == Format::AUTO)
+				{
+					((*s_LogFile << ... << args) << "\n");
+				}
+
+				else
+				{
+					(*s_LogFile << ... << args);
+				}
+			}
+
+			template<typename... Args>
+			static void LogNewSection(Args... args)
+			{
+				static const char* BREAK = "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-";
+
+				*s_LogFile << '\n' << BREAK << '\n';
+				(*s_LogFile << ... << args);
+				*s_LogFile << '\n' << BREAK << '\n';
+			}
+
+		private:
+			// Allows ProcAttach to manage the log //
+			friend bool ProcAttach(HMODULE hModule);
+
+			// Initalises the log (Called by DllMain) //
+			static void Init();
+
+			// Closes the log (Called by DllMain) //
+			static void Close();
+
+			static std::ofstream* s_LogFile;
+	};
 }

@@ -175,10 +175,10 @@ namespace LX
 		}
 	}
 
-	const std::vector<Token> LX::LexicalAnalyze(const std::string& contents, std::streamsize len, std::ofstream* log)
+	const std::vector<Token> LX::LexicalAnalyze(const std::string& contents, std::streamsize len)
 	{
 		// Logs the start of the lexical analysis
-		SafeLog(log, LOG_BREAK, "Started lexing file", LOG_BREAK);
+		Log::LogNewSection("Lexing file");
 
 		// Allocates a large ammount of memory to hold the output //
 		// Will shrink the size later on to stop excess memory being allocated //
@@ -187,7 +187,7 @@ namespace LX
 
 		// Trackers for when the program is iterating over the file //
 		LexerInfo info;
-		
+
 		// Iterates over the file and turns it into tokens //
 		while (info.index < len)
 		{
@@ -344,11 +344,9 @@ namespace LX
 
 			// Log dumps A LOT of info //
 
-			#ifdef LOG_EVERYTHING
-
-			SafeLog
+			Log::out
 			(
-				log, "Index: ", std::left, std::setw(3), info.index,
+				"Index: ", std::left, std::setw(3), info.index,
 				" Is Alpha: ", info.isAlpha,
 				" Is Numeric: ", info.isNumeric,
 				" In Comment: ", info.inComment,
@@ -360,8 +358,6 @@ namespace LX
 				" Current: {", PrintChar(current), "}"
 			);
 
-			#endif // LOG_EVERYTHING
-
 			// Updates trackers to their default state of a new character //
 
 			info.index++;
@@ -371,27 +367,21 @@ namespace LX
 			info.wasLastCharNumeric = info.isNumeric;
 		}
 
-		// Logs the tokens if logging is on //
-		if (log != nullptr)
+		Log::out("\n"); // Puts a space to clean up the log
+
+		for (auto& token : tokens)
 		{
-			#ifdef LOG_EVERYTHING
-			SafeLog(log, "\n"); // Puts a space when there is a lot in the log
-			#endif // LOG_EVERYTHING
-
-			for (auto& token : tokens)
-			{
-				SafeLog
-				(
-					log, std::left, 
-					"{ Line: ", std::setw(3), token.line, 
-					", Index: ", std::setw(3), token.index,
-					", Length: ", std::setw(2), token.length, " } ",
-					std::setw(30), ToStringNoFormat(token.type) + ":", "{", token.GetContents(), "}"
-				);
-			}
-
-			SafeLog(log, "\n END OF TOKENS");
+			Log::out
+			(
+				std::left,
+				"{ Line: ", std::setw(3), token.line,
+				", Index: ", std::setw(3), token.index,
+				", Length: ", std::setw(2), token.length, " } ",
+				std::setw(30), ToStringNoFormat(token.type) + ":", "{", token.GetContents(), "}"
+			);
 		}
+
+		Log::out("End of tokens");
 
 		// Shrinks the vector down to minimum size before returning to avoid excess memory being allocated
 		tokens.shrink_to_fit();

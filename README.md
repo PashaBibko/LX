@@ -13,12 +13,10 @@ This is my custom compiled language written in C++ based off of the LLVM toolcha
 - Errors
     - All simple errors (no members) use the same type
 - Logging
-    - Less templates
-    - Standard for formatting
-    - Choose what is logged
+    - Choose what is logged (if any)
 - Refactor
-    - Use dynamic linking for debug builds (faster build times)
-    - General clean up
+    - Parser needs folders
+    - Better .h files
 
 ### Stuff I want to do later (unordered)
 - I/O manager (Console, Files)

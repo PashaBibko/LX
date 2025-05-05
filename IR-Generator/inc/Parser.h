@@ -51,7 +51,7 @@ namespace LX::AST
 		virtual llvm::Value* GenIR(InfoLLVM& LLVM) = 0;
 
 		// Function to log the node to a file //
-		virtual void Log(std::ofstream* log, unsigned depth) = 0;
+		virtual void Log(unsigned depth) = 0;
 
 		// Function for generating C/C++ code (Currently not implemented) //
 		//virtual void GenC() = 0;
@@ -143,7 +143,7 @@ namespace LX
 	};
 
 	// Turns the tokens of a file into it's abstract syntax tree equivalent //
-	FileAST TurnTokensIntoAbstractSyntaxTree(std::vector<Token>& tokens, std::ofstream* log);
+	FileAST TurnTokensIntoAbstractSyntaxTree(std::vector<Token>& tokens);
 
 	// Turns an abstract binary tree into LLVM intermediate representation //
 	void GenerateIR(FileAST& ast, const std::string& name, const std::filesystem::path& IRPath);

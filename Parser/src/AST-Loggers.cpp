@@ -4,61 +4,59 @@
 
 namespace LX::AST
 {
-	void MultiNode::Log(std::ofstream* log, unsigned depth)
+	void MultiNode::Log(unsigned depth)
 	{
 		throw int(); // <- TODO: Make an error for this
 	}
 
-	void NumberLiteral::Log(std::ofstream* log, unsigned depth)
+	void NumberLiteral::Log(unsigned depth)
 	{
-		(*log) << std::string(depth, '\t');
-		(*log) << "Number: " << m_Number << "\n";
+		Log::out(std::string(depth, '\t'), "Number: ", m_Number);
 	}
 
-	void Operation::Log(std::ofstream* log, unsigned depth)
+	void Operation::Log(unsigned depth)
 	{
-		(*log) << std::string(depth, '\t');
-		(*log) << "Operation {" << ToString(m_Operand) << "}:\n";
-		(*log) << std::string(depth + 1, '\t') << "LHS:\n";
-		m_Lhs.get()->Log(log, depth + 2);
-		(*log) << std::string(depth + 1, '\t') << "RHS:\n";
-		m_Rhs.get()->Log(log, depth + 2);
+		Log::out(std::string(depth, '\t'), "Operation {", ToString(m_Operand), "}:");
+
+		Log::out(std::string(depth + 1, '\t'), "LHS:");
+		m_Lhs->Log(depth + 2);
+
+		Log::out(std::string(depth + 1, '\t'), "RHS:");
+		m_Rhs->Log(depth + 2);
 	}
 
-	void ReturnStatement::Log(std::ofstream* log, unsigned depth)
+	void ReturnStatement::Log(unsigned depth)
 	{
-		(*log) << std::string(depth, '\t');
-		
-		if (m_Val == nullptr)
+		Log::out<Log::Format::NONE>(std::string(depth, '\t'), "Return");
+
+		if (m_Val != nullptr)
 		{
-			(*log) << "Return\n";
+			Log::out(':');
+			m_Val->Log(depth + 1);
 		}
-		
+
 		else
 		{
-			(*log) << "Return:\n";
-			m_Val->Log(log, depth + 1);
+			Log::out<Log::Format::NONE>('\n');
 		}
 	}
 
-	void VariableDeclaration::Log(std::ofstream* log, unsigned depth)
+	void VariableDeclaration::Log(unsigned depth)
 	{
-		(*log) << std::string(depth, '\t');
-		(*log) << "Variable declaration: " << m_Name << "\n";
+		Log::out(std::string(depth, '\t'), "Variable declaration: ", m_Name);
 	}
 
-	void VariableAssignment::Log(std::ofstream* log, unsigned depth)
+	void VariableAssignment::Log(unsigned depth)
 	{
-		(*log) << std::string(depth, '\t');
-		(*log) << "Variable assignment:\n";
-		(*log) << std::string(depth + 1, '\t') << "To: " << m_Name << "\n";
-		(*log) << std::string(depth + 1, '\t') << "Value:\n";
-		m_Value.get()->Log(log, depth + 2);
+		Log::out(std::string(depth, '\t'), "Variable assignment:");
+
+		Log::out(std::string(depth + 1, '\t'), "To: ", m_Name);
+		Log::out(std::string(depth + 1, '\t'), "Value:");
+		m_Value->Log(depth + 2);
 	}
 
-	void VariableAccess::Log(std::ofstream* log, unsigned depth)
+	void VariableAccess::Log(unsigned depth)
 	{
-		(*log) << std::string(depth, '\t');
-		(*log) << "Variable: " << m_Name << '\n';
+		Log::out(std::string(depth, '\t'), "Variable: ", m_Name);
 	}
 }

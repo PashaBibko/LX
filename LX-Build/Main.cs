@@ -45,7 +45,7 @@ namespace LX_Build
             LX_API.Init();
 
             // Generates LLVM IR with the example files //
-            if (LX_API.GenIR("example/main.lx", "example/main.ll", "example/log") != 0)
+            if (LX_API.GenIR("example/main.lx", "example/main.ll") != 0)
             {
                 // Quits if the IR Generation fails //
                 // The C++ script handles all of the error message outputting //

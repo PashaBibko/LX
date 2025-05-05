@@ -3,36 +3,38 @@
 
 namespace LX
 {
+    // All the different functions that can be called by the system //
+    // Currently all empty but here for easier future development   //
+
     using DllFunc = bool(HMODULE);
 
     static bool ProcAttach(HMODULE hModule)
     {
+        Log::Init(); // Initalises the log before the main process starts
+        return true;
     }
 
     static bool ProcDetach(HMODULE hModule)
     {
+        return true;
     }
 
-    static bool ThreadAttach(HMODULE hModule)
-    {
-    }
-
-    static bool ThreadDetach(HMODULE hModule)
-    {
-    }
+    static bool ThreadAttach(HMODULE hModule) { return true; }
+    static bool ThreadDetach(HMODULE hModule) { return true; }
 }
 
 BOOL __stdcall DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
-    switch (ul_reason_for_call)
+    // All the functions that might be called with their relevant state //
+    static const std::unordered_map<DWORD, LX::DllFunc&> funcs =
     {
-        case DLL_PROCESS_ATTACH:
-        case DLL_THREAD_ATTACH:
-        case DLL_THREAD_DETACH:
-        case DLL_PROCESS_DETACH:
-            break;
-    }
+        { DLL_PROCESS_ATTACH, LX::ProcAttach    },
+        { DLL_PROCESS_DETACH, LX::ProcDetach    },
+        { DLL_THREAD_ATTACH , LX::ThreadAttach  },
+        { DLL_THREAD_DETACH , LX::ThreadDetach  }
+    };
 
-    return true;
+    // Returns the output of the relavant function //
+    return funcs.at(ul_reason_for_call)(hModule);
 }
 

@@ -14,7 +14,7 @@ namespace LX_Build
         [LibraryImport ("Generator.dll", StringMarshalling = StringMarshalling.Custom,
             StringMarshallingCustomType = typeof(System.Runtime.InteropServices.Marshalling.AnsiStringMarshaller))]
         [UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
-        public static partial int GenIR(string arg1, string arg2, string? arg3);
+        public static partial int GenIR(string arg1, string arg2);
 
         // Sets the directory to import the DLLs from //
         public static void Init()

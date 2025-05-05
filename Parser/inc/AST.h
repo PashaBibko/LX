@@ -31,7 +31,7 @@ namespace LX::AST
 			llvm::Value* GenIR(InfoLLVM& LLVM) override;
 
 			// Function to log the node to a file, will throw an error if called on this class //
-			void Log(std::ofstream* log, unsigned depth) override;
+			void Log(unsigned depth) override;
 
 			// The nodes that are contained within this node //
 			std::vector<std::unique_ptr<Node>> nodes;
@@ -48,7 +48,7 @@ namespace LX::AST
 			llvm::Value* GenIR(InfoLLVM& LLVM) override;
 
 			// Function to log the node to a file //
-			void Log(std::ofstream* log, unsigned depth) override;
+			void Log(unsigned depth) override;
 
 		private:
 			// The number it stores //
@@ -67,7 +67,7 @@ namespace LX::AST
 			llvm::Value* GenIR(InfoLLVM& LLVM) override;
 
 			// Function to log the node to a file //
-			void Log(std::ofstream* log, unsigned depth) override;
+			void Log(unsigned depth) override;
 
 		private:
 			// The sides of the operation //
@@ -89,7 +89,7 @@ namespace LX::AST
 			llvm::Value* GenIR(InfoLLVM& LLVM) override;
 
 			// Function to log the node to a file //
-			void Log(std::ofstream* log, unsigned depth) override;
+			void Log(unsigned depth) override;
 
 		private:
 			// What it is returning (can be null) //
@@ -107,7 +107,7 @@ namespace LX::AST
 			llvm::Value* GenIR(InfoLLVM& LLVM) override;
 
 			// Function to log the node to a file //
-			void Log(std::ofstream* log, unsigned depth) override;
+			void Log(unsigned depth) override;
 
 		private:
 			// Name of the variable //
@@ -127,7 +127,7 @@ namespace LX::AST
 			llvm::Value* GenIR(InfoLLVM& LLVM) override;
 
 			// Function to log the node to a file //
-			void Log(std::ofstream* log, unsigned depth) override;
+			void Log(unsigned depth) override;
 
 		private:
 			// Name of the variable //
@@ -148,7 +148,7 @@ namespace LX::AST
 			llvm::Value* GenIR(InfoLLVM& LLVM) override;
 
 			// Function to log the node to a file //
-			void Log(std::ofstream* log, unsigned depth) override;
+			void Log(unsigned depth) override;
 
 		private:
 			// The name of the variable //
