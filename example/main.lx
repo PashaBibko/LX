@@ -1,6 +1,7 @@
 func main()
 {
-    int a @ 
+    int a
+    a = 65465
 
     int b
     b = 6

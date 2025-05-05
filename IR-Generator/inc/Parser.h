@@ -1,9 +1,9 @@
 #pragma once
 
+#include <LX-Common.h>
+
 // Lexer foward declares fstream components so we can use them here //
 #include <Lexer.h>
-
-#include <LX-Common.h>
 
 // Foward declares the wrapper around the LLVM objects we need to pass around // 
 namespace LX { struct InfoLLVM; }

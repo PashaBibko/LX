@@ -1,6 +1,6 @@
-#include <Lexer.h>
-
 #include <LX-Common.h>
+
+#include <Lexer.h>
 
 namespace LX
 {

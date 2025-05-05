@@ -1,6 +1,6 @@
-#include <Parser.h>
-
 #include <LX-Common.h>
+
+#include <Parser.h>
 
 #include <AST.h>
 
