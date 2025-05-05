@@ -1,10 +1,6 @@
 #include <Parser.h>
 
-#include <Console.h>
-
-#include <filesystem>
-#include <iomanip>
-#include <sstream>
+#include <LX-Common.h>
 
 namespace LX
 {

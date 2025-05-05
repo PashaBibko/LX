@@ -19,13 +19,7 @@
     <ClInclude Include="inc\Lexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="inc\LLVM.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Parser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,5 +1,3 @@
-#pragma once
-
 namespace LX
 {
 	// Base error class for all LX thrown errors //

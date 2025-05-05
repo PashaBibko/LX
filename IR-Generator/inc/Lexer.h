@@ -1,22 +1,6 @@
 #pragma once
 
-#include <Error.h>
-
-#include <filesystem>
-#include <vector>
-#include <string>
-
-// Foward declarations of STD classes to minimise includes //
-namespace std
-{
-	template<typename T1>
-	struct char_traits;
-
-	template<typename T1, typename T2>
-	class basic_ofstream;
-
-	using ofstream = basic_ofstream<char, char_traits<char>>;
-}
+#include <LX-Common.h>
 
 // This file contains everything that is exported from Lexer.lib
 // The rest of the items within the Lexer project are internal only

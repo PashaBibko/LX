@@ -1,12 +1,8 @@
 #include <Parser.h>
 
-#include <ThrowIf.h>
+#include <LX-Common.h>
 
-#include <Util.h>
 #include <AST.h>
-
-#include <filesystem>
-#include <iostream>
 
 namespace LX
 {

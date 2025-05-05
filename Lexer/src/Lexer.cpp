@@ -1,19 +1,6 @@
 #include <Lexer.h>
-#include <Util.h>
 
-#include <ThrowIf.h>
-#include <Console.h>
-
-#include <sstream>
-#include <unordered_map>
-#include <string_view>
-#include <fstream>
-#include <vector>
-#include <string>
-#include <filesystem>
-
-#include <iostream>
-#include <iomanip>
+#include <LX-Common.h>
 
 namespace LX
 {

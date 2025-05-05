@@ -1,8 +1,6 @@
 #include <Parser.h>
 
-#include <LLVM.h>
-
-#include <memory>
+#include <LX-Common.h>
 
 namespace LX
 {

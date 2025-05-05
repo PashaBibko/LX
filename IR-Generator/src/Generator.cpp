@@ -1,16 +1,7 @@
-#include <filesystem>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <memory>
+#include <LX-Common.h>
 
-#include <ThrowIf.h>
-#include <Console.h>
 #include <Parser.h>
 #include <Lexer.h>
-#include <Util.h>
-
-#include <Error.h>
 
 namespace LX
 {

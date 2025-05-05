@@ -11,6 +11,8 @@ obj/
 # Ignore runtime outputs #
 
 *.ll
+*.obj
+*.exe
 log
 
 # Ignore user specific options #

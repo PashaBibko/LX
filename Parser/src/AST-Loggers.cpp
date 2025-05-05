@@ -1,6 +1,6 @@
 #include <AST.h>
 
-#include <fstream>
+#include <LX-Common.h>
 
 namespace LX::AST
 {

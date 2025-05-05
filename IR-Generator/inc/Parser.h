@@ -3,21 +3,7 @@
 // Lexer foward declares fstream components so we can use them here //
 #include <Lexer.h>
 
-#include <Error.h>
-
-#include <unordered_map>
-#include <memory>
-
-// Foward declares STD stuff that is passed around //
-namespace std::filesystem { class path; }
-
-// Foward declares all items of the llvm lib that we need //
-// Done to avoid including LLVM.h to shorten compile times //
-namespace llvm
-{
-	class Value;
-	class AllocaInst;
-}
+#include <LX-Common.h>
 
 // Foward declares the wrapper around the LLVM objects we need to pass around // 
 namespace LX { struct InfoLLVM; }

@@ -1,8 +1,3 @@
-#pragma once
-
-// Type traits is included for std::is_base_of_v //
-#include <type_traits>
-
 namespace LX
 {
 	// Foward declares LX::RuntimeError so it can be used to see if a class derives from //

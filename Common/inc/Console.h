@@ -1,11 +1,3 @@
-#pragma once
-
-#define NOMINMAX
-#include <Windows.h>
-
-#include <iostream>
-#include <string>
-
 namespace LX
 {
 	enum class Color
