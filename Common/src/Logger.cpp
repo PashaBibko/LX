@@ -15,12 +15,4 @@ namespace LX
 		actualLog.open("log");
 		s_LogFile = &actualLog;
 	}
-
-	void Log::Close()
-	{
-		// Flushes and closes the log //
-		// Yes I know closing automatically flushes but this function looked empty //
-		s_LogFile->flush();
-		s_LogFile->close();
-	}
 }

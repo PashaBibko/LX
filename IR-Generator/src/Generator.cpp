@@ -3,6 +3,8 @@
 #include <Parser.h>
 #include <Lexer.h>
 
+#include <../Lexer/inc/LexerErrors.h> // <- TEMP (I hope)
+
 namespace LX
 {
 	// Different errors thrown by main //
@@ -35,6 +37,9 @@ namespace LX
 
 extern "C" int __declspec(dllexport) GenIR(const char* a_inpPath, const char* a_outPath)
 {
+	// Initalises the log //
+	LX::Log::Init();
+
 	// Creates the file paths outside of the try-catch so they can be used in errors //
 	std::filesystem::path inpPath;
 	std::filesystem::path outPath;

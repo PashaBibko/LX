@@ -1,9 +1,11 @@
 namespace LX
 {
+	// Static class used for logging information //
 	class COMMON_API Log
 	{
 		public:
 			// This class should never be constructed //
+			// It acts like a fancy namespace //
 			Log() = delete;
 
 			enum class Format
@@ -15,15 +17,11 @@ namespace LX
 			template<Format format = Format::AUTO, typename... Args>
 			static void out(Args... args)
 			{
-				if constexpr (format == Format::AUTO)
-				{
-					((*s_LogFile << ... << args) << "\n");
-				}
+				// Prints out the args ending with a new line unless specified //
+				if constexpr (format == Format::AUTO) { ((*s_LogFile << ... << args) << "\n"); }
 
-				else
-				{
-					(*s_LogFile << ... << args);
-				}
+				// Else prints out the args as provided //
+				else { (*s_LogFile << ... << args); }
 			}
 
 			template<typename... Args>
@@ -36,13 +34,11 @@ namespace LX
 				*s_LogFile << '\n' << BREAK << '\n';
 			}
 
-		private:
 			// Initalises the log (Called by DllMain) //
 			static void Init();
 
-			// Closes the log (Called by DllMain) //
-			static void Close();
-
+		private:
+			// Keeps the pointer hidden to stop accidental changes //
 			static std::ofstream* s_LogFile;
 	};
 }
