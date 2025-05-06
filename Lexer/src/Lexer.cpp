@@ -2,6 +2,9 @@
 
 #include <Lexer.h>
 
+#include <LexerErrors.h>
+#include <LexerInfo.h>
+
 namespace LX
 {
 	std::string* InvalidCharInSource::s_Source = nullptr;

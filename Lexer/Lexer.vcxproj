@@ -150,6 +150,10 @@
     <ClCompile Include="src\Lexer.cpp" />
     <ClCompile Include="src\Token.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="inc\LexerErrors.h" />
+    <ClInclude Include="inc\LexerInfo.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

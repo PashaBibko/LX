@@ -2,6 +2,8 @@
 
 #include <Lexer.h>
 
+#include <LexerInfo.h>
+
 namespace LX
 {
 	// Creates the memory for the pointer to the source //

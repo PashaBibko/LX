@@ -9,31 +9,25 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Header Files\Sections">
-      <UniqueIdentifier>{f3a1ae14-8b71-41d9-ba66-60c952867261}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LX-Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="inc\Console.h">
-      <Filter>Header Files\Sections</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="inc\Error.h">
-      <Filter>Header Files\Sections</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="inc\Logger.h">
-      <Filter>Header Files\Sections</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="inc\ThrowIf.h">
-      <Filter>Header Files\Sections</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\dllmain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

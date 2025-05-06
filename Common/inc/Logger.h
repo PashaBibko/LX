@@ -37,9 +37,6 @@ namespace LX
 			}
 
 		private:
-			// Allows ProcAttach to manage the log //
-			friend bool ProcAttach(HMODULE hModule);
-
 			// Initalises the log (Called by DllMain) //
 			static void Init();
 

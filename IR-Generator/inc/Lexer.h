@@ -7,51 +7,8 @@
 
 namespace LX
 {
-	// Error type with index and character to alert the user that LX does not understand that symbol //
-	struct InvalidCharInSource : public RuntimeError
-	{
-		GENERATE_LX_ERROR_REQUIRED_FUNCTION_DECLARATIONS;
-
-		InvalidCharInSource(std::streamsize _col, std::streamsize _line, std::streamsize _index, char _invalid);
-
-		static std::string* s_Source;
-		static std::filesystem::path* s_SourceFile;
-
-		std::streamsize col;
-		std::streamsize line;
-		std::streamsize index;
-
-		char invalid;
-	};
-
 	// Struct to store the current information of the lexer //
-	struct LexerInfo
-	{
-		// Current trackers of where in the source it is //
-
-		std::streamsize line = 1; // <- Lines start on 1 (probably because of non-programmer's)
-		std::streamsize index = 0;
-		std::streamsize column = 0; // <- Columns start on 1 (probably because of non-programmer's)
-
-		// Trackers for when a multi-char token started //
-
-		std::streamsize startOfWord = 0;
-		std::streamsize startOfNumberLiteral = 0;
-		std::streamsize startOfStringLiteral = 0;
-
-		// Different flags of the lexer //
-		// Stored as a bitset to minimse memory allocated (basically no difference, because only one exists at any given time) //
-
-		bool isAlpha : 1 = false;
-		bool isNumeric : 1 = false;
-		bool inComment : 1 = false;
-		bool inStringLiteral : 1 = false;
-		bool isNextCharAlpha : 1 = false;
-		bool isNextCharNumeric : 1 = false;
-		bool wasLastCharAlpha : 1 = false;
-		bool wasLastCharNumeric : 1 = false;
-		bool lexingNumber : 1 = false;
-	};
+	struct LexerInfo;
 
 	// Data type to store a more computer readable version of files
 	struct __declspec(novtable) Token final
@@ -104,7 +61,7 @@ namespace LX
 		// Constructor of the tokens to set their info //
 		Token(const TokenType _type, const LexerInfo& info, std::streamsize _length);
 
-		//
+		// Works out the contents of the token and returns them as it is not stored in the token //
 		std::string GetContents() const;
 
 		// Type of the token //
