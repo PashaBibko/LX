@@ -63,6 +63,21 @@
 
 #pragma warning(pop) // <- Renables all warnings
 
+// Concepts used for template verification //
+
+namespace LX
+{
+	// Checks if a type can be outputted to std::ostream //
+	template<typename T> concept Logable = requires(std::ostream & os, T t)
+	{
+		// I have no idea what this part does at all //
+		{ os << t } -> std::same_as<std::ostream&>;
+	};
+
+	// Checks if a list of types can be outputted to std::ostream //
+	template<typename... Args> concept AllLogable = (Logable<Args> && ...);
+}
+
 // Includes the rest of common //
 
 #include <inc/Error.h>

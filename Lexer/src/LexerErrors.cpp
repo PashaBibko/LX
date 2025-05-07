@@ -19,15 +19,15 @@ namespace LX
 
 		// Prints the error with the relevant information to the console //
 		std::cout << "\n";
-		LX::PrintStringAsColor("Error: ", LX::Color::LIGHT_RED);
+		PrintAsColor<Color::LIGHT_RED>("Error: ");
 		std::cout << "Invalid character found in ";
-		LX::PrintStringAsColor(file, LX::Color::WHITE);
+		PrintAsColor<Color::WHITE>(file);
 		std::cout << " {";
-		LX::PrintStringAsColor(std::string(1, invalid), LX::Color::LIGHT_RED);
+		PrintAsColor<Color::LIGHT_RED>(std::string(1, invalid));
 		std::cout << "}:\n";
 		std::cout << "Line: " << std::setw(lineNumberWidthInConsole) << line << " | " << lineContents << "\n";
 		std::cout << "      " << std::setw(lineNumberWidthInConsole) << "" << " | " << std::setw(col - 1) << "";
-		LX::PrintStringAsColor("^", LX::Color::LIGHT_RED);
+		PrintAsColor<Color::LIGHT_RED>("^");
 		std::cout << "\n";
 	}
 

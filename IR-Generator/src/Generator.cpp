@@ -43,7 +43,7 @@ extern "C" int __declspec(dllexport) GenIR(const char* a_inpPath, const char* a_
 		// Logs the errors type to the console if built as Debug //
 		#ifdef _DEBUG
 		std::cout << "LX::RuntimeError thrown of type: ";
-		LX::PrintStringAsColor(e.ErrorType(), LX::Color::WHITE);
+		LX::PrintAsColor<LX::Color::WHITE>(e.ErrorType());
 		std::cout << "\n";
 		#endif // _DEBUG 
 

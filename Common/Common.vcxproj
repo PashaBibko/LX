@@ -158,7 +158,6 @@
     <ClInclude Include="LX-Common.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\IO.cpp" />
     <ClCompile Include="src\Error.cpp" />
     <ClCompile Include="src\Logger.cpp" />
     <ClCompile Include="src\pch.cpp">

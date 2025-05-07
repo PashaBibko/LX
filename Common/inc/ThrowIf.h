@@ -5,16 +5,11 @@ namespace LX
 
 	// Util function to throw an error if the condition is met //
 	// Given error type must derive from LX::RuntimeError //
-	template<typename Error, typename... Args>
+	template<typename Error, typename... Args> requires
+		std::is_constructible_v<Error, Args...> && // <- Checks the arguments can be used to construct the object
+		std::is_base_of_v<LX::RuntimeError, Error> // <- Checks the error class is a child of LX::RuntimeError
 	inline void ThrowIf(const bool condition, Args&&... args)
 	{
-		// Checks that the error type will be caught by the error checker //
-		static_assert
-		(
-			std::is_base_of_v<LX::RuntimeError, Error>,
-			"Must throw a type that derives from LX::RuntimeError"
-		);
-
 		// Checks if the condition is met and micro-optimises that errors will not be thrown //
 		if (condition) [[unlikely]]
 		{

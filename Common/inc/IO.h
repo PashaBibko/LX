@@ -1,7 +1,7 @@
 namespace LX
 {
 	// Enum of colors with their Win32 equivalent value //
-	enum class Color
+	enum class Color : WORD
 	{
 		BLACK =			0,
 		BLUE =			1,
@@ -20,8 +20,25 @@ namespace LX
 		WHITE =			15
 	};
 
-	// Prints a string to std::cout with a certain color using Win32 API //
-	extern "C" void COMMON_API PrintStringAsColor(const std::string& str, Color c);
+	// Variadic template to output multiple arguments to the console //
+	template<Color color, typename... Args>
+		requires AllLogable<Args...> // <- Checks all types can be outputted to the console
+
+	// Prints arguments to the console with a given color //
+	inline void PrintAsColor(Args... args)
+	{
+		// Gets a handle to the console //
+		static HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+		// Sets the color of the console to the desired color //
+		SetConsoleTextAttribute(hConsole, (WORD)color);
+
+		// Outputs the text //
+		(std::cout << ... << args);
+
+		// Resets the color //
+		SetConsoleTextAttribute(hConsole, (WORD)Color::LIGHT_GRAY);
+	}
 
 	inline std::string ReadFileToString(const std::filesystem::path& path, const std::string errorName = "input file path")
 	{

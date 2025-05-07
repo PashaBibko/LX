@@ -34,9 +34,9 @@ namespace LX
 	void InvalidFilePath::PrintToConsole() const
 	{
 		// Tells the user the input file could not be found and how to fix the issue //
-		LX::PrintStringAsColor("Error: ", LX::Color::LIGHT_RED);
+		LX::PrintAsColor<Color::LIGHT_RED>("Error: ");
 		std::cout << "Invalid " << name << ": ";
-		LX::PrintStringAsColor(fileLocation, LX::Color::WHITE);
+		LX::PrintAsColor<Color::WHITE>(fileLocation);
 		std::cout << "\n\nMake sure the file exists and the process has the correct path to the file\n";
 	}
 

@@ -32,23 +32,23 @@ namespace LX
 
 		// Prints the error to the console with the relevant info //
 		std::cout << "\n";
-		LX::PrintStringAsColor("Error: ", LX::Color::LIGHT_RED);
+		PrintAsColor<Color::LIGHT_RED>("Error: ");
 		std::cout << "Incorrect syntax in ";
-		LX::PrintStringAsColor(file.string(), LX::Color::WHITE);
+		PrintAsColor<Color::WHITE>(file.string());
 		std::cout << ", found ";
-		LX::PrintStringAsColor(LX::ToString(got.type).c_str(), LX::Color::WHITE);
+		PrintAsColor<Color::WHITE>(LX::ToString(got.type).c_str());
 		std::cout << " expected: ";
 
 		// Allows the error to have a custom type that is printed to the console //
-		if (expected == LX::Token::UNDEFINED) { LX::PrintStringAsColor(override.c_str(), LX::Color::WHITE); }
-		else { LX::PrintStringAsColor(LX::ToString(expected).c_str(), LX::Color::WHITE); }
+		if (expected == LX::Token::UNDEFINED) { PrintAsColor<Color::WHITE>(override.c_str()); }
+		else { PrintAsColor<Color::WHITE>(ToString(expected).c_str()); }
 		std::cout << "\n";
 
 		// Prints the code with the error to the console //
 		std::string errorSquiggle(got.length, '~');
 		std::cout << "Line: " << std::setw(lineNumberWidthInConsole) << got.line << " | " << line << "\n";
 		std::cout << "      " << std::setw(lineNumberWidthInConsole) << "" << " | " << std::setw(got.column) << "";
-		LX::PrintStringAsColor(errorSquiggle.c_str(), LX::Color::LIGHT_RED);
+		PrintAsColor<Color::LIGHT_RED>(errorSquiggle.c_str());
 		std::cout << "\n";
 	}
 
