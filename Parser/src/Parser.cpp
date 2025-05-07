@@ -6,9 +6,6 @@
 
 namespace LX
 {
-	std::string* UnexpectedToken::s_Source = nullptr;
-	std::filesystem::path* UnexpectedToken::s_SourceFile = nullptr;
-
 	// Util function for working out if a token is a two sided operator //
 	static bool IsTwoSidedOperator(Token::TokenType t)
 	{
@@ -29,9 +26,12 @@ namespace LX
 	struct Parser
 	{
 		// Passes constructor args to members //
-		Parser(std::vector<Token>& _tokens)
-			: tokens(_tokens), index(0), len(_tokens.size()), scopeDepth(0)
+		Parser(std::vector<Token>& _tokens, const std::filesystem::path& path)
+			: tokens(_tokens), index(0), len(_tokens.size()), scopeDepth(0), file(path)
 		{}
+
+		// The file that the tokens were generated from //
+		const std::filesystem::path file;
 
 		// Tokens created by the lexer //
 		std::vector<Token>& tokens;
@@ -69,7 +69,7 @@ namespace LX
 
 			// TODO: Fix this //
 			case Token::CLOSE_BRACE:
-				ThrowIf<UnexpectedToken>(p.scopeDepth == 0, Token::UNDEFINED, "need a different error", p.tokens[p.index]);
+				ThrowIf<UnexpectedToken>(p.scopeDepth == 0, Token::UNDEFINED, "need a different error", p.tokens[p.index], p.file);
 				p.scopeDepth--;
 				p.index++;
 				return nullptr;
@@ -92,7 +92,7 @@ namespace LX
 			{
 				// Parses the left hand side of the operation //
 				std::unique_ptr<AST::Node> lhs = ParsePrimary(p);
-				ThrowIf<UnexpectedToken>(lhs == nullptr, Token::UNDEFINED, "value", p.tokens[p.index - 1]);
+				ThrowIf<UnexpectedToken>(lhs == nullptr, Token::UNDEFINED, "value", p.tokens[p.index - 1], p.file);
 
 				// Stores the operator to pass into the AST node //
 				Token::TokenType op = p.tokens[p.index].type;
@@ -100,7 +100,7 @@ namespace LX
 
 				// Parses the right hand of the operation //
 				std::unique_ptr<AST::Node> rhs = ParseOperation(p);
-				ThrowIf<UnexpectedToken>(rhs == nullptr, Token::UNDEFINED, "value", p.tokens[p.index - 1]);
+				ThrowIf<UnexpectedToken>(rhs == nullptr, Token::UNDEFINED, "value", p.tokens[p.index - 1], p.file);
 
 				// Returns an AST node as all of the components combined together //
 				return std::make_unique<AST::Operation>(std::move(lhs), op, std::move(rhs));
@@ -137,7 +137,7 @@ namespace LX
 			p.index++;
 
 			// Checks for the variable name //
-			ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, "", p.tokens[p.index]);
+			ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, "", p.tokens[p.index], p.file);
 			std::string name = p.tokens[p.index].GetContents();
 			p.index++; // <- Goes over the identifier token
 
@@ -152,7 +152,7 @@ namespace LX
 
 			// Gets the value to be assigned to the variable //
 			std::unique_ptr<AST::Node> defaultVal = ParsePrimary(p);
-			ThrowIf<UnexpectedToken>(defaultVal.get() == nullptr, Token::UNDEFINED, "value", p.tokens[p.index - 1]);
+			ThrowIf<UnexpectedToken>(defaultVal.get() == nullptr, Token::UNDEFINED, "value", p.tokens[p.index - 1], p.file);
 
 			return std::make_unique<AST::VariableDeclaration>(name);
 		}
@@ -170,7 +170,7 @@ namespace LX
 			if (p.tokens[p.index + 1].type == Token::ASSIGN)
 			{
 				// Gets the variable that is being assigned too //
-				ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, "", p.tokens[p.index]);
+				ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, "", p.tokens[p.index], p.file);
 				std::string name = p.tokens[p.index].GetContents();
 
 				// Skips over the assign token and name of the variable //
@@ -195,19 +195,19 @@ namespace LX
 		std::unique_ptr<AST::Node> out = ParseVarAssignment(p);
 
 		// Checks it is valid before returning //
-		ThrowIf<UnexpectedToken>(out == nullptr, Token::UNDEFINED, "top level statement", p.tokens[p.index - 1]);
+		ThrowIf<UnexpectedToken>(out == nullptr, Token::UNDEFINED, "top level statement", p.tokens[p.index - 1], p.file);
 		return out;
 	}
 
 	// Turns the tokens of a file into it's abstract syntax tree equivalent //
-	FileAST TurnTokensIntoAbstractSyntaxTree(std::vector<Token>& tokens)
+	FileAST TurnTokensIntoAbstractSyntaxTree(std::vector<Token>& tokens, const std::filesystem::path& path)
 	{
 		// Logs the start of the parsing
 		Log::LogNewSection("Started parsing tokens"); 
 
 		// Creates the output storer and the parser //
 		FileAST output;
-		Parser p(tokens);
+		Parser p(tokens, path);
 
 		// Loops over the tokens and calls the correct parsing function //
 		// Which depends on their type and current state of the parser //
@@ -225,11 +225,11 @@ namespace LX
 					FunctionDefinition& func = output.functions.back();
 
 					// Assigns the function name //
-					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, "", p.tokens[p.index]);
+					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, "", p.tokens[p.index], p.file);
 					func.name = p.tokens[p.index++].GetContents();
 
 					// Checks for opening paren '(' //
-					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::OPEN_PAREN, Token::OPEN_PAREN, "", p.tokens[p.index]);
+					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::OPEN_PAREN, Token::OPEN_PAREN, "", p.tokens[p.index], p.file);
 					p.index++;
 
 					// Loops over all the arguments of the function //
@@ -243,7 +243,7 @@ namespace LX
 					p.index++;
 
 					// Checks for opening bracket '{' //
-					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::OPEN_BRACKET, Token::OPEN_BRACKET, "", p.tokens[p.index]);
+					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::OPEN_BRACKET, Token::OPEN_BRACKET, "", p.tokens[p.index], p.file);
 					p.index++;
 
 					// Loops over the body until it reaches the end //

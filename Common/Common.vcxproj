@@ -151,14 +151,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="inc\Console.h" />
+    <ClInclude Include="inc\IO.h" />
     <ClInclude Include="inc\Error.h" />
     <ClInclude Include="inc\Logger.h" />
     <ClInclude Include="inc\ThrowIf.h" />
     <ClInclude Include="LX-Common.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Console.cpp" />
+    <ClCompile Include="src\IO.cpp" />
     <ClCompile Include="src\Error.cpp" />
     <ClCompile Include="src\Logger.cpp" />
     <ClCompile Include="src\pch.cpp">

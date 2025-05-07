@@ -13,8 +13,8 @@ namespace LX
 		return "IR Generation Error";
 	}
 
-	UnexpectedToken::UnexpectedToken(Token::TokenType _expected, std::string _override, Token _got)
-		: expected(_expected), override(_override), got(_got)
+	UnexpectedToken::UnexpectedToken(Token::TokenType _expected, std::string _override, Token _got, const std::filesystem::path& _file)
+		: expected(_expected), override(_override), got(_got), file(_file)
 	{}
 
 	void UnexpectedToken::PrintToConsole() const
@@ -25,13 +25,16 @@ namespace LX
 		size_t lineNumberWidthInConsole = std::max(oss.str().size(), (size_t)3);
 
 		// Gets the line of the error //
-		std::string line = LX::GetLineAtIndexOf(*s_Source, got.index);
+		// As the file has been closed and the source has been deleted it needs to be reopened //
+
+		std::string fileContents = ReadFileToString(file);
+		std::string line = LX::GetLineAtIndexOf(fileContents, got.index);
 
 		// Prints the error to the console with the relevant info //
 		std::cout << "\n";
 		LX::PrintStringAsColor("Error: ", LX::Color::LIGHT_RED);
 		std::cout << "Incorrect syntax in ";
-		LX::PrintStringAsColor(s_SourceFile->filename().string(), LX::Color::WHITE);
+		LX::PrintStringAsColor(file.string(), LX::Color::WHITE);
 		std::cout << ", found ";
 		LX::PrintStringAsColor(LX::ToString(got.type).c_str(), LX::Color::WHITE);
 		std::cout << " expected: ";

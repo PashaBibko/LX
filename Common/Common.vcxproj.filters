@@ -14,7 +14,7 @@
     <ClInclude Include="LX-Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Console.h">
+    <ClInclude Include="inc\IO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="inc\Error.h">
@@ -34,7 +34,7 @@
     <ClCompile Include="src\Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Console.cpp">
+    <ClCompile Include="src\IO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Error.cpp">

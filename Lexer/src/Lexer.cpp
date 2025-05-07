@@ -175,25 +175,6 @@ namespace LX
 		}
 	}
 
-	static std::string ReadFileToString(const std::filesystem::path& path)
-	{
-		// Verifies the file path is valid //
-		ThrowIf<LX::InvalidFilePath>(std::filesystem::exists(path) == false, "input file path", path);
-
-		// Opens the file //
-		std::ifstream file(path, std::ios::binary | std::ios::ate); // Opens in binary and at the end (microptimsation)
-		ThrowIf<LX::InvalidFilePath>(file.is_open() == false, "input file path", path);
-
-		// Stores the length of the string and goes back to the beginning //
-		const std::streamsize len = file.tellg(); // tellg returns length because it was opened at the end
-		file.seekg(0, std::ios::beg);
-
-		// Transfers the file contents to the output //
-		std::string contents(len, '\0'); // Allocates an empty string which is the size of the file
-		file.read(&contents[0], len);
-		return contents;
-	}
-
 	const std::vector<Token> LX::LexicalAnalyze(const std::filesystem::path& path)
 	{
 		// Logs that the file is being read //

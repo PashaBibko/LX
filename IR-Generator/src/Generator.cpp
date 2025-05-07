@@ -29,7 +29,7 @@ extern "C" int __declspec(dllexport) GenIR(const char* a_inpPath, const char* a_
 		std::vector<LX::Token>tokens = LX::LexicalAnalyze(inpPath);
 
 		// Turns the tokens into an AST //
-		LX::FileAST AST = LX::TurnTokensIntoAbstractSyntaxTree(tokens);
+		LX::FileAST AST = LX::TurnTokensIntoAbstractSyntaxTree(tokens, inpPath);
 
 		// Turns the AST into LLVM IR //
 		LX::GenerateIR(AST, inpPath.filename().string(), outPath);
@@ -72,7 +72,7 @@ extern "C" int __declspec(dllexport) GenIR(const char* a_inpPath, const char* a_
 		std::cout << "An error occured. Please report this on the github page.\n" << std::endl;
 		std::cout << e.what() << std::endl;
 
-		// Exit code -1 means an undefined error //
+		// Exit code -1 means an undefined error // But this isn't undefined and neither is LX::RuntimeError?
 		return -1;
 	}
 

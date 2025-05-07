@@ -71,11 +71,10 @@ namespace LX
 	{
 		GENERATE_LX_ERROR_REQUIRED_FUNCTION_DECLARATIONS;
 
-		UnexpectedToken(Token::TokenType _expected, std::string _override, Token _got);
+		UnexpectedToken(Token::TokenType _expected, std::string _override, Token _got, const std::filesystem::path& _file);
 
 		//
-		static std::string* s_Source;
-		static std::filesystem::path* s_SourceFile;
+		const std::filesystem::path file;
 
 		// The token type that should be there //
 		Token::TokenType expected;
@@ -143,7 +142,7 @@ namespace LX
 	};
 
 	// Turns the tokens of a file into it's abstract syntax tree equivalent //
-	FileAST TurnTokensIntoAbstractSyntaxTree(std::vector<Token>& tokens);
+	FileAST TurnTokensIntoAbstractSyntaxTree(std::vector<Token>& tokens, const std::filesystem::path& path);
 
 	// Turns an abstract binary tree into LLVM intermediate representation //
 	void GenerateIR(FileAST& ast, const std::string& name, const std::filesystem::path& IRPath);

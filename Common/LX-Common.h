@@ -65,7 +65,7 @@
 
 // Includes the rest of common //
 
-#include <inc/Console.h>
 #include <inc/Error.h>
 #include <inc/Logger.h>
 #include <inc/ThrowIf.h>
+#include <inc/IO.h>

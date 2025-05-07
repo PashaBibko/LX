@@ -23,6 +23,25 @@ namespace LX
 	// Prints a string to std::cout with a certain color using Win32 API //
 	extern "C" void COMMON_API PrintStringAsColor(const std::string& str, Color c);
 
+	inline std::string ReadFileToString(const std::filesystem::path& path, const std::string errorName = "input file path")
+	{
+		// Verifies the file path is valid //
+		ThrowIf<LX::InvalidFilePath>(std::filesystem::exists(path) == false, errorName, path);
+
+		// Opens the file //
+		std::ifstream file(path, std::ios::binary | std::ios::ate); // Opens in binary and at the end (microptimsation)
+		ThrowIf<LX::InvalidFilePath>(file.is_open() == false, errorName, path);
+
+		// Stores the length of the string and goes back to the beginning //
+		const std::streamsize len = file.tellg(); // tellg returns length because it was opened at the end
+		file.seekg(0, std::ios::beg);
+
+		// Transfers the file contents to the output //
+		std::string contents(len, '\0'); // Allocates an empty string which is the size of the file
+		file.read(&contents[0], len);
+		return contents;
+	}
+
 	// Util function for getting a line of the source at a given index (used for errors) //
 	inline std::string GetLineAtIndexOf(const std::string& src, const std::streamsize index) // <- Has to be inline because of C++ types
 	{
