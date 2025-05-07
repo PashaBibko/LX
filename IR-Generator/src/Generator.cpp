@@ -3,67 +3,19 @@
 #include <Parser.h>
 #include <Lexer.h>
 
-#include <../Lexer/inc/LexerErrors.h> // <- TEMP (I hope)
-
-namespace LX
-{
-	// Different errors thrown by main //
-	struct InvalidFilePath : public RuntimeError
-	{
-		GENERATE_LX_ERROR_REQUIRED_FUNCTION_DECLARATIONS;
-
-		InvalidFilePath(const std::string& _name, const std::filesystem::path& _path)
-			: name(_name), path(_path)
-		{}
-
-		std::string name;
-		std::filesystem::path path;
-	};
-
-	void InvalidFilePath::PrintToConsole() const
-	{
-		// Tells the user the input file could not be found and how to fix the issue //
-		LX::PrintStringAsColor("Error: ", LX::Color::LIGHT_RED);
-		std::cout << "Invalid " << name << ": ";
-		LX::PrintStringAsColor(path.string().c_str(), LX::Color::WHITE);
-		std::cout << "\n\nMake sure the file exists and the process has the correct path to the file\n";
-	}
-
-	const char* InvalidFilePath::ErrorType() const
-	{
-		return "Invalid File Path";
-	}
-}
-
 extern "C" int __declspec(dllexport) GenIR(const char* a_inpPath, const char* a_outPath)
 {
 	// Initalises the log //
 	LX::Log::Init();
 
-	// Creates the file paths outside of the try-catch so they can be used in errors //
-	std::filesystem::path inpPath;
-	std::filesystem::path outPath;
-
-	// Creates the contents string outside of the try-catch so they can be used in errors //
-	std::string contents;
-	LX::Token::source = &contents;
-
 	try
 	{
+		// Initalises the log //
+		LX::Log::Init();
+
 		// Turns the file paths into the C++ type for handling them //
-		inpPath = a_inpPath;
-		outPath = a_outPath;
-
-		// Checks the input file exists and opens it //
-		LX::ThrowIf<LX::InvalidFilePath>(std::filesystem::exists(inpPath) == false, "input file path", inpPath);
-		std::ifstream inpFile(inpPath, std::ios::binary | std::ios::ate); // Opens in binary at the end for microptimisation //
-		LX::ThrowIf<LX::InvalidFilePath>(inpFile.is_open() == false, "input file path", inpPath);
-
-		// Copies the file into the string //
-		const std::streamsize len = inpFile.tellg(); // Gets length of file because it was opened at the end
-		inpFile.seekg(0, std::ios::beg); // Goes back to the beginning
-		contents = std::string(len, '\0'); // Allocates all the space for the string
-		inpFile.read(&contents[0], len); // Transfers file contents to string
+		std::filesystem::path inpPath = a_inpPath;
+		std::filesystem::path outPath = a_outPath;
 
 		// Opens / Creates the output file //
 		std::ofstream outFile(outPath);
@@ -74,14 +26,9 @@ extern "C" int __declspec(dllexport) GenIR(const char* a_inpPath, const char* a_
 		std::cout << std::filesystem::absolute(inpPath) << " -> " << std::filesystem::absolute(outPath) << std::endl;
 
 		// Create tokens out of the input file //
-		LX::InvalidCharInSource::s_Source = &contents;
-		LX::InvalidCharInSource::s_SourceFile = &inpPath;
-		std::vector<LX::Token>tokens = LX::LexicalAnalyze(contents, len);
+		std::vector<LX::Token>tokens = LX::LexicalAnalyze(inpPath);
 
 		// Turns the tokens into an AST //
-		LX::UnexpectedToken::s_Source = &contents;
-		LX::UnexpectedToken::s_SourceFile = &inpPath;
-
 		LX::FileAST AST = LX::TurnTokensIntoAbstractSyntaxTree(tokens);
 
 		// Turns the AST into LLVM IR //
@@ -111,6 +58,12 @@ extern "C" int __declspec(dllexport) GenIR(const char* a_inpPath, const char* a_
 	// Catches any std errors, there should be none //
 	catch (std::exception& e)
 	{
+		// If using a debugger, throws a breakpoint so it can be caught //
+		if (IsDebuggerPresent())
+		{
+			__debugbreak();
+		}
+
 		// Logs the error. Does not need to close it as it is done after this function returns //
 		LX::Log::LogNewSection("std::exception thrown: ", e.what());
 
@@ -126,6 +79,12 @@ extern "C" int __declspec(dllexport) GenIR(const char* a_inpPath, const char* a_
 	// Default catches any non-specified errors //
 	catch (...)
 	{
+		// If using a debugger, throws a breakpoint so it can be caught //
+		if (IsDebuggerPresent())
+		{
+			__debugbreak();
+		}
+
 		// Exit code -1 means an undefined error //
 		return -1;
 	}

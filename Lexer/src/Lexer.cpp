@@ -7,36 +7,33 @@
 
 namespace LX
 {
-	std::string* InvalidCharInSource::s_Source = nullptr;
-	std::filesystem::path* InvalidCharInSource::s_SourceFile = nullptr;
+	InvalidCharInSource::InvalidCharInSource(const LexerInfo& info, const std::string& source, const std::string _file)
+		: col(info.column), line(info.line), file(_file), lineContents{}, invalid(source[info.index])
+	{
+		// Gets the line the error is on //
+		lineContents = GetLineAtIndexOf(source, info.index);
+	}
 
-	InvalidCharInSource::InvalidCharInSource(std::streamsize _col, std::streamsize _line, std::streamsize _index, char _invalid)
-		: col(_col), line(_line), index(_index), invalid(_invalid)
+	void InvalidCharInSource::PrintToConsole() const
 	{
 		// Calculates the length of the line number in the console so it is formatted correctly //
 		std::ostringstream oss;
 		oss << std::setw(3) << line;
 		size_t lineNumberWidthInConsole = std::max(oss.str().size(), (size_t)3);
 
-		// Gets the line of the error //
-		std::string errorLine = LX::GetLineAtIndexOf(*s_Source, index);
-
 		// Prints the error with the relevant information to the console //
 		std::cout << "\n";
 		LX::PrintStringAsColor("Error: ", LX::Color::LIGHT_RED);
 		std::cout << "Invalid character found in ";
-		LX::PrintStringAsColor(s_SourceFile->filename().string(), LX::Color::WHITE);
+		LX::PrintStringAsColor(file, LX::Color::WHITE);
 		std::cout << " {";
 		LX::PrintStringAsColor(std::string(1, invalid), LX::Color::LIGHT_RED);
 		std::cout << "}:\n";
-		std::cout << "Line: " << std::setw(lineNumberWidthInConsole) << line << " | " << errorLine << "\n";
+		std::cout << "Line: " << std::setw(lineNumberWidthInConsole) << line << " | " << lineContents << "\n";
 		std::cout << "      " << std::setw(lineNumberWidthInConsole) << "" << " | " << std::setw(col - 1) << "";
 		LX::PrintStringAsColor("^", LX::Color::LIGHT_RED);
 		std::cout << "\n";
 	}
-
-	void InvalidCharInSource::PrintToConsole() const
-	{}
 
 	const char* InvalidCharInSource::ErrorType() const
 	{
@@ -163,23 +160,48 @@ namespace LX
 	};
 
 	// Checks if the given word is a keyword before adding it to the tokens //
-	static void TokenizeWord(const std::string& word, std::vector<Token>& tokens, LexerInfo& info)
+	static void TokenizeWord(const std::string& word, std::vector<Token>& tokens, LexerInfo& info, const std::string& contents)
 	{
 		// Checks the map for a check and if so adds it with its enum equivalent //
 		if (auto keyword = keywords.find(word); keyword != keywords.end())
 		{
-			tokens.push_back({ keyword->second, info, (std::streamsize)word.size() });
+			tokens.push_back({ keyword->second, info, (std::streamsize)word.size(), contents });
 		}
 
 		// Else adds it as a type of IDENTIFIER //
 		else
 		{
-			tokens.push_back({ Token::IDENTIFIER, info, (std::streamsize)word.size() });
+			tokens.push_back({ Token::IDENTIFIER, info, (std::streamsize)word.size(), contents });
 		}
 	}
 
-	const std::vector<Token> LX::LexicalAnalyze(const std::string& contents, std::streamsize len)
+	static std::string ReadFileToString(const std::filesystem::path& path)
 	{
+		// Verifies the file path is valid //
+		ThrowIf<LX::InvalidFilePath>(std::filesystem::exists(path) == false, "input file path", path);
+
+		// Opens the file //
+		std::ifstream file(path, std::ios::binary | std::ios::ate); // Opens in binary and at the end (microptimsation)
+		ThrowIf<LX::InvalidFilePath>(file.is_open() == false, "input file path", path);
+
+		// Stores the length of the string and goes back to the beginning //
+		const std::streamsize len = file.tellg(); // tellg returns length because it was opened at the end
+		file.seekg(0, std::ios::beg);
+
+		// Transfers the file contents to the output //
+		std::string contents(len, '\0'); // Allocates an empty string which is the size of the file
+		file.read(&contents[0], len);
+		return contents;
+	}
+
+	const std::vector<Token> LX::LexicalAnalyze(const std::filesystem::path& path)
+	{
+		// Logs that the file is being read //
+		Log::LogNewSection("Reading file: ", path.string());
+
+		std::string contents = ReadFileToString(path);
+		const std::streamsize len = contents.length();
+
 		// Logs the start of the lexical analysis
 		Log::LogNewSection("Lexing file");
 
@@ -236,7 +258,7 @@ namespace LX
 				{
 					// Adds the string literal token to the token vector //
 					std::string lit(contents.data() + info.startOfStringLiteral, info.index - info.startOfStringLiteral);
-					tokens.push_back({ Token::STRING_LITERAL, info, (std::streamsize)lit.length() + 2 }); // Adding two makes the "" be stored as well
+					tokens.push_back({ Token::STRING_LITERAL, info, (std::streamsize)lit.length() + 2, contents }); // Adding two makes the "" be stored as well
 
 					// Updates trackers //
 					info.inStringLiteral = false;
@@ -266,7 +288,7 @@ namespace LX
 				{
 					// Pushes the number to the token vector. Number literals are stored as string in the tokens //
 					std::string num(contents.data() + info.startOfNumberLiteral, (unsigned __int64)(info.index + 1) - info.startOfNumberLiteral);
-					tokens.push_back({ Token::NUMBER_LITERAL, info, (std::streamsize)num.size() });
+					tokens.push_back({ Token::NUMBER_LITERAL, info, (std::streamsize)num.size(), contents });
 				}
 
 				// Stores it is lexing a number literal //
@@ -278,7 +300,7 @@ namespace LX
 			{
 				// Pushes the number to the token vector. Number literals are stored as string in the tokens //
 				std::string num(contents.data() + info.startOfNumberLiteral, (unsigned __int64)(info.index + 1) - info.startOfNumberLiteral);
-				tokens.push_back({ Token::NUMBER_LITERAL, info, (std::streamsize)num.size() });
+				tokens.push_back({ Token::NUMBER_LITERAL, info, (std::streamsize)num.size(), contents });
 				info.lexingNumber = false; // Stops storing it is lexing a number
 			}
 
@@ -296,7 +318,7 @@ namespace LX
 				if (info.isNextCharAlpha == false)
 				{
 					// Calls the function designed to handle the tokenisation of words //
-					TokenizeWord({ contents.data() + info.startOfWord, 1 }, tokens, info);
+					TokenizeWord({ contents.data() + info.startOfWord, 1 }, tokens, info, contents);
 				}
 			}
 
@@ -304,7 +326,7 @@ namespace LX
 			else if (info.isAlpha == true && info.isNextCharAlpha == false)
 			{
 				// Calls the function designed to handle the tokenisation of words //
-				TokenizeWord({ contents.data() + info.startOfWord, (unsigned __int64)((info.index + 1) - info.startOfWord) }, tokens, info);
+				TokenizeWord({ contents.data() + info.startOfWord, (unsigned __int64)((info.index + 1) - info.startOfWord) }, tokens, info, contents);
 			}
 
 			// During a word //
@@ -313,13 +335,13 @@ namespace LX
 			// Symbols //
 			else if (auto sym = symbols.find(current); sym != symbols.end())
 			{
-				tokens.push_back({ sym->second, info, 1 });
+				tokens.push_back({ sym->second, info, 1, contents });
 			}
 
 			// Operators (+, -, /, *) //
 			else if (auto op = operators.find(current); op != operators.end())
 			{
-				tokens.push_back({ op->second, info, 1 });
+				tokens.push_back({ op->second, info, 1, contents });
 			}
 
 			// If it is here and not whitespace that means it's an invalid character //
@@ -342,7 +364,7 @@ namespace LX
 			// Throws an error with all the relevant information //
 			else
 			{
-				ThrowIf<InvalidCharInSource>(true, info.column, info.line, info.index, contents[info.index]);
+				ThrowIf<InvalidCharInSource>(true, info, contents, path.string());
 			}
 
 			// Log dumps A LOT of info //

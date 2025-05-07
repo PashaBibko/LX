@@ -13,9 +13,6 @@ namespace LX
 	// Data type to store a more computer readable version of files
 	struct __declspec(novtable) Token final
 	{
-		//
-		static std::string* source;
-
 		// Enum to hold the type of the token //
 		enum TokenType : short
 		{
@@ -59,7 +56,7 @@ namespace LX
 		};
 	
 		// Constructor of the tokens to set their info //
-		Token(const TokenType _type, const LexerInfo& info, std::streamsize _length);
+		Token(const TokenType _type, const LexerInfo& info, std::streamsize _length, const std::string& source);
 
 		// Works out the contents of the token and returns them as it is not stored in the token //
 		std::string GetContents() const;
@@ -79,11 +76,14 @@ namespace LX
 
 		// The column on the line where it is located //
 		const std::streamsize column;
+
+		// The contents of the token //
+		const std::string contents;
 	};
 
 	// Logging function to turn a tokentype enum val into it's string //
 	std::string ToString(Token::TokenType t);
 	
 	// Lexer function to take in a file and output a vector of tokens //
-	const std::vector<Token> LexicalAnalyze(const std::string& contents, const std::streamsize len);
+	const std::vector<Token> LexicalAnalyze(const std::filesystem::path& path);
 }

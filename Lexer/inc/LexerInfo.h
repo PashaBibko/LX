@@ -1,6 +1,6 @@
-#include <LX-Common.h>
+#pragma once
 
-#include <Lexer.h>
+#include <LX-Common.h>
 
 namespace LX
 {

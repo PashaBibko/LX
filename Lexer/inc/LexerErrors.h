@@ -2,7 +2,7 @@
 
 #include <LX-Common.h>
 
-#include <Lexer.h>
+#include <LexerInfo.h>
 
 namespace LX
 {
@@ -11,14 +11,13 @@ namespace LX
 	{
 		GENERATE_LX_ERROR_REQUIRED_FUNCTION_DECLARATIONS;
 
-		InvalidCharInSource(std::streamsize _col, std::streamsize _line, std::streamsize _index, char _invalid);
+		InvalidCharInSource(const LexerInfo& info, const std::string& source, const std::string _file);
 
-		static std::string* s_Source;
-		static std::filesystem::path* s_SourceFile;
+		std::string lineContents;
+		std::string file;
 
 		std::streamsize col;
 		std::streamsize line;
-		std::streamsize index;
 
 		char invalid;
 	};
