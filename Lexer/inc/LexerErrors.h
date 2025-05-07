@@ -11,7 +11,7 @@ namespace LX
 	{
 		GENERATE_LX_ERROR_REQUIRED_FUNCTION_DECLARATIONS;
 
-		InvalidCharInSource(const LexerInfo& info, const std::string& source, const std::string _file);
+		InvalidCharInSource(const LexerInfo& info, const std::string _file);
 
 		std::string lineContents;
 		std::string file;

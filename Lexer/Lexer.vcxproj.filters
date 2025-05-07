@@ -20,12 +20,18 @@
     <ClCompile Include="inc\pch.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\LexerErrors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\LexerErrors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="inc\LexerInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

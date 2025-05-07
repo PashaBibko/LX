@@ -5,9 +5,6 @@
 
 extern "C" int __declspec(dllexport) GenIR(const char* a_inpPath, const char* a_outPath)
 {
-	// Initalises the log //
-	LX::Log::Init();
-
 	try
 	{
 		// Initalises the log //

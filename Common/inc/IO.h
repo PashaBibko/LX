@@ -57,4 +57,19 @@ namespace LX
 		// Returns the string between start and end //
 		return src.substr(start, end - start);
 	}
+
+	// Util function for turning a a char to a string. Used to stop '\t' being printed as a tab //
+	inline std::string CharAsStrLit(const char c)
+	{
+		switch (c)
+		{
+			// Stores them as pure string literals //
+			case '\n': return R"(\n)";
+			case '\t': return R"(\t)";
+			case '\r': return R"(\r)";
+
+			// Else returns a string of length one with the char inside //
+			default: return std::string(1, c);
+		}
+	}
 }

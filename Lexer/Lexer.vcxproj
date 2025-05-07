@@ -148,9 +148,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Lexer.cpp" />
+    <ClCompile Include="src\LexerErrors.cpp" />
     <ClCompile Include="src\Token.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="inc\Constants.h" />
     <ClInclude Include="inc\LexerErrors.h" />
     <ClInclude Include="inc\LexerInfo.h" />
   </ItemGroup>

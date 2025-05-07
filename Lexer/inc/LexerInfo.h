@@ -7,6 +7,11 @@ namespace LX
 	// Struct to store the current information of the lexer //
 	struct LexerInfo
 	{
+		// Constructor to set the constants //
+		LexerInfo(const std::string& _source)
+			: source(_source), len(_source.length())
+		{}
+
 		// Current trackers of where in the source it is //
 
 		std::streamsize line = 1; // <- Lines start on 1 (probably because of non-programmer's)
@@ -18,6 +23,11 @@ namespace LX
 		std::streamsize startOfWord = 0;
 		std::streamsize startOfNumberLiteral = 0;
 		std::streamsize startOfStringLiteral = 0;
+
+		// Information about the source //
+
+		const std::string& source;
+		const std::streamsize len;
 
 		// Different flags of the lexer //
 		// Stored as a bitset to minimse memory allocated //
