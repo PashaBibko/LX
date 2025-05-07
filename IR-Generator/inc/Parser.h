@@ -2,7 +2,7 @@
 
 #include <LX-Common.h>
 
-// Lexer foward declares fstream components so we can use them here //
+// Includes Lexer so it can use LX::Token //
 #include <Lexer.h>
 
 // Foward declares the wrapper around the LLVM objects we need to pass around // 
@@ -63,39 +63,9 @@ namespace LX::AST
 
 namespace LX
 {
-	// Thrown if there was an error during IR Generation //
-	CREATE_EMPTY_LX_ERROR_TYPE(IRGenerationError);
-
-	// Thrown if there was an unexpected (incorrect) token //
-	struct UnexpectedToken : public RuntimeError
-	{
-		GENERATE_LX_ERROR_REQUIRED_FUNCTION_DECLARATIONS;
-
-		UnexpectedToken(Token::TokenType _expected, std::string _override, Token _got, const std::filesystem::path& _file);
-
-		//
-		const std::filesystem::path file;
-
-		// The token type that should be there //
-		Token::TokenType expected;
-
-		// If there are multiple expected types there is an option for a custom message //
-		std::string override;
-
-		// What token was actually at that position //
-		// Stored as Token not TokenType to store the location of it within the source //
-		Token got;
-	};
-
 	class Scope
 	{
 		public:
-			// Error thrown if the user tried to create a variable that already existed //
-			CREATE_EMPTY_LX_ERROR_TYPE(VariableAlreadyExists);
-
-			// Error thrown if user tries to access variable that does not exist //
-			CREATE_EMPTY_LX_ERROR_TYPE(VariableDoesntExist);
-
 			// Default constructor //
 			Scope()
 				: m_LocalVariables{}, m_Child(nullptr)

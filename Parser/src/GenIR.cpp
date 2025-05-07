@@ -2,6 +2,7 @@
 
 #include <Parser.h>
 
+#include <ParserErrors.h>
 #include <AST.h>
 
 namespace LX

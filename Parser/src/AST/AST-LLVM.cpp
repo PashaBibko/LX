@@ -2,6 +2,7 @@
 
 #include <Parser.h>
 
+#include <ParserErrors.h>
 #include <AST.h>
 
 namespace LX::AST
@@ -108,7 +109,7 @@ namespace LX::AST
 	{
 		// Gets the variable from the current scope //
 		llvm::AllocaInst* asignee = LLVM.scope->GetVar(m_Name);
-		ThrowIf<Scope::VariableDoesntExist>(asignee == nullptr);
+		ThrowIf<VariableDoesntExist>(asignee == nullptr);
 
 		// Creates the assignment //
 		return LLVM.builder.CreateStore(m_Value->GenIR(LLVM), asignee);
@@ -118,7 +119,7 @@ namespace LX::AST
 	{
 		// Loads the variable from the current scope //
 		llvm::AllocaInst* var = LLVM.scope->GetVar(m_Name);
-		ThrowIf<Scope::VariableDoesntExist>(var == nullptr);
+		ThrowIf<VariableDoesntExist>(var == nullptr);
 
 		// Creates the load within the AST //
 		return LLVM.builder.CreateLoad(llvm::Type::getInt32Ty(LLVM.context), var, m_Name + "_val");

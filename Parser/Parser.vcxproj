@@ -147,9 +147,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\AST-Constructors.cpp" />
-    <ClCompile Include="src\AST-LLVM.cpp" />
-    <ClCompile Include="src\AST-Loggers.cpp" />
+    <ClCompile Include="src\AST\AST-Constructors.cpp" />
+    <ClCompile Include="src\AST\AST-LLVM.cpp" />
+    <ClCompile Include="src\AST\AST-Loggers.cpp" />
     <ClCompile Include="src\GenIR.cpp" />
     <ClCompile Include="src\Parser.cpp" />
     <ClCompile Include="src\ParserErrors.cpp" />
@@ -157,6 +157,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\AST.h" />
+    <ClInclude Include="inc\ParserErrors.h" />
+    <ClInclude Include="inc\ParserInfo.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,6 +2,8 @@
 
 #include <Parser.h>
 
+#include <ParserErrors.h>
+#include <ParserInfo.h>
 #include <AST.h>
 
 namespace LX
@@ -22,32 +24,8 @@ namespace LX
 		}
 	}
 
-	// Local struct so everything can be public //
-	struct Parser
-	{
-		// Passes constructor args to members //
-		Parser(std::vector<Token>& _tokens, const std::filesystem::path& path)
-			: tokens(_tokens), index(0), len(_tokens.size()), scopeDepth(0), file(path)
-		{}
-
-		// The file that the tokens were generated from //
-		const std::filesystem::path file;
-
-		// Tokens created by the lexer //
-		std::vector<Token>& tokens;
-
-		// Length of the the token vector //
-		const size_t len;
-
-		// Current index within the token vector //
-		size_t index;
-
-		// Current scope depth //
-		size_t scopeDepth;
-	};
-
 	// Base of the call stack to handle the simplest of tokens //
-	static std::unique_ptr<AST::Node> ParsePrimary(Parser& p)
+	static std::unique_ptr<AST::Node> ParsePrimary(ParserInfo& p)
 	{
 		// There are lots of possible token's that can be here so a switch is used //
 		switch (p.tokens[p.index].type)
@@ -69,7 +47,7 @@ namespace LX
 
 			// TODO: Fix this //
 			case Token::CLOSE_BRACE:
-				ThrowIf<UnexpectedToken>(p.scopeDepth == 0, Token::UNDEFINED, "need a different error", p.tokens[p.index], p.file);
+				ThrowIf<UnexpectedToken>(p.scopeDepth == 0, Token::UNDEFINED, p.tokens[p.index], "need a different error", p);
 				p.scopeDepth--;
 				p.index++;
 				return nullptr;
@@ -82,7 +60,7 @@ namespace LX
 	}
 
 	// Handles operations, if it is not currently at an operation goes to ParsePrimary //
-	static std::unique_ptr<AST::Node> ParseOperation(Parser& p)
+	static std::unique_ptr<AST::Node> ParseOperation(ParserInfo& p)
 	{
 		// Checks if the next token is an operator //
 		// TODO: Add more than just add //
@@ -92,7 +70,7 @@ namespace LX
 			{
 				// Parses the left hand side of the operation //
 				std::unique_ptr<AST::Node> lhs = ParsePrimary(p);
-				ThrowIf<UnexpectedToken>(lhs == nullptr, Token::UNDEFINED, "value", p.tokens[p.index - 1], p.file);
+				ThrowIf<UnexpectedToken>(lhs == nullptr, Token::UNDEFINED, p.tokens[p.index - 1], "value", p);
 
 				// Stores the operator to pass into the AST node //
 				Token::TokenType op = p.tokens[p.index].type;
@@ -100,7 +78,7 @@ namespace LX
 
 				// Parses the right hand of the operation //
 				std::unique_ptr<AST::Node> rhs = ParseOperation(p);
-				ThrowIf<UnexpectedToken>(rhs == nullptr, Token::UNDEFINED, "value", p.tokens[p.index - 1], p.file);
+				ThrowIf<UnexpectedToken>(rhs == nullptr, Token::UNDEFINED, p.tokens[p.index - 1], "value", p);
 
 				// Returns an AST node as all of the components combined together //
 				return std::make_unique<AST::Operation>(std::move(lhs), op, std::move(rhs));
@@ -112,7 +90,7 @@ namespace LX
 	}
 
 	// Handles return statements, if not calls ParseOperation //
-	static std::unique_ptr<AST::Node> ParseReturn(Parser& p)
+	static std::unique_ptr<AST::Node> ParseReturn(ParserInfo& p)
 	{
 		// Checks if the current token is a return //
 		if (p.tokens[p.index].type == Token::RETURN)
@@ -128,7 +106,7 @@ namespace LX
 	}
 
 	// Handles variable declarations, if not calls ParseReturn //
-	static std::unique_ptr<AST::Node> ParseVarDeclaration(Parser& p)
+	static std::unique_ptr<AST::Node> ParseVarDeclaration(ParserInfo& p)
 	{
 		// Checks if the current token is a declaration //
 		if (p.tokens[p.index].type == Token::INT_DEC)
@@ -137,7 +115,7 @@ namespace LX
 			p.index++;
 
 			// Checks for the variable name //
-			ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, "", p.tokens[p.index], p.file);
+			ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, p);
 			std::string name = p.tokens[p.index].GetContents();
 			p.index++; // <- Goes over the identifier token
 
@@ -152,7 +130,7 @@ namespace LX
 
 			// Gets the value to be assigned to the variable //
 			std::unique_ptr<AST::Node> defaultVal = ParsePrimary(p);
-			ThrowIf<UnexpectedToken>(defaultVal.get() == nullptr, Token::UNDEFINED, "value", p.tokens[p.index - 1], p.file);
+			ThrowIf<UnexpectedToken>(defaultVal.get() == nullptr, Token::UNDEFINED, p.tokens[p.index - 1], "value", p);
 
 			return std::make_unique<AST::VariableDeclaration>(name);
 		}
@@ -162,7 +140,7 @@ namespace LX
 	}
 
 	// Handles variable assignments, if not calls ParseVarDeclaration //
-	static std::unique_ptr<AST::Node> ParseVarAssignment(Parser& p)
+	static std::unique_ptr<AST::Node> ParseVarAssignment(ParserInfo& p)
 	{
 		// Checks if the next token is an equals //
 		if (p.index + 1 < p.len) [[likely]]
@@ -170,7 +148,7 @@ namespace LX
 			if (p.tokens[p.index + 1].type == Token::ASSIGN)
 			{
 				// Gets the variable that is being assigned too //
-				ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, "", p.tokens[p.index], p.file);
+				ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, p);
 				std::string name = p.tokens[p.index].GetContents();
 
 				// Skips over the assign token and name of the variable //
@@ -189,13 +167,13 @@ namespace LX
 	}
 	
 	// Helper function to call the top of the Parse-Call-Stack //
-	static inline std::unique_ptr<AST::Node> Parse(Parser& p)
+	static inline std::unique_ptr<AST::Node> Parse(ParserInfo& p)
 	{
 		// Parses the current token //
 		std::unique_ptr<AST::Node> out = ParseVarAssignment(p);
 
 		// Checks it is valid before returning //
-		ThrowIf<UnexpectedToken>(out == nullptr, Token::UNDEFINED, "top level statement", p.tokens[p.index - 1], p.file);
+		ThrowIf<UnexpectedToken>(out == nullptr, Token::UNDEFINED, p.tokens[p.index - 1], "top level statement", p);
 		return out;
 	}
 
@@ -207,7 +185,7 @@ namespace LX
 
 		// Creates the output storer and the parser //
 		FileAST output;
-		Parser p(tokens, path);
+		ParserInfo p(tokens, path);
 
 		// Loops over the tokens and calls the correct parsing function //
 		// Which depends on their type and current state of the parser //
@@ -225,11 +203,11 @@ namespace LX
 					FunctionDefinition& func = output.functions.back();
 
 					// Assigns the function name //
-					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, "", p.tokens[p.index], p.file);
+					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, p);
 					func.name = p.tokens[p.index++].GetContents();
 
 					// Checks for opening paren '(' //
-					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::OPEN_PAREN, Token::OPEN_PAREN, "", p.tokens[p.index], p.file);
+					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::OPEN_PAREN, Token::OPEN_PAREN, p);
 					p.index++;
 
 					// Loops over all the arguments of the function //
@@ -243,7 +221,7 @@ namespace LX
 					p.index++;
 
 					// Checks for opening bracket '{' //
-					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::OPEN_BRACKET, Token::OPEN_BRACKET, "", p.tokens[p.index], p.file);
+					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::OPEN_BRACKET, Token::OPEN_BRACKET, p);
 					p.index++;
 
 					// Loops over the body until it reaches the end //

@@ -2,6 +2,7 @@
 
 #include <Parser.h>
 
+#include <ParserErrors.h>
 #include <AST.h>
 
 namespace LX
@@ -29,7 +30,7 @@ namespace LX
 	llvm::AllocaInst* Scope::CreateVar(const std::string& name, InfoLLVM& LLVM)
 	{
 		// Checks variable of the same name doesn't exist //
-		ThrowIf<Scope::VariableAlreadyExists>(GetVar(name) != nullptr);
+		ThrowIf<VariableAlreadyExists>(GetVar(name) != nullptr);
 
 		// Else inserts it into the local set //
 		m_LocalVariables[name] = LLVM.builder.CreateAlloca(LLVM.builder.getInt32Ty(), nullptr, name);

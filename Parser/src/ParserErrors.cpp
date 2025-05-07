@@ -1,6 +1,9 @@
 #include <LX-Common.h>
 
-#include <Parser.h>
+#include <ParserErrors.h>
+
+#include <ParserInfo.h>
+#include <Lexer.h>
 
 namespace LX
 {
@@ -13,8 +16,14 @@ namespace LX
 		return "IR Generation Error";
 	}
 
-	UnexpectedToken::UnexpectedToken(Token::TokenType _expected, std::string _override, Token _got, const std::filesystem::path& _file)
-		: expected(_expected), override(_override), got(_got), file(_file)
+	// Constructor to set the members of the error //
+	UnexpectedToken::UnexpectedToken(Token::TokenType _expected, const ParserInfo& p)
+		: file(p.file), expected(Token::UNDEFINED), custom(""), got(p.tokens[p.index])
+	{}
+
+	// Constructor for custom messages in the cmd //
+	UnexpectedToken::UnexpectedToken(Token::TokenType _expected, Token _got, const std::string& message, const ParserInfo& p)
+		: file(p.file), expected(_expected), custom(message), got(_got)
 	{}
 
 	void UnexpectedToken::PrintToConsole() const
@@ -40,7 +49,7 @@ namespace LX
 		std::cout << " expected: ";
 
 		// Allows the error to have a custom type that is printed to the console //
-		if (expected == LX::Token::UNDEFINED) { PrintAsColor<Color::WHITE>(override.c_str()); }
+		if (expected == LX::Token::UNDEFINED) { PrintAsColor<Color::WHITE>(custom); }
 		else { PrintAsColor<Color::WHITE>(ToString(expected).c_str()); }
 		std::cout << "\n";
 
@@ -57,20 +66,20 @@ namespace LX
 		return "Unexpected Token";
 	}
 
-	void Scope::VariableAlreadyExists::PrintToConsole() const
+	void VariableAlreadyExists::PrintToConsole() const
 	{
 	}
 
-	const char* Scope::VariableAlreadyExists::ErrorType() const
+	const char* VariableAlreadyExists::ErrorType() const
 	{
 		return "Variable Already Exists";
 	}
 
-	void Scope::VariableDoesntExist::PrintToConsole() const
+	void VariableDoesntExist::PrintToConsole() const
 	{
 	}
 
-	const char* Scope::VariableDoesntExist::ErrorType() const
+	const char* VariableDoesntExist::ErrorType() const
 	{
 		return "Variable Doesn't exist";
 	}
