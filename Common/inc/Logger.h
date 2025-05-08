@@ -18,13 +18,26 @@ namespace LX
 				NONE
 			};
 
+			// Different priorities in the logger //
+			enum class Priority
+			{
+				HIGH, // Shows in all logs
+				LOW // Default
+			};
+
 			// Variadic template to allow an undefined ammount of arguments //
-			template<Format format = Format::AUTO, typename... Args>
+			template<Priority priority = Priority::LOW, Format format = Format::AUTO, typename... Args>
 				requires AllLogable<Args...> // <- Checks all types can be outputted to the console
 
 			// Logs information (if the log is initalised) //
 			static void out(Args... args)
 			{
+				// Returns if not high enough priority //
+				if constexpr (priority == Priority::LOW)
+				{
+					RETURN_IF(s_Priority == Priority::HIGH);
+				}
+
 				// Prints out the args ending with a new line unless specified //
 				if constexpr (format == Format::AUTO) { ((*s_LogFile << ... << args) << "\n"); }
 
@@ -48,11 +61,14 @@ namespace LX
 				*s_LogFile << '\n' << BREAK << '\n';
 			}
 
-			// Initalises the log (Called by DllMain) //
-			static void Init();
+			// Initalises the log //
+			static void Init(Priority _default);
 
 		private:
 			// Keeps the pointer hidden to stop accidental changes //
 			static std::ofstream* s_LogFile;
+
+			// The current priority of the log output //
+			static Priority s_Priority;
 	};
 }

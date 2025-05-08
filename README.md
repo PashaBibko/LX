@@ -10,13 +10,7 @@ This is my custom compiled language written in C++ based off of the LLVM toolcha
 - Structs / Classes (Polymorphism + vtables)
 
 ### Codebase
-- Errors
-    - All simple errors (no members) use the same type
-- Logging
-    - Choose what is logged (if any)
-- Refactor
-    - Parser needs folders
-    - Better .h files
+- New features
 
 ### Stuff I want to do later (unordered)
 - I/O manager (Console, Files)

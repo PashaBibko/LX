@@ -8,7 +8,7 @@ extern "C" int __declspec(dllexport) GenIR(const char* a_inpPath, const char* a_
 	try
 	{
 		// Initalises the log //
-		LX::Log::Init();
+		LX::Log::Init(LX::Log::Priority::HIGH);
 
 		// Turns the file paths into the C++ type for handling them //
 		std::filesystem::path inpPath = a_inpPath;

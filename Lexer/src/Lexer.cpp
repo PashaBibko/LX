@@ -247,7 +247,7 @@ namespace LX
 
 		for (auto& token : tokens)
 		{
-			Log::out
+			Log::out<Log::Priority::HIGH>
 			(
 				std::left,
 				"{ Line: ", std::setw(3), token.line,
