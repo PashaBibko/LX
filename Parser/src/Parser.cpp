@@ -129,10 +129,15 @@ namespace LX
 			p.index++; // Skips over Token::ASSIGN
 
 			// Gets the value to be assigned to the variable //
-			std::unique_ptr<AST::Node> defaultVal = ParsePrimary(p);
+			std::unique_ptr<AST::Node> defaultVal = ParseOperation(p);
 			ThrowIf<UnexpectedToken>(defaultVal.get() == nullptr, Token::UNDEFINED, p.tokens[p.index - 1], "value", p);
 
-			return std::make_unique<AST::VariableDeclaration>(name);
+			// Creates a multi-node of the variable creation and assignment //
+			std::unique_ptr<AST::MultiNode> node = std::make_unique<AST::MultiNode>();
+			node->nodes.push_back(std::make_unique<AST::VariableDeclaration>(name));
+			node->nodes.push_back(std::make_unique<AST::VariableAssignment>(name, std::move(defaultVal)));
+
+			return node;
 		}
 
 		// Else goes down the call stack //
@@ -181,7 +186,7 @@ namespace LX
 	FileAST TurnTokensIntoAbstractSyntaxTree(std::vector<Token>& tokens, const std::filesystem::path& path)
 	{
 		// Logs the start of the parsing
-		Log::LogNewSection("Started parsing tokens"); 
+		Log::LogNewSection("Started parsing tokens");
 
 		// Creates the output storer and the parser //
 		FileAST output;
@@ -236,7 +241,7 @@ namespace LX
 							for (std::unique_ptr<AST::Node>& containedNode : ((AST::MultiNode*)node.get())->nodes)
 							{
 								// Logs the node to the log //
-								node->Log(0);
+								containedNode->Log(0);
 
 								// Adds it to the vector //
 								func.body.push_back(std::move(containedNode));
