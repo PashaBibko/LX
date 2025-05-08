@@ -37,6 +37,7 @@ namespace LX
 			TOKEN_CASE(Token::CLOSE_PAREN);
 			TOKEN_CASE(Token::ASSIGN);
 			TOKEN_CASE(Token::INT_DEC);
+			TOKEN_CASE(Token::COMMA);
 
 			// Default just returns it as it's numerical value //
 			default: return "Unknown: " + std::to_string((int)type);

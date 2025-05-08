@@ -95,6 +95,9 @@ namespace LX
 		// The name of the function //
 		std::string name;
 
+		// The parameters of the function //
+		std::vector<std::string> params;
+
 		// The scope off the function //
 		Scope scope;
 		

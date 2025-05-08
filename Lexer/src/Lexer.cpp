@@ -8,9 +8,6 @@
 
 namespace LX
 {
-	// Helper function for dealing with floating-point number literals //
-	static constexpr bool CanBePartOfNumberLiteral(const char c) { return (c == '.') || (c == 'f'); }
-
 	// Checks if the given word is a keyword before adding it to the tokens //
 	static void TokenizeWord(const std::string& word, std::vector<Token>& tokens, LexerInfo& info)
 	{
@@ -46,7 +43,7 @@ namespace LX
 
 			// Works out if the current character is alphabetic or numeric //
 			info.isAlpha = (current >= 'a' && current <= 'z') || (current >= 'A' && current <= 'Z');
-			info.isNumeric = (current >= '0' && current <= '9');
+			info.isNumeric = (current >= '0' && current <= '9') || (current == '.');
 		}
 
 		// Only does next character checks when not at the end //
@@ -57,7 +54,7 @@ namespace LX
 
 			// Sets flags depending on the value of the next character //
 			info.isNextCharAlpha = (next >= 'a' && next <= 'z') || (next >= 'A' && next <= 'Z');
-			info.isNextCharNumeric = (next >= '0' && next <= '9') || CanBePartOfNumberLiteral(next);
+			info.isNextCharNumeric = (next >= '0' && next <= '9') || (next == '.');
 		}
 
 		// Else defaults the flags to false //
@@ -150,7 +147,7 @@ namespace LX
 			}
 
 			// End of a number //
-			else if ((info.isNumeric == true || CanBePartOfNumberLiteral(current)) && info.isNextCharNumeric == false && info.lexingNumber == true)
+			else if (info.isNumeric == true && info.isNextCharNumeric == false && info.lexingNumber == true)
 			{
 				// Pushes the number to the token vector. Number literals are stored as string in the tokens //
 				std::string num(info.source.data() + info.startOfNumberLiteral, (unsigned __int64)(info.index + 1) - info.startOfNumberLiteral);
@@ -160,7 +157,7 @@ namespace LX
 
 			// During a number //
 			else if (info.isNumeric == true);
-			else if (info.lexingNumber == true && CanBePartOfNumberLiteral(current));
+			else if (info.lexingNumber == true);
 
 			// Start of a word //
 			else if (info.isAlpha == true && info.wasLastCharAlpha == false)

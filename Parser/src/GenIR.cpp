@@ -14,15 +14,34 @@ namespace LX
 		return true;
 	}
 
+	static llvm::GlobalValue::LinkageTypes GetLinkageType(const std::string& funcName)
+	{
+		if (funcName == "main")
+		{
+			return llvm::Function::ExternalLinkage;
+		}
+
+		else
+		{
+			return llvm::GlobalValue::InternalLinkage;
+		}
+	}
+
 	// Generates the LLVM IR for the given function //
 	static void GenerateFunctionIR(FunctionDefinition& funcAST, InfoLLVM& LLVM)
 	{
 		// Creates the functions signature and return type //
 
 		llvm::FunctionType* retType = llvm::FunctionType::get(llvm::Type::getInt32Ty(LLVM.context), false); // <- Defaults to int currently
-		llvm::Function* func = llvm::Function::Create(retType, llvm::Function::ExternalLinkage, funcAST.name, LLVM.module);
-		llvm::BasicBlock* entry = llvm::BasicBlock::Create(LLVM.context, "entry", func);
+		llvm::Function* func = llvm::Function::Create(retType, GetLinkageType(funcAST.name), funcAST.name, LLVM.module);
+		llvm::BasicBlock* entry = llvm::BasicBlock::Create(LLVM.context, funcAST.name + "-entry", func);
 		LLVM.builder.SetInsertPoint(entry);
+
+		// Adds the function's parameters to the scope //
+		for (std::string& param : funcAST.params)
+		{
+			LLVM.scope->CreateVar(param, LLVM);
+		}
 
 		// Generates the IR within the function by looping over the nodes //
 		for (auto& node : funcAST.body)

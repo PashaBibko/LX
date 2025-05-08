@@ -185,9 +185,6 @@ namespace LX
 	// Turns the tokens of a file into it's abstract syntax tree equivalent //
 	FileAST TurnTokensIntoAbstractSyntaxTree(std::vector<Token>& tokens, const std::filesystem::path& path)
 	{
-		// Logs the start of the parsing
-		Log::LogNewSection("Started parsing tokens");
-
 		// Creates the output storer and the parser //
 		FileAST output;
 		ParserInfo p(tokens, path);
@@ -198,6 +195,7 @@ namespace LX
 		{
 			switch (p.tokens[p.index].type)
 			{
+				// Wow this logic needs to be abstracted into a seperate function //
 				case Token::FUNCTION:
 				{
 					// Skips over function token //
@@ -211,15 +209,34 @@ namespace LX
 					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, p);
 					func.name = p.tokens[p.index++].GetContents();
 
+					// Logs the start of the AST section //
+					Log::LogNewSection("AST of: ", func.name);
+
 					// Checks for opening paren '(' //
 					ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::OPEN_PAREN, Token::OPEN_PAREN, p);
 					p.index++;
 
-					// Loops over all the arguments of the function //
-					// TODO: Do something with the parameters
+					// Loops over all the parameters of the function //
 					while (p.index < p.len && (p.tokens[p.index].type == Token::CLOSE_PAREN) == false)
 					{
+						// Checks for type declaration //
+						ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::INT_DEC, Token::INT_DEC, p);
 						p.index++;
+
+						// Checks for variable name //
+						ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::IDENTIFIER, Token::IDENTIFIER, p);
+						std::string pName = p.tokens[p.index].contents;
+						p.index++;
+
+						// Checks for [comma/close paren] to close the variable declaration //
+						bool correctEnd = (p.tokens[p.index].type == Token::COMMA) || (p.tokens[p.index].type == Token::CLOSE_PAREN);
+						ThrowIf<UnexpectedToken>(correctEnd == false, Token::UNDEFINED, p.tokens[p.index], "end of parameters", p);
+
+						// Adds the variable to the current scope //
+						func.params.push_back(pName);
+
+						// Only iterates if not a close paren //
+						if (p.tokens[p.index].type != Token::CLOSE_PAREN) { p.index++; }
 					}
 
 					// Skips over close bracket //
