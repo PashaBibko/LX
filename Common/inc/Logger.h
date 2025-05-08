@@ -43,6 +43,10 @@ namespace LX
 
 				// Else prints out the args as provided //
 				else { (*s_LogFile << ... << args); }
+
+				// Flushes the log (only if debugger is attached) //
+				// Only flushes then as that is when the log is monitered during the process //
+				if (IsDebuggerPresent()) { s_LogFile->flush(); }
 			}
 
 			// Variadic template to allow an undefined ammount of arguments //
@@ -59,6 +63,10 @@ namespace LX
 				*s_LogFile << '\n' << BREAK << '\n';
 				(*s_LogFile << ... << args);
 				*s_LogFile << '\n' << BREAK << '\n';
+
+				// Flushes the log (only if debugger is attached) //
+				// Only flushes then as that is when the log is monitered during the process //
+				if (IsDebuggerPresent()) { s_LogFile->flush(); }
 			}
 
 			// Initalises the log //

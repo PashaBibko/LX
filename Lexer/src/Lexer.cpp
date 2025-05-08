@@ -245,12 +245,15 @@ namespace LX
 
 		Log::out("\n"); // Puts a space to clean up the log
 
-		for (auto& token : tokens)
+		for (int i = 0; i < tokens.size(); i++)
 		{
+			Token& token = tokens[i];
+
 			Log::out<Log::Priority::HIGH>
 			(
 				std::left,
-				"{ Line: ", std::setw(3), token.line,
+				"T-Index: ", std::setw(5), i,
+				" { Line: ", std::setw(3), token.line,
 				", Index: ", std::setw(3), token.index,
 				", Length: ", std::setw(2), token.length, " } ",
 				std::setw(30), ToString(token.type) + ":", "{", token.GetContents(), "}"
