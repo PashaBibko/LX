@@ -101,27 +101,16 @@ namespace LX::AST
 	// Function for generating LLVM IR (Intermediate representation) //
 	llvm::Value* VariableDeclaration::GenIR(InfoLLVM& LLVM)
 	{
-		// Creates the variable within the scope //
-		return LLVM.scope->CreateVar(m_Name, LLVM);
+		return nullptr;
 	}
 
 	llvm::Value* VariableAssignment::GenIR(InfoLLVM& LLVM)
 	{
-		// Gets the variable from the current scope //
-		llvm::AllocaInst* asignee = LLVM.scope->GetVar(m_Name);
-		ThrowIf<VariableDoesntExist>(asignee == nullptr);
-
-		// Creates the assignment //
-		return LLVM.builder.CreateStore(m_Value->GenIR(LLVM), asignee);
+		return nullptr;
 	}
 
 	llvm::Value* VariableAccess::GenIR(InfoLLVM& LLVM)
 	{
-		// Loads the variable from the current scope //
-		llvm::AllocaInst* var = LLVM.scope->GetVar(m_Name);
-		ThrowIf<VariableDoesntExist>(var == nullptr);
-
-		// Creates the load within the AST //
-		return LLVM.builder.CreateLoad(llvm::Type::getInt32Ty(LLVM.context), var, m_Name + "_val");
+		return nullptr;
 	}
 }

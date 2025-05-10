@@ -8,7 +8,7 @@ namespace LX
 {
 	// Default constructor that just initalises LLVM variables that it holds //
 	InfoLLVM::InfoLLVM(std::string name)
-		: context{}, builder(context), module(name, context), scope(nullptr)
+		: context{}, builder(context), module(name, context)
 	{}
 
 	// Reserves space for nodes (stops excess allocations) //

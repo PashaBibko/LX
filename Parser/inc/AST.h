@@ -13,9 +13,6 @@ namespace LX
 		llvm::LLVMContext context;
 		llvm::Module module;
 		llvm::IRBuilder<> builder;
-
-		// Not LLVM I just cba to add this parameter to the functions that needed it //
-		Scope* scope;
 	};
 }
 

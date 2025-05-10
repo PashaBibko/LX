@@ -40,7 +40,7 @@ namespace LX
 		// Adds the function's parameters to the scope //
 		for (std::string& param : funcAST.params)
 		{
-			LLVM.scope->CreateVar(param, LLVM);
+			//LLVM.scope->CreateVar(param, LLVM);
 		}
 
 		// Generates the IR within the function by looping over the nodes //
@@ -73,7 +73,6 @@ namespace LX
 		// Loops over the functions to generate their LLVM IR //
 		for (auto& func : ast.functions)
 		{
-			LLVM.scope = &func.scope; // Sets the current scope for the builder
 			GenerateFunctionIR(func, LLVM);
 		}
 

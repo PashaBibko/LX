@@ -63,28 +63,6 @@ namespace LX::AST
 
 namespace LX
 {
-	class Scope
-	{
-		public:
-			// Default constructor //
-			Scope()
-				: m_LocalVariables{}, m_Child(nullptr)
-			{}
-
-			// Gets a variable from the scope by it's name //
-			llvm::AllocaInst* GetVar(const std::string& name);
-
-			// Creates a variable of the given name //
-			llvm::AllocaInst* CreateVar(const std::string& name, InfoLLVM& LLVM);
-
-		private:
-			// Holds all the variables in the scope (excluding ones owned by the children //
-			std::unordered_map<std::string, llvm::AllocaInst*> m_LocalVariables;
-
-			// Holds a section of the scope, for example the variables created in a while loop //
-			std::unique_ptr<Scope> m_Child;
-	};
-
 	// Holds all needed info about a function //
 	// Currently only holds the body but in the future will hold: params, namespace/class-member //
 	struct FunctionDefinition
@@ -97,9 +75,6 @@ namespace LX
 
 		// The parameters of the function //
 		std::vector<std::string> params;
-
-		// The scope off the function //
-		Scope scope;
 		
 		// The instructions of the body of the function //
 		std::vector<std::unique_ptr<AST::Node>> body;
