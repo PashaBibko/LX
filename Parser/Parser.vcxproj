@@ -153,11 +153,13 @@
     <ClCompile Include="src\GenIR.cpp" />
     <ClCompile Include="src\Parser.cpp" />
     <ClCompile Include="src\ParserErrors.cpp" />
+    <ClCompile Include="src\Scope.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\AST.h" />
     <ClInclude Include="inc\ParserErrors.h" />
     <ClInclude Include="inc\ParserInfo.h" />
+    <ClInclude Include="inc\Scope.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

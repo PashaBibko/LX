@@ -6,7 +6,11 @@
 #include <Lexer.h>
 
 // Foward declares the wrapper around the LLVM objects we need to pass around // 
-namespace LX { struct InfoLLVM; }
+namespace LX
+{
+	struct InfoLLVM;
+	class FunctionScope;
+}
 
 // The nodes of the abstract syntax tree constructed by the parser from the tokens //
 namespace LX::AST
@@ -48,7 +52,7 @@ namespace LX::AST
 		virtual ~Node() = default;
 
 		// Function for generating LLVN IR (Intermediate representation) //
-		virtual llvm::Value* GenIR(InfoLLVM& LLVM) = 0;
+		virtual llvm::Value* GenIR(InfoLLVM& LLVM, FunctionScope& func) = 0;
 
 		// Function to log the node to a file //
 		virtual void Log(unsigned depth) = 0;

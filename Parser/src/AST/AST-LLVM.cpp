@@ -3,18 +3,18 @@
 #include <Parser.h>
 
 #include <ParserErrors.h>
-#include <AST.h>
+#include <Scope.h>
 
 namespace LX::AST
 {
 	// Function for genrating LLVM IR (Intermediate representation), will throw an error if called on this class //
-	llvm::Value* MultiNode::GenIR(InfoLLVM & LLVM)
+	llvm::Value* MultiNode::GenIR(InfoLLVM& LLVM, FunctionScope& func)
 	{
 		throw int(); // <- TODO: Make an error type
 	}
 
 	// Function for generating LLVM IR (Intermediate representation) //
-	llvm::Value* NumberLiteral::GenIR(InfoLLVM& LLVM)
+	llvm::Value* NumberLiteral::GenIR(InfoLLVM& LLVM, FunctionScope& func)
 	{
 		// Converts the string to it's int equivalent //
 		// TODO: Support floating point values //
@@ -29,11 +29,11 @@ namespace LX::AST
 	}
 
 	// Function for generating LLVM IR (Intermediate representation) //
-	llvm::Value* Operation::GenIR(InfoLLVM& LLVM)
+	llvm::Value* Operation::GenIR(InfoLLVM& LLVM, FunctionScope& func)
 	{
 		// Generates the IR for both sides of the operation //
-		llvm::Value* lhs = m_Lhs->GenIR(LLVM);
-		llvm::Value* rhs = m_Rhs->GenIR(LLVM);
+		llvm::Value* lhs = m_Lhs->GenIR(LLVM, func);
+		llvm::Value* rhs = m_Rhs->GenIR(LLVM, func);
 
 		// If either side is null then return null to prevent invalid IR //
 		// TODO: Make the error actually output information //
@@ -76,7 +76,7 @@ namespace LX::AST
 	}
 
 	// Function for generating LLVM IR (Intermediate representation) //
-	llvm::Value* ReturnStatement::GenIR(InfoLLVM& LLVM)
+	llvm::Value* ReturnStatement::GenIR(InfoLLVM& LLVM, FunctionScope& func)
 	{
 		// Checks if it is a void return //
 		if (m_Val == nullptr)
@@ -92,25 +92,25 @@ namespace LX::AST
 		{
 			// Generates the value and creates a return for it //
 			// TODO: Make the error actually output information //
-			llvm::Value* out = LLVM.builder.CreateRet(m_Val->GenIR(LLVM));
+			llvm::Value* out = LLVM.builder.CreateRet(m_Val->GenIR(LLVM, func));
 			ThrowIf<IRGenerationError>(out == nullptr);
 			return out;
 		}
 	}
 
 	// Function for generating LLVM IR (Intermediate representation) //
-	llvm::Value* VariableDeclaration::GenIR(InfoLLVM& LLVM)
+	llvm::Value* VariableDeclaration::GenIR(InfoLLVM& LLVM, FunctionScope& func)
 	{
-		return nullptr;
+		return func.DecVar(m_Name, LLVM);
 	}
 
-	llvm::Value* VariableAssignment::GenIR(InfoLLVM& LLVM)
+	llvm::Value* VariableAssignment::GenIR(InfoLLVM& LLVM, FunctionScope& func)
 	{
-		return nullptr;
+		return func.AssignVar(m_Name, m_Value.get(), LLVM, func);
 	}
 
-	llvm::Value* VariableAccess::GenIR(InfoLLVM& LLVM)
+	llvm::Value* VariableAccess::GenIR(InfoLLVM& LLVM, FunctionScope& func)
 	{
-		return nullptr;
+		return func.AccessVar(m_Name, LLVM);
 	}
 }

@@ -3,7 +3,7 @@
 #include <Parser.h>
 
 #include <ParserErrors.h>
-#include <AST.h>
+#include <Scope.h>
 
 namespace LX
 {
@@ -32,22 +32,24 @@ namespace LX
 	{
 		// Creates the functions signature and return type //
 
-		llvm::FunctionType* retType = llvm::FunctionType::get(llvm::Type::getInt32Ty(LLVM.context), false); // <- Defaults to int currently
+		std::cout << funcAST.params.size() << std::endl;
+		
+		std::vector<llvm::Type*> funcParams(funcAST.params.size(), LLVM.builder.getInt32Ty());
+
+		llvm::FunctionType* retType = llvm::FunctionType::get(llvm::Type::getInt32Ty(LLVM.context), funcParams, false); // <- Defaults to int currently
 		llvm::Function* func = llvm::Function::Create(retType, GetLinkageType(funcAST.name), funcAST.name, LLVM.module);
 		llvm::BasicBlock* entry = llvm::BasicBlock::Create(LLVM.context, funcAST.name + "-entry", func);
 		LLVM.builder.SetInsertPoint(entry);
 
-		// Adds the function's parameters to the scope //
-		for (std::string& param : funcAST.params)
-		{
-			//LLVM.scope->CreateVar(param, LLVM);
-		}
+		// Creates the storer of the variables/parameters //
+
+		FunctionScope funcScope(funcAST.params, func);
 
 		// Generates the IR within the function by looping over the nodes //
 		for (auto& node : funcAST.body)
 		{
 			ThrowIf<IRGenerationError>(IsValidTopLevelNode(node->m_Type) == false); // <- TODO: replace with actual error type
-			node->GenIR(LLVM);
+			node->GenIR(LLVM, funcScope);
 		}
 
 		// Adds a terminator if there is none //

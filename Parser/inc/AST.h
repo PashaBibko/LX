@@ -1,3 +1,5 @@
+#pragma once
+
 #include <LX-Common.h>
 
 #include <Parser.h>
@@ -25,7 +27,7 @@ namespace LX::AST
 			MultiNode();
 
 			// Function for generating LLVM IR (Intermediate representation), will throw error if called on this class //
-			llvm::Value* GenIR(InfoLLVM& LLVM) override;
+			llvm::Value* GenIR(InfoLLVM& LLVM, FunctionScope& func) override;
 
 			// Function to log the node to a file, will throw an error if called on this class //
 			void Log(unsigned depth) override;
@@ -42,7 +44,7 @@ namespace LX::AST
 			NumberLiteral(std::string num);
 
 			// Function for generating LLVM IR (Intermediate representation) //
-			llvm::Value* GenIR(InfoLLVM& LLVM) override;
+			llvm::Value* GenIR(InfoLLVM& LLVM, FunctionScope& func) override;
 
 			// Function to log the node to a file //
 			void Log(unsigned depth) override;
@@ -61,7 +63,7 @@ namespace LX::AST
 			Operation(std::unique_ptr<Node> lhs, Token::TokenType op, std::unique_ptr<Node> rhs);
 
 			// Function for generating LLVM IR (Intermediate representation) //
-			llvm::Value* GenIR(InfoLLVM& LLVM) override;
+			llvm::Value* GenIR(InfoLLVM& LLVM, FunctionScope& func) override;
 
 			// Function to log the node to a file //
 			void Log(unsigned depth) override;
@@ -83,7 +85,7 @@ namespace LX::AST
 			ReturnStatement(std::unique_ptr<Node> val);
 
 			// Function for generating LLVM IR (Intermediate representation) //
-			llvm::Value* GenIR(InfoLLVM& LLVM) override;
+			llvm::Value* GenIR(InfoLLVM& LLVM, FunctionScope& func) override;
 
 			// Function to log the node to a file //
 			void Log(unsigned depth) override;
@@ -101,7 +103,7 @@ namespace LX::AST
 			VariableDeclaration(const std::string& name);
 
 			// Function for generating LLVM IR (Intermediate representation) //
-			llvm::Value* GenIR(InfoLLVM& LLVM) override;
+			llvm::Value* GenIR(InfoLLVM& LLVM, FunctionScope& func) override;
 
 			// Function to log the node to a file //
 			void Log(unsigned depth) override;
@@ -121,7 +123,7 @@ namespace LX::AST
 			VariableAssignment(const std::string& name, std::unique_ptr<AST::Node> val);
 
 			// Function for generating LLVM IR (Intermediate representation) //
-			llvm::Value* GenIR(InfoLLVM& LLVM) override;
+			llvm::Value* GenIR(InfoLLVM& LLVM, FunctionScope& func) override;
 
 			// Function to log the node to a file //
 			void Log(unsigned depth) override;
@@ -142,7 +144,7 @@ namespace LX::AST
 			VariableAccess(const std::string& name);
 
 			// Function for generating LLVM IR (Intermediate representation) //
-			llvm::Value* GenIR(InfoLLVM& LLVM) override;
+			llvm::Value* GenIR(InfoLLVM& LLVM, FunctionScope& func) override;
 
 			// Function to log the node to a file //
 			void Log(unsigned depth) override;
