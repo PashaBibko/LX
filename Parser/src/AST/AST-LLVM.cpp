@@ -113,4 +113,16 @@ namespace LX::AST
 	{
 		return func.AccessVar(m_Name, LLVM);
 	}
+	
+	llvm::Value* FunctionCall::GenIR(InfoLLVM& LLVM, FunctionScope& func)
+	{
+		std::vector<llvm::Value*> evaluatedArgs;
+
+		for (std::unique_ptr<Node>& node : m_Args)
+		{
+			evaluatedArgs.push_back(node->GenIR(LLVM, func));
+		}
+
+		return LLVM.builder.CreateCall(LLVM.functions[m_Name], evaluatedArgs, "call_tmp");
+	}
 }

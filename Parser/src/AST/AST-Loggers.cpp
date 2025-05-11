@@ -9,9 +9,19 @@ namespace LX::AST
 		throw int(); // <- TODO: Make an error for this
 	}
 
+	const char* MultiNode::TypeName()
+	{
+		throw int(); // <- TODO: Make an error for this
+	}
+
 	void NumberLiteral::Log(unsigned depth)
 	{
 		Log::out<Log::Priority::HIGH>(std::string(depth, '\t'), "Number: ", m_Number);
+	}
+
+	const char* NumberLiteral::TypeName()
+	{
+		return "Number Literal";
 	}
 
 	void Operation::Log(unsigned depth)
@@ -23,6 +33,11 @@ namespace LX::AST
 
 		Log::out<Log::Priority::HIGH>(std::string(depth + 1, '\t'), "RHS:");
 		m_Rhs->Log(depth + 2);
+	}
+
+	const char* Operation::TypeName()
+	{
+		return "Operation";
 	}
 
 	void ReturnStatement::Log(unsigned depth)
@@ -41,9 +56,19 @@ namespace LX::AST
 		}
 	}
 
+	const char* ReturnStatement::TypeName()
+	{
+		return "Return";
+	}
+
 	void VariableDeclaration::Log(unsigned depth)
 	{
 		Log::out<Log::Priority::HIGH>(std::string(depth, '\t'), "Variable declaration: ", m_Name);
+	}
+
+	const char* VariableDeclaration::TypeName()
+	{
+		return "Variable declaration";
 	}
 
 	void VariableAssignment::Log(unsigned depth)
@@ -55,8 +80,35 @@ namespace LX::AST
 		m_Value->Log(depth + 2);
 	}
 
+	const char* VariableAssignment::TypeName()
+	{
+		return "Variable assignment";
+	}
+
 	void VariableAccess::Log(unsigned depth)
 	{
 		Log::out<Log::Priority::HIGH>(std::string(depth, '\t'), "Variable: ", m_Name);
+	}
+
+	const char* VariableAccess::TypeName()
+	{
+		return "Variable access";
+	}
+
+	void FunctionCall::Log(unsigned depth)
+	{
+		Log::out<Log::Priority::HIGH>(std::string(depth, '\t'), "Function call{", m_Name, "}:");
+
+		if (m_Args.size() != 0)
+		{
+			Log::out<Log::Priority::HIGH>(std::string(depth + 1, '\t'), "Args:");
+
+			for (auto& arg : m_Args) { arg->Log(depth + 2); }
+		}
+	}
+
+	const char* FunctionCall::TypeName()
+	{
+		return "Function call";
 	}
 }

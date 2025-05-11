@@ -30,36 +30,52 @@ namespace LX
 	// Generates the LLVM IR for the given function //
 	static void GenerateFunctionIR(FunctionDefinition& funcAST, InfoLLVM& LLVM)
 	{
-		// Creates the functions signature and return type //
-
-		std::cout << funcAST.params.size() << std::endl;
-		
-		std::vector<llvm::Type*> funcParams(funcAST.params.size(), LLVM.builder.getInt32Ty());
-
-		llvm::FunctionType* retType = llvm::FunctionType::get(llvm::Type::getInt32Ty(LLVM.context), funcParams, false); // <- Defaults to int currently
-		llvm::Function* func = llvm::Function::Create(retType, GetLinkageType(funcAST.name), funcAST.name, LLVM.module);
-		llvm::BasicBlock* entry = llvm::BasicBlock::Create(LLVM.context, funcAST.name + "-entry", func);
-		LLVM.builder.SetInsertPoint(entry);
-
-		// Creates the storer of the variables/parameters //
-
-		FunctionScope funcScope(funcAST.params, func);
-
-		// Generates the IR within the function by looping over the nodes //
-		for (auto& node : funcAST.body)
+		try
 		{
-			ThrowIf<IRGenerationError>(IsValidTopLevelNode(node->m_Type) == false); // <- TODO: replace with actual error type
-			node->GenIR(LLVM, funcScope);
+			Log::LogNewSection("Generating ", funcAST.name, " LLVM IR");
+
+			// Creates the functions signature and return type //
+
+			std::vector<llvm::Type*> funcParams(funcAST.params.size(), LLVM.builder.getInt32Ty());
+
+			llvm::FunctionType* retType = llvm::FunctionType::get(llvm::Type::getInt32Ty(LLVM.context), funcParams, false); // <- Defaults to int currently
+			llvm::Function* func = llvm::Function::Create(retType, GetLinkageType(funcAST.name), funcAST.name, LLVM.module);
+			llvm::BasicBlock* entry = llvm::BasicBlock::Create(LLVM.context, funcAST.name + "-entry", func);
+			LLVM.builder.SetInsertPoint(entry);
+
+			// Stores the function for other functions to call it //
+
+			LLVM.functions[funcAST.name] = func;
+
+			// Creates the storer of the variables/parameters //
+
+			FunctionScope funcScope(funcAST.params, func);
+
+			// Generates the IR within the function by looping over the nodes //
+			for (auto& node : funcAST.body)
+			{
+				ThrowIf<IRGenerationError>(IsValidTopLevelNode(node->m_Type) == false); // <- TODO: replace with actual error type
+
+				Log::out<Log::Priority::HIGH>("Generating: ", node->TypeName());
+
+				node->GenIR(LLVM, funcScope);
+			}
+
+			// Adds a terminator if there is none //
+			if (entry->getTerminator() == nullptr)
+			{
+				LLVM.builder.CreateRet(llvm::ConstantInt::get(llvm::Type::getInt32Ty(LLVM.context), 0, true));
+			}
+
+			// Verifies the function works //
+			ThrowIf<IRGenerationError>(llvm::verifyFunction(*func, &llvm::errs())); // <- TODO: Make error type
 		}
 
-		// Adds a terminator if there is none //
-		if (entry->getTerminator() == nullptr)
+		catch (...)
 		{
-			LLVM.builder.CreateRet(llvm::ConstantInt::get(llvm::Type::getInt32Ty(LLVM.context), 0, true));
+			__debugbreak();
+			throw;
 		}
-
-		// Verifies the function works //
-		ThrowIf<IRGenerationError>(llvm::verifyFunction(*func)); // <- TODO: Make error type
 	}
 
 	// Turns an abstract binary tree into LLVM intermediate representation //

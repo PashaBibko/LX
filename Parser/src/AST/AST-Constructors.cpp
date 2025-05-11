@@ -63,4 +63,9 @@ namespace LX::AST
 	VariableAccess::VariableAccess(const std::string& name)
 		: Node(Node::VARIABLE_ACCESS), m_Name(name)
 	{}
+
+	// Passes constructor args to values and sets type //
+	FunctionCall::FunctionCall(const std::string& name, std::vector<std::unique_ptr<AST::Node>>& args)
+		: Node(Node::FUNCTION_CALL), m_Name(name), m_Args(std::move(args))
+	{}
 }

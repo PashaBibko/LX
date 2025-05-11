@@ -49,6 +49,7 @@ namespace LX_Build
             {
                 // Quits if the IR Generation fails //
                 // The C++ script handles all of the error message outputting //
+                Console.WriteLine("LX_API.GenIR threw an error");
                 return;
             }
 

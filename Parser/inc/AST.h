@@ -15,6 +15,9 @@ namespace LX
 		llvm::LLVMContext context;
 		llvm::Module module;
 		llvm::IRBuilder<> builder;
+
+		// All IR functions that have been generated //
+		std::unordered_map<std::string, llvm::Function*> functions;
 	};
 }
 
@@ -32,6 +35,9 @@ namespace LX::AST
 			// Function to log the node to a file, will throw an error if called on this class //
 			void Log(unsigned depth) override;
 
+			// Function to get the node's type name, will throw an error if called on this class //
+			virtual const char* TypeName() override;
+
 			// The nodes that are contained within this node //
 			std::vector<std::unique_ptr<Node>> nodes;
 	};
@@ -48,6 +54,9 @@ namespace LX::AST
 
 			// Function to log the node to a file //
 			void Log(unsigned depth) override;
+
+			// Function to get the node's type name //
+			const char* TypeName() override;
 
 		private:
 			// The number it stores //
@@ -67,6 +76,9 @@ namespace LX::AST
 
 			// Function to log the node to a file //
 			void Log(unsigned depth) override;
+
+			// Function to get the node's type name //
+			const char* TypeName() override;
 
 		private:
 			// The sides of the operation //
@@ -90,6 +102,9 @@ namespace LX::AST
 			// Function to log the node to a file //
 			void Log(unsigned depth) override;
 
+			// Function to get the node's type name //
+			const char* TypeName() override;
+
 		private:
 			// What it is returning (can be null) //
 			std::unique_ptr<Node> m_Val;
@@ -107,6 +122,9 @@ namespace LX::AST
 
 			// Function to log the node to a file //
 			void Log(unsigned depth) override;
+
+			// Function to get the node's type name //
+			const char* TypeName() override;
 
 		private:
 			// Name of the variable //
@@ -127,6 +145,9 @@ namespace LX::AST
 
 			// Function to log the node to a file //
 			void Log(unsigned depth) override;
+
+			// Function to get the node's type name //
+			const char* TypeName() override;
 
 		private:
 			// Name of the variable //
@@ -149,8 +170,35 @@ namespace LX::AST
 			// Function to log the node to a file //
 			void Log(unsigned depth) override;
 
+			// Function to get the node's type name //
+			const char* TypeName() override;
+
 		private:
 			// The name of the variable //
 			std::string m_Name;
+	};
+
+	// Node to represent calling a function within the AST //
+	class FunctionCall : public Node
+	{
+		public:
+			// Constructor to set the name of the function and any args it may have //
+			FunctionCall(const std::string& funcName, std::vector<std::unique_ptr<Node>>& args);
+			
+			// Function for generating LLVM IR (Intermediate representation) //
+			llvm::Value* GenIR(InfoLLVM& LLVM, FunctionScope& func) override;
+
+			// Function to log the niode to a file //
+			void Log(unsigned depth) override;
+
+			// Function to get the node's type name //
+			const char* TypeName() override;
+
+		private:
+			// The name of the function //
+			std::string m_Name;
+
+			// Any arguments to pass into the function //
+			std::vector<std::unique_ptr<Node>> m_Args;
 	};
 }

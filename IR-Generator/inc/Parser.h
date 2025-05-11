@@ -30,6 +30,7 @@ namespace LX::AST
 
 			NUMBER_LITERAL,
 			OPERATION,
+			FUNCTION_CALL,
 
 			// Variable manipulation //
 
@@ -56,6 +57,9 @@ namespace LX::AST
 
 		// Function to log the node to a file //
 		virtual void Log(unsigned depth) = 0;
+
+		// Function to get the node's type name //
+		virtual const char* TypeName() = 0;
 
 		// Function for generating C/C++ code (Currently not implemented) //
 		//virtual void GenC() = 0;

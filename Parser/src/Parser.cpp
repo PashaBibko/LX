@@ -24,6 +24,36 @@ namespace LX
 		}
 	}
 
+	std::unique_ptr<AST::Node> ParseOperation(ParserInfo& p);
+
+	// Part of ParsePrimary //
+	static std::unique_ptr<AST::Node> ParseIdentifier(ParserInfo& p)
+	{
+		if (p.tokens[p.index + 1].type == Token::OPEN_PAREN)
+		{
+			std::string funcName = p.tokens[p.index].GetContents();
+			p.index = p.index + 2; // Skips over open paren and func name
+
+			std::vector<std::unique_ptr<AST::Node>> args;
+
+			while (true)
+			{
+				args.push_back(ParseOperation(p));
+
+				if (p.tokens[p.index].type == Token::CLOSE_PAREN)
+				{
+					p.index++;
+					return std::make_unique<AST::FunctionCall>(funcName, args);
+				}
+
+				ThrowIf<UnexpectedToken>(p.tokens[p.index].type != Token::COMMA, Token::COMMA, p);
+				p.index++;
+			}
+		}
+
+		return std::make_unique<AST::VariableAccess>(p.tokens[p.index++].GetContents());
+	}
+
 	// Base of the call stack to handle the simplest of tokens //
 	static std::unique_ptr<AST::Node> ParsePrimary(ParserInfo& p)
 	{
@@ -37,20 +67,7 @@ namespace LX
 
 			// If an Identifier has got here it means a variable is being accessed //
 			case Token::IDENTIFIER:
-				return std::make_unique<AST::VariableAccess>(p.tokens[p.index++].GetContents());
-
-			// TODO: Fix this //
-			case Token::OPEN_BRACKET:
-				p.scopeDepth++;
-				p.index++;
-				return nullptr;
-
-			// TODO: Fix this //
-			case Token::CLOSE_BRACE:
-				ThrowIf<UnexpectedToken>(p.scopeDepth == 0, Token::UNDEFINED, p.tokens[p.index], "need a different error", p);
-				p.scopeDepth--;
-				p.index++;
-				return nullptr;
+				return ParseIdentifier(p);
 
 			// Returns nullptr, the parsing function that recives that value will decide if that is valid //
 			default:
