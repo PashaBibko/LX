@@ -14,7 +14,7 @@ namespace LX
 		static std::ofstream actualLog;
 
 		// Opens the log file and assigns it to the log pointer //
-		actualLog.open("log");
+		actualLog.open("log.txt");
 		s_LogFile = &actualLog;
 
 		// Assigns the priority //

@@ -79,31 +79,29 @@ namespace LX
 	// Handles operations, if it is not currently at an operation goes to ParsePrimary //
 	static std::unique_ptr<AST::Node> ParseOperation(ParserInfo& p)
 	{
-		// Checks if the next token is an operator //
-		// TODO: Add more than just add //
-		if (p.index + 1 < p.len) [[likely]]
+		// Calls down the call stack to either get the left hand side or the node //
+		std::unique_ptr<AST::Node> lhs = ParsePrimary(p);
+
+		// If the next token is an operator it means the previously parsed data is the left side of the equation //
+		if (IsTwoSidedOperator(p.tokens[p.index].type))
 		{
-			if (IsTwoSidedOperator(p.tokens[p.index + 1].type))
-			{
-				// Parses the left hand side of the operation //
-				std::unique_ptr<AST::Node> lhs = ParsePrimary(p);
-				ThrowIf<UnexpectedToken>(lhs == nullptr, Token::UNDEFINED, p.tokens[p.index - 1], "value", p);
+			// Parses the left hand side of the operation //
+			ThrowIf<UnexpectedToken>(lhs == nullptr, Token::UNDEFINED, p.tokens[p.index - 1], "value", p);
 
-				// Stores the operator to pass into the AST node //
-				Token::TokenType op = p.tokens[p.index].type;
-				p.index++;
+			// Stores the operator to pass into the AST node //
+			Token::TokenType op = p.tokens[p.index].type;
+			p.index++;
 
-				// Parses the right hand of the operation //
-				std::unique_ptr<AST::Node> rhs = ParseOperation(p);
-				ThrowIf<UnexpectedToken>(rhs == nullptr, Token::UNDEFINED, p.tokens[p.index - 1], "value", p);
+			// Parses the right hand of the operation //
+			std::unique_ptr<AST::Node> rhs = ParseOperation(p);
+			ThrowIf<UnexpectedToken>(rhs == nullptr, Token::UNDEFINED, p.tokens[p.index - 1], "value", p);
 
-				// Returns an AST node as all of the components combined together //
-				return std::make_unique<AST::Operation>(std::move(lhs), op, std::move(rhs));
-			}
+			// Returns an AST node as all of the components combined together //
+			return std::make_unique<AST::Operation>(std::move(lhs), op, std::move(rhs));
 		}
 
-		// Else goes down the call stack //
-		return ParsePrimary(p);
+		// Else it returns the parsed value //
+		return lhs;
 	}
 
 	// Handles return statements, if not calls ParseOperation //

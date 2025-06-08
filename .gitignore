@@ -13,7 +13,7 @@ obj/
 *.ll
 *.obj
 *.exe
-log
+log.txt
 
 # Ignore user specific options #
 
